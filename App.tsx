@@ -71,10 +71,10 @@ import {
   DeleteResult,
   Monitor,
   Generator,
+  Interval,
 } from "./types/interfaces";
 import {
   Context,
-  DateFormatType,
   log,
   printDebug,
   saveLogs,
@@ -830,6 +830,7 @@ async function refreshDataInternal(
         {
           modelDataProcessed: modelProcessed,
           modelDataRaw: modelRaw,
+          ROI: getROI(modelRaw),
           evaluations: evaluationsAndVals.evaluations,
           expensesChartData,
           incomesChartData,
@@ -1255,13 +1256,20 @@ async function submitROISetting(
     }
   }
 
-  await submitNewSettingLSM(
+  const submitResponse = await submitNewSettingLSM(
     setting,
     modelName,
     modelData,
     reactAppComponent.options.checkModelOnEdit,
     getUserID(),
   );
+  // console.log(`submitResponse = ${inspect(submitResponse)}`);
+  if (submitResponse.message) {
+    return {
+      updated: false,
+      value: setting.VALUE,
+    };
+  }
   await refreshData(
     true, // refreshModel
     true, // refreshChart
@@ -1363,9 +1371,7 @@ function toggleOption(type: string): void {
         modelName,
       );
       // log(`setState for check result alert`);
-      reactAppComponent.setState({
-        alertText: response,
-      });
+      showAlert(response);
     }
     
     // when we turn chart refresh back on, refresh the charts
@@ -1426,9 +1432,7 @@ async function setEraInModel(
   if (missingItem !== undefined) {
     const response = `item not found for setting era :${missingItem}`;
     // log(`setState for delete item alert`);
-    reactAppComponent.setState({
-      alertText: response,
-    });
+    showAlert(response);
     // log(`revert attempt to set favourite - missing item`);
     revertToUndoModel(model);
     return false;
@@ -1882,6 +1886,7 @@ interface AppState {
   modelNamesData: string[];
   modelDataProcessed: ModelData,
   modelDataRaw: ModelData,
+  ROI: Interval,
   evaluations: Evaluation[];
   viewState: ViewSettings;
   expensesChartData: ChartData;
@@ -2070,6 +2075,10 @@ class AppContent extends Component<AppProps, AppState> {
   public state = {
     modelDataProcessed: emptyModel,
     modelDataRaw: emptyModel,
+    ROI: {
+      start: new Date(2020), 
+      end: new Date(2025),
+    },
     evaluations: [],
     viewState: getDefaultViewSettings(),
     expensesChartData: {
@@ -2250,14 +2259,6 @@ class AppContent extends Component<AppProps, AppState> {
     // log(`this.state.reportData.length = ${this.state.reportData.length}`);
     try {
       // throw new Error('pretend something went wrong');
-      const getStartDate = () => {
-        const start: Date = this.getModelROI().start;
-        return dateAsString(DateFormatType.View, start);
-      };
-      const getEndDate = () => {
-        const end: Date = this.getModelROI().end;
-        return dateAsString(DateFormatType.View, end);
-      };
       const updateROISettingValue = async (
         settingName: string, // roiStart or roiEnd
         newDate: string,
@@ -2376,8 +2377,7 @@ class AppContent extends Component<AppProps, AppState> {
       const parentCallbacks: ViewCallbacks = {
         showAlert,
 
-        getStartDate,
-        getEndDate,
+        ROI: this.state.ROI,
         updateStartDate,
         updateEndDate,
         updateFrequency,
@@ -2763,10 +2763,8 @@ class AppContent extends Component<AppProps, AppState> {
                 reactAppComponent.state.modelDataRaw,
                 modelName,
               );
-              // log(`setState for check result ${response}`);
-              reactAppComponent.setState({
-                alertText: response,
-              });
+              // log(`showAlert check result ${response}`);
+              showAlert(response);
             },
             `btn-check`,
             `btn-check`,
@@ -2778,10 +2776,8 @@ class AppContent extends Component<AppProps, AppState> {
               const response = standardiseDates( // changes Model
                 reactAppComponent.state.modelDataRaw,
               );
-              // log(`setState for check result alert`);
-              reactAppComponent.setState({
-                alertText: response,
-              });
+              // log(`showAlert for standardiseDates ${response}`);
+              showAlert(response);
             },
             `btn-standardise-dates`,
             `btn-standardise-dates`,
@@ -2847,9 +2843,7 @@ class AppContent extends Component<AppProps, AppState> {
                     "validatingModel",
                   );
                   // log(`setState for loaded model alert`);
-                  reactAppComponent.setState({
-                    alertText: response,
-                  });
+                  showAlert(response);
                 }
               } catch (err) {
                 showAlert("could not decode this data");

@@ -303,24 +303,18 @@ export function startEndDateInputs(parentCallbacks: ViewCallbacks) {
   return (
     <div className="ml-3">
       <div className="row">
-        <div className="col-3">
+        <div>
           <AddDeleteEntryForm
             name="Start"
-            getValue={parentCallbacks.getStartDate}
+            value={parentCallbacks.ROI.start}
             submitFunction={parentCallbacks.updateStartDate}
             showAlert={parentCallbacks.showAlert}
           />
         </div>
-        <div className="col-3">
+        <div>
           <AddDeleteEntryForm
             name="End"
-            getValue={
-              parentCallbacks.getEndDate
-                ? parentCallbacks.getEndDate
-                : () => {
-                    return "";
-                  }
-            }
+            value={parentCallbacks.ROI.end}
             submitFunction={
               parentCallbacks.updateEndDate
                 ? parentCallbacks.updateEndDate
@@ -555,9 +549,8 @@ function noDataToDisplayFragment(
   if (
     model === undefined ||
     parentCallbacks.showAlert === undefined ||
-    parentCallbacks.getStartDate === undefined ||
+    parentCallbacks.ROI === undefined ||
     parentCallbacks.updateStartDate === undefined ||
-    parentCallbacks.getEndDate === undefined ||
     parentCallbacks.updateEndDate === undefined
   ) {
     return (
@@ -597,13 +590,13 @@ function noDataToDisplayFragment(
           <div className="d-inline-flex p-2">
             <AddDeleteEntryForm
               name="view start date"
-              getValue={parentCallbacks.getStartDate}
+              value={parentCallbacks.ROI.start}
               submitFunction={parentCallbacks.updateStartDate}
               showAlert={parentCallbacks.showAlert}
             />
             <AddDeleteEntryForm
               name="view end date"
-              getValue={parentCallbacks.getEndDate}
+              value={parentCallbacks.ROI.end}
               submitFunction={parentCallbacks.updateEndDate}
               showAlert={parentCallbacks.showAlert}
             />
@@ -995,9 +988,8 @@ export function taxChartDiv(
   if (taxChartData.labels.length === 0) {
     if (
       parentCallbacks.showAlert === undefined ||
-      parentCallbacks.getStartDate === undefined ||
+      parentCallbacks.ROI === undefined ||
       parentCallbacks.updateStartDate === undefined ||
-      parentCallbacks.getEndDate === undefined ||
       parentCallbacks.updateEndDate === undefined
     ) {
       return (
@@ -1015,13 +1007,13 @@ export function taxChartDiv(
           <Col>
             <AddDeleteEntryForm
               name="view start date"
-              getValue={parentCallbacks.getStartDate}
+              value={parentCallbacks.ROI.start}
               submitFunction={parentCallbacks.updateStartDate}
               showAlert={parentCallbacks.showAlert}
             />
             <AddDeleteEntryForm
               name="view end date"
-              getValue={parentCallbacks.getEndDate}
+              value={parentCallbacks.ROI.end}
               submitFunction={parentCallbacks.updateEndDate}
               showAlert={parentCallbacks.showAlert}
             />

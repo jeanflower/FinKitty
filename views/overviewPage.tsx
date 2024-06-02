@@ -116,18 +116,6 @@ function chartsForOverview(
           )}
         </Col>
         <Col>
-          <AddDeleteEntryForm
-            name="view start date"
-            getValue={parentCallbacks.getStartDate}
-            submitFunction={parentCallbacks.updateStartDate}
-            showAlert={parentCallbacks.showAlert}
-          />
-          <AddDeleteEntryForm
-            name="view end date"
-            getValue={parentCallbacks.getEndDate}
-            submitFunction={parentCallbacks.updateEndDate}
-            showAlert={parentCallbacks.showAlert}
-          />
           {coarseFineList(
             viewSettings,
             {

@@ -334,8 +334,7 @@ export interface ViewCallbacks {
   showAlert: (arg0: string) => void;
   deleteTransactions: (arg: string[]) => void;
   deleteExpenses: (arg: string[]) => void;
-  getStartDate: () => string;
-  getEndDate: () => string;
+  ROI: Interval,
   updateStartDate: (newDate: string) => Promise<{
     updated: boolean;
     value: string; // value after attempt (pre-existing if updated = false)

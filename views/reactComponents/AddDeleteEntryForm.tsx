@@ -1,7 +1,10 @@
 import React, { Component, FormEvent } from "react";
 
-import { log, printDebug, showObj } from "../../utils/utils";
+import { DateFormatType, log, printDebug, showObj } from "../../utils/utils";
 import { InputRow } from "./Input";
+import { dateAsString } from "../../utils/stringUtils";
+import { inspect } from 'util';
+inspect;
 
 interface EditFormState {
   originalValue: string;
@@ -9,7 +12,7 @@ interface EditFormState {
 }
 interface EditProps {
   name: string;
-  getValue: () => string;
+  value: Date;
   submitFunction: (value: string) => Promise<{
     updated: boolean;
     value: string;
@@ -24,9 +27,11 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
       log("props for AddDeleteEntryForm: " + showObj(props));
     }
 
+    const dateString = dateAsString(DateFormatType.View, props.value);
+
     this.state = {
-      value: this.props.getValue(),
-      originalValue: this.props.getValue(),
+      value: dateString,
+      originalValue: dateString,
     };
 
     this.add = this.add.bind(this);
@@ -42,7 +47,7 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
           type={"text"}
           name={`EditWidget${this.props.name}`}
           value={this.state.value}
-          placeholder={this.props.getValue()}
+          placeholder={this.props.value}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               this.setState({ value: e.target.value });
           }}
@@ -52,15 +57,17 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
   }
   private async add(e: FormEvent<Element>) {
     e.preventDefault();
-    // log('adding something ' + showObj(this));
-    this.props.showAlert(`updating`);
+    // log('adding something ' + showObj(this));    
     const outcome = await this.props.submitFunction(this.state.value);
+    // log(`response from submitting new date ${inspect(outcome)}`);
     if (outcome.updated) {
       this.setState({
         originalValue: this.state.value,
       });
+      this.props.showAlert(`updated`);
     } else {
       // log(`submit returned false, set state to ${this.state.originalValue}`);
+      this.props.showAlert(`failed to update ${this.state.value} as a date`);
       this.setState({
         value: this.state.originalValue,
       });
