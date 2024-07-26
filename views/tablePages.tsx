@@ -2746,7 +2746,10 @@ function expensesMonitoringYearSummaryTableDiv(
       key: r.key,
       actualSpend: `${r.actualSpend}`,
       allowedBudget: `${r.allowedBudget}`,
-      proportion: (r.allowedBudget && r.allowedBudget) > 0 ? Math.round((r.actualSpend / r.allowedBudget) * 100) : ''
+      proportion: 
+        (r.allowedBudget && r.allowedBudget) > 0 ? 
+        `${Math.round((r.actualSpend / r.allowedBudget) * 100)}` : 
+        ''
     }
   });
   return (
