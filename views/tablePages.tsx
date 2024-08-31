@@ -32,6 +32,8 @@ import {
   custom,
   monitorEnd,
   monitorStart,
+  valueFocusDate,
+  roiStart,
 } from "../localization/stringConstants";
 import {
   Asset,
@@ -1146,6 +1148,40 @@ function handleSettingGridRowsUpdated(
     }
     return;
   }
+  if (newRow.NAME === valueFocusDate) {
+    const startROI = getSettings(
+      model.settings,
+      roiStart,
+      '',
+      true,
+    );
+    if (new Date(newRow.VALUE) < new Date(startROI)) {
+      const proceed = window.confirm(
+        "proceed to set todays value focus date before the start of view range",
+      );
+      if (!proceed) {
+        return;
+      }
+    }
+  }
+
+  if (newRow.NAME === roiStart) {
+    const todaysDate = getSettings(
+      model.settings,
+      valueFocusDate,
+      '',
+      true,
+    );
+    if (todaysDate !== '' && new Date(todaysDate) < new Date(newRow.VALUE)) {
+      const proceed = window.confirm(
+        "proceed to set the start of view range after todays value focus date",
+      );
+      if (!proceed) {
+        return;
+      }
+    }
+  }
+
   const forSubmission = {
     NAME: newRow.NAME,
     ERA: newRow.ERA,
