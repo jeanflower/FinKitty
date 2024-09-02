@@ -641,6 +641,8 @@ function traceEvaluation(
     const debug = false;
     if (isNumberString(value)) {
       result = parseFloat(value);
+    //} else if(value.includes(' - ')) {
+    //  throw new Error(`expression '${value}' has - sign in it`);
     } else {
       const parts = getNumberAndWordParts(value);
       let numberPart = 1.0;

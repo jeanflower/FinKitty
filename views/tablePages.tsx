@@ -120,6 +120,7 @@ import dateFormat from "dateformat";
 import CashExpressionFormatter from "./reactComponents/CashExpressionFormatter";
 import { evaluate } from "mathjs";
 import { inspect } from 'util';
+import PcFormatter from "./reactComponents/PcFormatter";
 inspect;
 
 function CustomToggle({ children, eventKey }: any) {
@@ -1237,6 +1238,17 @@ export function growthColumn(settings: Setting[]) {
     },
   };
 }
+
+export const pcColumn = {
+  ...defaultColumn,
+  renderCell(props: any) {
+    //log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
+    const val = props.row[props.column.key];
+
+    return <PcFormatter name={props.column.name} value={val} />;
+  },
+}
+
 
 export const ToFromValueColumn = {
   ...defaultColumn,
@@ -2851,7 +2863,7 @@ function expensesMonitoringYearSummaryTableDiv(
                 renderEditCell: textEditor,
               },
               {
-                ...cashExpressionColumn,
+                ...pcColumn,
                 key: 'proportion',
                 name: 'proportion',
                 renderEditCell: undefined,
