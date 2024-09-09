@@ -328,6 +328,7 @@ export function attemptRenameLong(
     obj.STOP_DATE = replaceWholeString(obj.STOP_DATE, old, replacement);
   });  
   model.generators.forEach((obj) => {
+    obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     Object.keys(obj.DETAILS).forEach((k) => {
       obj.DETAILS[k] = replaceWholeString(obj.DETAILS[k], old, replacement);
     })
