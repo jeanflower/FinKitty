@@ -2356,9 +2356,15 @@ class AppContent extends Component<AppProps, AppState> {
           }
         }
         if (warnOfChange) {
+          const warnString = newVal === weekly ?
+            "are you sure you want this range with weekly-view charts?" :
+            monthly ?
+            "are you sure you want this range with monthly-view charts?" :
+            "are you sure you want this range with this new granularity?"
+
           if (
             !window.confirm(
-              "are you sure you want this range with weekly-view charts?",
+              warnString,
             )
           ) {
             // log('returning false from updateFrequency');
