@@ -269,7 +269,12 @@ export function makeStringFromGrowth(input: string, settings: Setting[]) {
   }
   const parseNum = isNumber(input);
   if (parseNum.checksOK) {
-    return `${parseFloat(input)}%`;
+    const firstTry = `${parseFloat(input)}%`
+    if (firstTry.length <= 5) {
+      return firstTry;
+    }
+    // shorten long growth expressions
+    return `${makeTwoDP(parseFloat(input))}%`;
   }
   return input;
 }
