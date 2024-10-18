@@ -1050,7 +1050,7 @@ async function submitIncome(
   incomeInput: Income,
   modelData: ModelData,
 ): Promise<boolean> {
-  log(`submitting income ${incomeInput.NAME} for model ${JSON.stringify(modelData)}`);
+  log(`submitting income ${incomeInput.NAME} for model ${inspect(modelData)}`);
   if(incomeInput.NAME === '-PDB Ben state pension' && modelData.name !== 'temporary copy') {
     throw new Error('unexpected call to submitIncome')
   }
