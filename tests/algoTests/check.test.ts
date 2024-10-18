@@ -20,7 +20,6 @@ import {
   revalueExp,
   revalueInc,
   revalueSetting,
-  taxChartFocusType,
   viewFrequency,
 } from "../../localization/stringConstants";
 import {
@@ -31,6 +30,8 @@ import {
   checkIncome,
   checkExpense,
   checkTrigger,
+  checkSettings,
+  checkTransaction,
 } from "../../models/checks";
 import {
   emptyModel,
@@ -42,7 +43,6 @@ import {
 } from "../../models/exampleModels";
 import { ModelData } from "../../types/interfaces";
 import { log, suppressLogs, unSuppressLogs } from "../../utils/utils";
-import { defaultTestViewSettings } from "./algoTestUtils";
 
 log;
 
@@ -1225,5 +1225,77 @@ describe("checks tests", () => {
     );
 
     unSuppressLogs();
+  });
+
+  it('notices whitespace in settings values', () => {
+    {
+    const model = getMinimalModelCopy();
+    model.settings.push({
+      VALUE: " 111",
+      HINT: "",
+      TYPE: "",
+      NAME: "startsWithSpace",
+      ERA: undefined
+    });
+    const checkResponse = checkSettings(
+      model,
+    );
+    expect(checkResponse?.message).toEqual("Setting value for startsWithSpace begins with a space");
+    }
+    {
+    const model = getMinimalModelCopy();
+    model.settings.push({
+      VALUE: "111 ",
+      HINT: "",
+      TYPE: "",
+      NAME: "endsWithSpace",
+      ERA: undefined
+    });
+    const checkResponse = checkSettings(
+      model,
+    );
+    expect(checkResponse?.message).toEqual("Setting value for endsWithSpace ends with a space");
+    }
+
+    {
+      const model = getMinimalModelCopy();
+      const message = checkTransaction({
+        FROM: "",
+        FROM_ABSOLUTE: false,
+        FROM_VALUE: "1.0",
+        TO: "cpi",
+        TO_ABSOLUTE: true,
+        TO_VALUE: "222 ",
+        DATE: "1 Jan 2024",
+        STOP_DATE: "",
+        RECURRENCE: "",
+        TYPE: revalueSetting,
+        CATEGORY: "",
+        NAME: "Revaluecpi 99",
+        ERA: undefined
+      }, model);
+      expect(message).toEqual("Transaction 'cpi 99' revalues to something ending with whitespace");
+      }
+
+      {
+        const model = getMinimalModelCopy();
+        const message = checkTransaction({
+          FROM: "",
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: "1.0",
+          TO: "cpi",
+          TO_ABSOLUTE: true,
+          TO_VALUE: " 222",
+          DATE: "1 Jan 2024",
+          STOP_DATE: "",
+          RECURRENCE: "",
+          TYPE: revalueSetting,
+          CATEGORY: "",
+          NAME: "Revaluecpi 99",
+          ERA: undefined
+        }, model);
+        expect(message).toEqual("Transaction 'cpi 99' revalues to something beginning with whitespace");
+        }
+  
   });
 });

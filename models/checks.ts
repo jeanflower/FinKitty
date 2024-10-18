@@ -1044,6 +1044,83 @@ function isPayOffDebtType(t: Transaction, model: ModelData) {
   return recognised;
 }
 
+function checkSettingAbsent(settings: Setting[], name: string) {
+  const vf = getSettings(settings, name, "noneFound", false);
+  if (vf !== "noneFound") {
+    return `"${name}" setting should not be present`;
+  }
+  return "";
+}
+
+export function checkSettings(model: ModelData): CheckResult | undefined {
+  const absentSettings = [
+    viewFrequency, 
+    viewDetail, 
+    chartViewType, 
+    assetChartFocus, 
+    debtChartFocus, 
+    expenseChartFocus,
+    incomeChartFocus, 
+    taxChartFocusType,
+  ];
+
+  for (const s of absentSettings) {
+    const message = checkSettingAbsent(model.settings, s);
+    if (message.length > 0) {
+      return {
+        type: Context.Setting,
+        itemName: s,
+        message: message,
+      };
+    }
+  }
+
+  let message = checkViewROI(model.settings, model.triggers);
+  if (message.length > 0) {
+    return {
+      type: undefined,
+      itemName: undefined,
+      message: message,
+    };
+  }
+  message = checkDateOfBirth(model.settings);
+  if (message.length > 0) {
+    return {
+      type: Context.Setting,
+      itemName: birthDate,
+      message: message,
+    };
+  }
+  message = checkCpi(model.settings);
+  if (message.length > 0) {
+    return {
+      type: Context.Setting,
+      itemName: cpi,
+      message: message,
+    };
+  }
+  for (const s of model.settings) {
+    message = checkTrimmedString(s);
+    if (message.length > 0) {
+      return {
+        type: Context.Setting,
+        itemName: s.NAME,
+        message: message,
+      };
+    }
+  }
+  message = checkMonitorRange(model.settings, model.triggers);
+  if (message.length > 0) {
+    return {
+      type: Context.Setting,
+      itemName: 'Monitor range',
+      message: message,
+    };
+  }
+
+  return undefined;
+}
+
 export function checkTransaction(t: Transaction, model: ModelData): string {
   // log(`checking transaction ${showObj(t)}`);
   const { triggers, settings } = model;
@@ -1167,6 +1244,18 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     }
     if (t.TYPE === revalueSetting) {
       // log(`anything goes!`);
+      if (t.TO_VALUE.match(/^\s+/) !== null) {
+        return `Transaction '${getDisplayName(
+          t.NAME,
+          t.TYPE,
+        )}' revalues to something beginning with whitespace`;  
+      }
+      if (t.TO_VALUE.match(/\s+$/) !== null) {
+        return `Transaction '${getDisplayName(
+          t.NAME,
+          t.TYPE,
+        )}' revalues to something ending with whitespace`;  
+      }
     } else if (t.TO_VALUE === "") {
       return `Transaction '${getDisplayName(
         t.NAME,
@@ -1396,13 +1485,6 @@ export function checkTrigger(t: Trigger, model: ModelData): string {
   }
   return "";
 }
-function checkSettingAbsent(settings: Setting[], name: string) {
-  const vf = getSettings(settings, name, "noneFound", false);
-  if (vf !== "noneFound") {
-    return `"${name}" setting should not be present`;
-  }
-  return "";
-}
 function checkViewROI(settings: Setting[], triggers: Trigger[]) {
   // log(`check settings ${showObj(settings)}`);
 
@@ -1447,6 +1529,15 @@ function checkCpi(settings: Setting[]): string {
   const val = parseFloat(stringVal);
   if (Number.isNaN(val)) {
     return "Setting for CPI should be a number";
+  }
+  return "";
+}
+function checkTrimmedString(s: Setting): string {
+  if (s.VALUE.match(/^\s+/) !== null) {
+    return `Setting value for ${s.NAME} begins with a space`;
+  }
+  if (s.VALUE.match(/\s+$/) !== null) {
+    return `Setting value for ${s.NAME} ends with a space`;
   }
   return "";
 }
@@ -1592,59 +1683,10 @@ export function checkModel(
       message: message,
     };
   }
-  const absentSettings = [
-    viewFrequency, 
-    viewDetail, 
-    chartViewType, 
-    assetChartFocus, 
-    debtChartFocus, 
-    expenseChartFocus,
-    incomeChartFocus, 
-    taxChartFocusType,
-  ];
 
-  for (const s of absentSettings) {
-    message = checkSettingAbsent(model.settings, s);
-    if (message.length > 0) {
-      return {
-        type: Context.Setting,
-        itemName: s,
-        message: message,
-      };
-    }
-  }
-
-  message = checkViewROI(model.settings, model.triggers);
-  if (message.length > 0) {
-    return {
-      type: undefined,
-      itemName: undefined,
-      message: message,
-    };
-  }
-  message = checkDateOfBirth(model.settings);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: birthDate,
-      message: message,
-    };
-  }
-  message = checkCpi(model.settings);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: cpi,
-      message: message,
-    };
-  }
-  message = checkMonitorRange(model.settings, model.triggers);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: 'Monitor range',
-      message: message,
-    };
+  let response = checkSettings(model);
+  if (response !== undefined) {
+    return response;
   }
 
   // Any transactions must have date inside
