@@ -1592,35 +1592,33 @@ export function checkModel(
       message: message,
     };
   }
-  message = checkSettingAbsent(model.settings, viewFrequency);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: viewFrequency,
-      message: message,
-    };
+  const absentSettings = [
+    viewFrequency, 
+    viewDetail, 
+    chartViewType, 
+    assetChartFocus, 
+    debtChartFocus, 
+    expenseChartFocus,
+    incomeChartFocus, 
+    taxChartFocusType,
+  ];
+
+  for (const s of absentSettings) {
+    message = checkSettingAbsent(model.settings, s);
+    if (message.length > 0) {
+      return {
+        type: Context.Setting,
+        itemName: s,
+        message: message,
+      };
+    }
   }
-  message = checkSettingAbsent(model.settings, viewDetail);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: viewDetail,
-      message: message,
-    };
-  }
+
   message = checkViewROI(model.settings, model.triggers);
   if (message.length > 0) {
     return {
       type: undefined,
       itemName: undefined,
-      message: message,
-    };
-  }
-  message = checkSettingAbsent(model.settings, chartViewType);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: chartViewType,
       message: message,
     };
   }
@@ -1637,46 +1635,6 @@ export function checkModel(
     return {
       type: Context.Setting,
       itemName: cpi,
-      message: message,
-    };
-  }
-  message = checkSettingAbsent(model.settings, assetChartFocus);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: assetChartFocus,
-      message: message,
-    };
-  }
-  message = checkSettingAbsent(model.settings, debtChartFocus);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: debtChartFocus,
-      message: message,
-    };
-  }
-  message = checkSettingAbsent(model.settings, expenseChartFocus);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: expenseChartFocus,
-      message: message,
-    };
-  }
-  message = checkSettingAbsent(model.settings, incomeChartFocus);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: incomeChartFocus,
-      message: message,
-    };
-  }
-  message = checkSettingAbsent(model.settings, taxChartFocusType);
-  if (message.length > 0) {
-    return {
-      type: Context.Setting,
-      itemName: taxChartFocusType,
       message: message,
     };
   }
