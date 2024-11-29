@@ -29,6 +29,7 @@ import {
   optimizerView,
   planningView,
   monitoringView,
+  coarseDetail,
 } from "../localization/stringConstants";
 import { allViews } from "./allViews";
 import { Context, log, printDebug } from "./utils";
@@ -447,7 +448,7 @@ export function getDefaultViewSettings(): ViewSettings {
       .map((v) => {
         return {
           NAME: `${viewDetail}${v.lc}`,
-          VALUE: fineDetail,
+          VALUE: coarseDetail,
         };
       })
         ,[
