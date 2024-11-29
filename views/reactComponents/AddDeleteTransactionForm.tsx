@@ -151,6 +151,12 @@ export class AddDeleteTransactionForm extends Component<
             {itemOptions(
               (this.props.model.assets as Item[])
                 .sort((a, b) => {
+                  if (a.NAME === CASH_ASSET_NAME && b.NAME !== CASH_ASSET_NAME) {
+                    return -1;
+                  }
+                  if (a.NAME !== CASH_ASSET_NAME && b.NAME === CASH_ASSET_NAME) {
+                    return 1;
+                  }
                   return lessThan(a.NAME, b.NAME);
                 })
                 .concat(
@@ -178,6 +184,12 @@ export class AddDeleteTransactionForm extends Component<
             {itemOptions(
               (this.props.model.assets as Item[])
                 .sort((a, b) => {
+                  if (a.NAME === CASH_ASSET_NAME && b.NAME !== CASH_ASSET_NAME) {
+                    return -1;
+                  }
+                  if (a.NAME !== CASH_ASSET_NAME && b.NAME === CASH_ASSET_NAME) {
+                    return 1;
+                  }
                   return lessThan(a.NAME, b.NAME);
                 })
                 .concat(
