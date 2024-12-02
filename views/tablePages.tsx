@@ -121,6 +121,7 @@ import CashExpressionFormatter from "./reactComponents/CashExpressionFormatter";
 import { evaluate } from "mathjs";
 import { inspect } from 'util';
 import PcFormatter from "./reactComponents/PcFormatter";
+import { getPlanningTableData } from "./../models/planningData";
 inspect;
 
 function CustomToggle({ children, eventKey }: any) {
@@ -316,6 +317,15 @@ function handleBudgetGridRowsUpdated(
   const oldRow = rows.find((r) => {
     return r.index === changedIndexes[0];
   });
+  if (oldRow.key === "Basic" && changedColumn.key === "allowedBudget") {
+    showAlert('Basic budget is not editable');
+    return;
+  }
+  if (oldRow.key === "Leisure" && changedColumn.key === "allowedBudget") {
+    showAlert('Leisure budget is not editable');
+    return;
+  }
+
   const oldVal = oldRow[changedColumn.key];
 
   const newRow = newTable.find((r: any) => {
@@ -2564,6 +2574,10 @@ function getScale(obj: Expense, colMonths: string[]){
 
 function expenseMonitoringForTable(
   model: ModelData,
+  expensesChartData: ChartData,
+  planningExpensesChartData: ChartData, // for Basic and Leisure for Planning
+  planningAssetsChartData: ChartData, // for maturing Bonds for Planning
+  reportData: ReportDatum[],
   colMonths: string[],
   todaysValues: Map<Expense, ExpenseVal>,
   parentCallbacks: ViewCallbacks,
@@ -2672,28 +2686,92 @@ function expenseMonitoringForTable(
   // console.log(`summaryRows = ${showObj(summaryRows)}`);
 
   if (colMonths[colMonths.length - 1].startsWith('Jan ')) {
+    const colMonth = colMonths[colMonths.length - 1];
+    const year = colMonth.substring(colMonth.length - 4, colMonth.length);
+    const planningTableData = getPlanningTableData(
+      expensesChartData,
+      planningExpensesChartData,
+      planningAssetsChartData,
+      reportData,
+    );
+
     for (const summaryRow of summaryRows) {
       const summaryKey = summaryRow.key;
       
-      const monitor = model.monitors.find((m) => {
-        return m.NAME === `${summaryKey}Budget`;
-      });
-      if (!monitor) {
-        break;
-      }
-      
-      const monitorVals = monitor ? monitor.VALUES : [];
-      const val = monitorVals.find((v) => {
-        return v.MONTH === colMonths[colMonths.length - 1];
-      });
-      if (!val) {
-        break;
-      }
+      // console.log(`colMonths[colMonths.length - 1] = ${colMonths[colMonths.length - 1]}`);
+      // console.log(`summaryKey = ${inspect(summaryKey)}`);
+      if (summaryKey === 'Basic' || summaryKey === 'Leisure') {
+        const tRow = planningTableData.find((td) => {
+          // Look for match
+          //colMonths[colMonths.length - 1] = Jan 2024 
+          //td.DATE = Tue Dec 31 2024
+          return td.DATE.endsWith(year);
+        });
+        let budget = 0;
+        if (tRow) {
+          // console.log(`${inspect(tRow)}`);
+          if (summaryKey === 'Basic') {            
+            budget = parseFloat(tRow.INCOMING) - parseFloat(tRow.LEISURE);
+            console.log(`basic calcn ${budget} = ${tRow.INCOMING} - ${tRow.LEISURE}`)
+          } else if (summaryKey === 'Leisure') {
+            budget = parseFloat(tRow.LEISURE);
+            console.log(`leisure calcn ${tRow.LEISURE}`)
+          }
 
-      summaryRow.allowedBudget = val.EXPRESSION;
+          const winnings = model.transactions.filter((t) => {
+            if (!t.DATE.endsWith(year)) {
+              // console.log(`wrong year ${inspect(t)}`)
+              return false;
+            }
+            if (!t.NAME.includes('Winnings')){
+              // console.log(`not Winnings ${inspect(t.NAME)}`)
+              return false;
+            }
+            // console.log(`consider ${inspect(t.NAME)}`)
+            if (t.TO !== `PremiumBonds${summaryKey}`){
+              // console.log(`not PB for ${summaryKey} ${inspect(t.NAME)} ${inspect(t.TO)}`)
+              return false;
+            }
+            return true
+          });
+          winnings.map((t) => {
+            //console.log(`winnings transaction ${inspect(t)}`);
+            console.log(`budget adjusts for winnings, add ${inspect(t.TO_VALUE)}`);
+            budget += parseFloat(t.TO_VALUE);
+            console.log(`new budget is ${budget}`);
+          })
+        }
+        summaryRow.allowedBudget = budget;
+      } else {
+        const monitor = model.monitors.find((m) => {
+          return m.NAME === `${summaryKey}Budget`;
+        });
+        if (!monitor) {
+          break;
+        }
+        
+        const monitorVals = monitor ? monitor.VALUES : [];
+        const val = monitorVals.find((v) => {
+          return v.MONTH === colMonths[colMonths.length - 1];
+        });
+        if (!val) {
+          break;
+        }
+
+        summaryRow.allowedBudget = val.EXPRESSION;
+      }
     }
   }
-
+  summaryRows.sort((a: {key:string}, b: {key:string}) => {
+    if (a.key > b.key) {
+      return 1;
+    } else if (a.key < b.key) {
+      return -1;
+    } else {
+      return 0;
+    } 
+  })
+  //console.log(`summaryRows = ${inspect(summaryRows)}`);
   return {
     detailed: addIndices(expenseMonitorDetailsRows.filter((obj: any) => {
       return (
@@ -2794,6 +2872,7 @@ function expensesMonitoringYearSummaryTableDiv(
       key: r.key,
       actualSpend: `${r.actualSpend}`,
       allowedBudget: `${r.allowedBudget}`,
+      remainingBudget: `${parseFloat(r.allowedBudget) - parseFloat(r.actualSpend)}`,
       proportion: 
         (r.allowedBudget && r.allowedBudget) > 0 ? 
         `${Math.round((r.actualSpend / r.allowedBudget) * 100)}` : 
@@ -2855,7 +2934,6 @@ function expensesMonitoringYearSummaryTableDiv(
                 renderEditCell: undefined,
               },
               // SUMMARY TABLE
-              // The "allowed budget" is typed in
               {
                 ...cashExpressionColumn,
                 key: 'allowedBudget',
@@ -2863,9 +2941,15 @@ function expensesMonitoringYearSummaryTableDiv(
                 renderEditCell: textEditor,
               },
               {
+                ...cashExpressionColumn,
+                key: 'remainingBudget',
+                name: 'remaining budget',
+                renderEditCell: textEditor,
+              },
+              {
                 ...pcColumn,
                 key: 'proportion',
-                name: 'proportion',
+                name: 'proportion spent',
                 renderEditCell: undefined,
               },
             ]}
@@ -3047,6 +3131,10 @@ function makeMonitoringColMonths(
 
 export function expensesMonitoringDivWithHeading(
   model: ModelData,
+  expensesChartData: ChartData,
+  planningExpensesChartData: ChartData, // for Basic and Leisure for Planning
+  planningAssetsChartData: ChartData, // for maturing Bonds for Planning
+  reportData: ReportDatum[],
   todaysValues: Map<Expense, ExpenseVal>,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
@@ -3056,17 +3144,25 @@ export function expensesMonitoringDivWithHeading(
   const colDatesForSettingTimeframe = makeMonitoringColMonths(model);
   const expDataForSettingTimeframe = expenseMonitoringForTable(
     model, 
+    expensesChartData,
+    planningExpensesChartData, // for Basic and Leisure for Planning
+    planningAssetsChartData, // for maturing Bonds for Planning
+    reportData,
     colDatesForSettingTimeframe,
     todaysValues, 
     parentCallbacks,
   );
   if (expDataForSettingTimeframe.detailed.length === 0) {
-    return;
+    return <>No data</>;
   }
 
   const colDatesFor2024 = makeMonitoringColMonthsFromStartEnd('Jan 2024', 'Jan 2025');
   const expDataFor2024 = expenseMonitoringForTable(
     model, 
+    expensesChartData,
+    planningExpensesChartData, // for Basic and Leisure for Planning
+    planningAssetsChartData, // for maturing Bonds for Planning
+    reportData,
     colDatesFor2024,
     todaysValues, 
     parentCallbacks,
@@ -3111,7 +3207,7 @@ export function expensesMonitoringDivWithHeading(
         model,
         expDataForSettingTimeframe.summary,
         colDatesForSettingTimeframe,
-        `expensesSummary${tableIDEnding}`,
+        `expensesSummary${tableIDEnding}ForSetting`,
       )}
       {expensesMonitoringYearSummaryTableDiv(
         model,
@@ -3119,7 +3215,7 @@ export function expensesMonitoringDivWithHeading(
         colDatesFor2024,
         doChecks,
         parentCallbacks,
-        `expensesSummary${tableIDEnding}`,
+        `expensesSummary${tableIDEnding}2024`,
       )}
 
       {expensesMonitoringDetailTableDiv(

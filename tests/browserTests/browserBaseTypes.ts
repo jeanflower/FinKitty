@@ -14,8 +14,10 @@ import {
   overviewTag,
   deleteIfExists,
   sleep,
+  monitoringTag,
 } from "./browserTestUtils";
-
+import { inspect } from 'util'
+inspect
 showObj;
 
 export const serverUri = "http://localhost:3000/#";
@@ -327,6 +329,7 @@ export async function refreshPage(
 }
 
 export function makeTestCode(ary: any) {
+  console.log(`writing test data for ${inspect(ary)}`);
   let result = "";
   result += `expect(ary.labels.length).toEqual(${ary.labels.length});\n`;
   for (let i = 0; i < ary.labels.length; i += 1) {
@@ -404,6 +407,8 @@ export async function getDataDumpFromPage(
   pageForDataDump.set("autogenTransactionsOverviewTableDataDump", overviewTag);
   pageForDataDump.set("bondTransactionsTableDataDump", transactionsTag);
   pageForDataDump.set("bondTransactionsOverviewTableDataDump", overviewTag);
+  pageForDataDump.set("expensesSummaryexpensesMonitoringForSettingTableDataDump", monitoringTag)
+  pageForDataDump.set("expensesSummaryexpensesMonitoring2024TableDataDump", monitoringTag)
 
   const tag = `${type}DataDump`;
   const page = pageForDataDump.get(tag);

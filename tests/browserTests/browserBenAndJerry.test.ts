@@ -158,11 +158,7 @@ describe(testName, () => {
     await gotoTabPage(driver, incomesTag);
 
     await gotoTabPage(driver, settingsTag);
-    await addSetting(driver, {
-      name: "View frequency",
-      value: "Annually",
-      message: "added new setting View frequency",
-    });
+
     await gotoTabPage(driver, incomesTag);
     await gotoTabPage(driver, settingsTag);
     /*
@@ -747,11 +743,7 @@ describe(testName, () => {
     );
 
     await gotoTabPage(driver, settingsTag);
-    await addSetting(driver, {
-      name: "View frequency",
-      value: "Monthly",
-      message: "added new setting View frequency",
-    });
+
     await driver.executeScript("window.scrollBy(0, -500)"); // Adjust scrolling with a negative value here
 
     for (let i = 0; i < 2; i = i + 1) {

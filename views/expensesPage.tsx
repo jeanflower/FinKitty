@@ -40,6 +40,8 @@ import { DateFormatType, log, printDebug } from "../utils/utils";
 import { ViewSettings, getDisplay } from "../utils/viewUtils";
 import { simpleExpense } from "../models/exampleModels";
 import { getPlanningTableData } from "../models/planningData";
+import { inspect } from 'util';
+inspect;
 
 function addToMap(
   name: Expense,
@@ -239,12 +241,20 @@ function getPlanningDiv(
 
 function getMonitoringDiv(
   model: ModelData,
+  expensesChartData: ChartData,
+  planningExpensesChartData: ChartData, // for Basic and Leisure for Planning
+  planningAssetsChartData: ChartData, // for maturing Bonds for Planning
+  reportData: ReportDatum[],
   doChecks: boolean,
   todaysValues: Map<Expense, ExpenseVal>,
   parentCallbacks: ViewCallbacks,
 ){
   return expensesMonitoringDivWithHeading(
     model,
+    expensesChartData,
+    planningExpensesChartData, // for Basic and Leisure for Planning
+    planningAssetsChartData, // for maturing Bonds for Planning
+    reportData,
     todaysValues,
     doChecks,
     parentCallbacks,
@@ -263,6 +273,7 @@ export function expensesDiv(
   reportData: ReportDatum[],
   parentCallbacks: ViewCallbacks,
 ) {
+  // console.log(`reportData.length = ${reportData.length}`)
   //reportData.forEach((d) => {
   //  log(`report's item ${d.date}, ${d.name}, ${d.newVal}`);
   //});
@@ -279,6 +290,10 @@ export function expensesDiv(
   if (getDisplay(monitoringView)) {
     return getMonitoringDiv(
       model,
+      expensesChartData,
+      planningExpensesChartData, // for Basic and Leisure for Planning
+      planningAssetsChartData, // for maturing Bonds for Planning
+      reportData,
       doChecks,
       todaysValues,
       parentCallbacks,

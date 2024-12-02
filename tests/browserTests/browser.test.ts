@@ -4,16 +4,8 @@ import {
   FutureExpense,
   roiEnd,
   CoarseAndFine,
-  viewDetail,
-  fineDetail,
-  assetChartFocus,
-  CASH_ASSET_NAME,
-  chartViewType,
-  chartAdditions,
-  chartReductions,
-  chartDeltas,
   ThreeChryslerModel,
-  allItems,
+  monitorModel,
 } from "../../localization/stringConstants";
 import {
   addSetting,
@@ -46,6 +38,7 @@ import {
 } from "./browserBaseTypes";
 
 import webdriver from "selenium-webdriver";
+import { monitorExampleData } from "./../../models/exampleModels";
 
 writeTestCode;
 
@@ -226,6 +219,7 @@ describe(testName, () => {
 
     await gotoTabPage(driver, expensesTag);
     await clickButton(driver, "chooseViewFrequencyTypeMonthly");
+    await clickButton(driver, "chooseViewDetailTypeDetailed");
 
     ary = await getDataDumpFromPage(driver, "expenseChart");
     // writeTestCode(ary);
@@ -281,6 +275,7 @@ describe(testName, () => {
 
     await gotoTabPage(driver, incomesTag);
     await clickButton(driver, "chooseViewFrequencyTypeMonthly");
+    await clickButton(driver, "chooseViewDetailTypeDetailed");
 
     ary = await getDataDumpFromPage(driver, "incomeChart");
     // writeTestCode(ary);
@@ -382,6 +377,7 @@ describe(testName, () => {
 
     await gotoTabPage(driver, expensesTag);
     await clickButton(driver, "chooseViewFrequencyTypeMonthly");
+    await clickButton(driver, "chooseViewDetailTypeDetailed");
 
     ary = await getDataDumpFromPage(driver, "expenseChart");
     // writeTestCode(ary);
@@ -413,6 +409,7 @@ describe(testName, () => {
 
     await gotoTabPage(driver, incomesTag);
     await clickButton(driver, "chooseViewFrequencyTypeMonthly");
+    await clickButton(driver, "chooseViewDetailTypeDetailed");
 
     ary = await getDataDumpFromPage(driver, "incomeChart");
     // writeTestCode(ary);
@@ -762,6 +759,9 @@ describe(testName, () => {
 
     // scrolling
 
+    await gotoTabPage(driver, assetsTag);
+    await clickButton(driver, "chooseViewDetailTypeDetailed");
+
     const ary = await getDataDumpFromPage(driver, "assetChart");
     // log(`ary = ${showObj(ary)}`);
 
@@ -957,6 +957,9 @@ describe(testName, () => {
     });
 
     // scrolling
+    
+    await gotoTabPage(driver, assetsTag);
+    await clickButton(driver, "chooseViewDetailTypeDetailed");
 
     let ary = await getDataDumpFromPage(driver, "assetChart");
     //log(`ary = ${showObj(ary)}`);
@@ -1227,6 +1230,39 @@ describe(testName, () => {
     expect(ary.datasets[0].data[14]).toBeCloseTo(92.4, 2);
 
     await cleanUpWork(driver, testDataModelName);
+  });
+
+  it("should show monitoring data", async () => {
+    const testDataModelName = "BrowserTestSimple03";
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${monitorModel}"}`,
+    );
+
+    await gotoTabPage(driver, assetsTag);
+    
+    let ary1 = await getDataDumpFromPage(driver, "expensesSummaryexpensesMonitoringForSettingTable");
+    // console.log(`ary1 = ${JSON.stringify(ary1)}`);
+    expect(ary1[0].key).toEqual('Basic');
+    expect(ary1[0].actualSpend).toEqual('15');
+    expect(ary1[0].predictedExpense).toEqual('120');
+    expect(ary1[1].key).toEqual('Leisure');
+    expect(ary1[1].actualSpend).toEqual('20');
+    expect(ary1[1].predictedExpense).toEqual('60');
+
+    let ary2 = await getDataDumpFromPage(driver, "expensesSummaryexpensesMonitoring2024Table");
+    // console.log(`ary2 = ${JSON.stringify(ary2)}`);
+    expect(ary2[0].key).toEqual('Basic');
+    expect(ary2[0].actualSpend).toEqual('9');
+    expect(ary2[0].allowedBudget).toEqual('510');
+    expect(ary2[0].remainingBudget).toEqual('501');
+    expect(ary2[0].proportion).toEqual('2');
+    expect(ary2[1].key).toEqual('Leisure');
+    expect(ary2[1].actualSpend).toEqual('12');
+    expect(ary2[1].allowedBudget).toEqual('220');
+    expect(ary2[1].remainingBudget).toEqual('208');
+    expect(ary2[1].proportion).toEqual('5');
   });
 
   afterAll(async () => {

@@ -27,6 +27,7 @@ export const incomesTag = "btn-Incomes";
 export const assetsTag = "btn-Assets";
 export const debtsTag = "btn-Debts";
 export const taxTag = "btn-Tax";
+export const monitoringTag = "btn-Monitoring"; 
 export const reportTag = "btn-Asset actions";
 export const optimizerTag = "btn-Optimizer";
 

@@ -82,6 +82,7 @@ export function getPlanningTableData(
     if (Math.abs(surplus) < 0.01) {
       surplus = 0;
     }
+    // console.log(`fixedIncome ${fixedIncome} bondsReleaseFunds ${bondsReleaseFunds}`);
     tableData.push({
       DATE: date,
       BASIC: `${basic}`,

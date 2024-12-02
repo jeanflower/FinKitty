@@ -1,5 +1,5 @@
 import { getDriver, clickButton, beforeAllWork } from "./browserBaseTypes";
-import { quitAfterAll, testModelContent } from "./browserTestUtils";
+import { assetsTag, gotoTabPage, incomesTag, quitAfterAll, testModelContent } from "./browserTestUtils";
 
 describe("BrowserWorkflowTests DCP", () => {
   const driver = getDriver();
@@ -10,6 +10,17 @@ describe("BrowserWorkflowTests DCP", () => {
     await beforeAllWork(driver, testDataModelName, "");
 
     await clickButton(driver, "btn-save-model");
+
+    await clickButton(driver, "btn-save-model");
+    await gotoTabPage(driver, assetsTag);
+    await clickButton(driver, "chooseViewDetailTypeDetailed");
+    //await gotoTabPage(driver, debtsTag);
+    //await clickButton(driver, "chooseViewDetailTypeDetailed");
+    await gotoTabPage(driver, incomesTag);
+    await clickButton(driver, "chooseViewDetailTypeDetailed");
+    //await gotoTabPage(driver, expensesTag);
+    //await clickButton(driver, "chooseViewDetailTypeDetailed");
+
     await testModelContent(
       driver,
       "btn-create-Defined Contributions Pension-example",

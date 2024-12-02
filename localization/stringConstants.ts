@@ -195,6 +195,7 @@ export const MinimalModel = "MinimalModel";
 export const BenAndJerryModel = "BenAndJerryModel";
 export const bondModel = "bondModel";
 export const DBPModel = "DBPModel";
+export const monitorModel = "MonitorModel";
 
 export interface ViewType {
   lc: string;

@@ -661,30 +661,13 @@ async function refreshDataInternal(
       viewSettings.setModel(modelProcessed);
     }
     // log(`go to make evaluations...`);
-    let reporter: ReportValueChecker = () =>
-      //name: string,
-      //val: number | string,
-      //date: Date,
-      //source: string,
+    let reporter: ReportValueChecker = (
+      name: string,
+      val: number | string,
+      date: Date,
+      source: string,
+      ) =>
       {
-        return false;
-      };
-    if (getDisplay(reportView)) {
-      // log(`create the report data`);
-      reporter = getReporter(
-        modelProcessed,
-        viewSettings,
-        reactAppComponent.state.reportIncludesSettings,
-        reactAppComponent.state.reportIncludesExpenses,
-      );
-    } else if (getDisplay(planningView)) {
-      // log('make reporter for planning view');
-      reporter = (
-        name: string,
-        val: number | string,
-        date: Date,
-        source: string,
-      ) => {
         val;
         date;
         source;
@@ -693,8 +676,19 @@ async function refreshDataInternal(
         // console.log(`include ${name} for report? ${result}`);
         return result;
       };
+    // log(`have planning/monitoring reporter as default`);
+    if (getDisplay(reportView)) {
+      // log(`make reporter for report view`);
+      reporter = getReporter(
+        modelProcessed,
+        viewSettings,
+        reactAppComponent.state.reportIncludesSettings,
+        reactAppComponent.state.reportIncludesExpenses,
+      );
+    } else if (getDisplay(planningView) || getDisplay(monitoringView)) {
+      // log('keep reporter for planning/monitoring view');
     } else if (getDisplay(taxView)) {
-      // log('make reporter for planning view');
+      // log('make reporter for tax view');
       reporter = (
         name: string,
         val: number | string,

@@ -6074,7 +6074,12 @@ function getEvaluationsInternal(
   todaysSettingValues: Map<Setting, SettingVal>;
   reportData: ReportDatum[];
 } {
-  //log('get evaluations');
+  // log('get evaluations');
+
+  //log(`helper = ${inspect(helper)}`);
+  //if(helper && helper.reporter) {
+  //  console.log(helper.reporter("incomeFixedzzz", 33, new Date('7 Aug 2023'), 'sss'));
+  //}
   const todaysAssetValues = new Map<Asset, AssetOrDebtVal>();
   const todaysDebtValues = new Map<Asset, AssetOrDebtVal>();
   const todaysIncomeValues = new Map<Income, IncomeVal>();
