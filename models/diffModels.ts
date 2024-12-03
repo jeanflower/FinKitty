@@ -6,9 +6,12 @@ import {
   Asset,
   Transaction,
   Setting,
+  Generator,
   ModelData,
 } from "../types/interfaces";
 import { log, printDebug, showObj } from "../utils/utils";
+import { inspect } from 'util';
+inspect;
 
 function diffTriggers(it1: Item, it2: Item): string {
   const i1 = it1 as Trigger;
@@ -179,6 +182,25 @@ function diffSettings(it1: Item, it2: Item): string {
 
   return "";
 }
+
+function diffGenerators(it1: Item, it2: Item): string {
+  const i1 = it1 as Generator;
+  const i2 = it2 as Generator;
+  if (JSON.stringify(i1.DETAILS) != JSON.stringify(i2.DETAILS)) {
+    // log(`diff details ${inspect(JSON.stringify(i1.DETAILS))} ${inspect(JSON.stringify(i2.DETAILS))}`)
+    return `${it1.NAME}: changed details`;
+  }
+  if (i1.TYPE != i2.TYPE) {
+    // log(`diff types ${inspect(it1)} ${inspect(it2)}`)
+    return `${it1.NAME}: changed type`;
+  }
+  if (i1.ERA != i2.ERA) {
+    // log(`diff eras ${inspect(it1)} ${inspect(it2)}`)
+    return `${it1.NAME}: changed type`;
+  }
+  return "";
+}
+
 function diffItems(
   is1: Item[],
   is2: Item[],
@@ -247,7 +269,8 @@ export function diffModels(
   model1Name: string,
   model2Name: string,
 ): string[] {
-  // log(`diff models ${m1} and ${m2}`);
+  // log(`diff models ${m1?.name} and ${m2?.name}`);
+  // log(`diff models ${inspect(m1)} and ${inspect(m2)}`);
   if (m1 === undefined) {
     if (m2 === undefined) {
       return [];
@@ -330,5 +353,19 @@ export function diffModels(
       model2Name,
     ),
   );
+  if (s.length > 0 && quickExit) {
+    return s;
+  }
+  s = s.concat(
+    diffItems(
+      m1.generators,
+      m2.generators,
+      diffGenerators,
+      quickExit,
+      model1Name,
+      model2Name,
+    ),
+  );
+  // log(`diff result = ${s}`);
   return s;
 }
