@@ -234,11 +234,11 @@ function App(): JSX.Element | null {
               }
               if (!backupUpToDate) {
                 //if (window.confirm(`I'll auto-make a backup of ${currentName} (or cancel this action)`)) {
-                  backupModel(current.model, currentName, false);
+                  await backupModel(current.model, currentName, false);
                   if (modelAndBackups.backupNames.length > 5) {
                     const oldestBackupName = modelAndBackups.backupNames[0];
                     // console.log(`I'll delete old backup ${oldestBackupName}`);
-                    deleteModel(getUserID(), oldestBackupName, true);
+                    await deleteModel(getUserID(), oldestBackupName, true);
                   }
                 //}
               }
@@ -2032,7 +2032,7 @@ async function backupModel(
         22, //sourceID
       );
     } else {
-      alert("save failed!");
+      alert("save backup failed!");
     }
   };
   const d = new Date();
