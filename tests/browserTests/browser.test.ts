@@ -5,7 +5,8 @@ import {
   roiEnd,
   CoarseAndFine,
   ThreeChryslerModel,
-  monitorModel,
+  monitorModel1,
+  monitorModel2,
 } from "../../localization/stringConstants";
 import {
   addSetting,
@@ -38,7 +39,6 @@ import {
 } from "./browserBaseTypes";
 
 import webdriver from "selenium-webdriver";
-import { monitorExampleData } from "./../../models/exampleModels";
 
 writeTestCode;
 
@@ -1232,12 +1232,12 @@ describe(testName, () => {
     await cleanUpWork(driver, testDataModelName);
   });
 
-  it("should show monitoring data", async () => {
-    const testDataModelName = "BrowserTestSimple03";
+  it("should show monitoring data1", async () => {
+    const testDataModelName = "ShowMonitoring1";
     await beforeAllWork(
       driver,
       testDataModelName,
-      `{"testName":"${monitorModel}"}`,
+      `{"testName":"${monitorModel1}"}`,
     );
 
     await gotoTabPage(driver, assetsTag);
@@ -1263,6 +1263,39 @@ describe(testName, () => {
     expect(ary2[1].allowedBudget).toEqual('220');
     expect(ary2[1].remainingBudget).toEqual('208');
     expect(ary2[1].proportion).toEqual('5');
+  });
+
+  it("should show monitoring data2", async () => {
+    const testDataModelName = "ShowMonitoring2";
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${monitorModel2}"}`,
+    );
+
+    await gotoTabPage(driver, assetsTag);
+    
+    let ary1 = await getDataDumpFromPage(driver, "expensesSummaryexpensesMonitoringForSettingTable");
+    // console.log(`ary1 = ${JSON.stringify(ary1)}`);
+    expect(ary1[0].key).toEqual('Basics');
+    expect(ary1[0].actualSpend).toEqual('200');
+    expect(ary1[0].predictedExpense).toEqual('600');
+    expect(ary1[1].key).toEqual('Leisure');
+    expect(ary1[1].actualSpend).toEqual('40');
+    expect(ary1[1].predictedExpense).toEqual('120');
+
+    let ary2 = await getDataDumpFromPage(driver, "expensesSummaryexpensesMonitoring2024Table");
+    // console.log(`ary2 = ${JSON.stringify(ary2)}`);
+    expect(ary2[0].key).toEqual('Basics');
+    expect(ary2[0].actualSpend).toEqual('0');
+    expect(ary2[0].allowedBudget).toEqual("undefined");
+    expect(ary2[0].remainingBudget).toEqual('NaN');
+    expect(ary2[0].proportion).toEqual('');
+    expect(ary2[1].key).toEqual('Leisure');
+    expect(ary2[1].actualSpend).toEqual('0');
+    expect(ary2[1].allowedBudget).toEqual('120');
+    expect(ary2[1].remainingBudget).toEqual('120');
+    expect(ary2[1].proportion).toEqual('0');
   });
 
   afterAll(async () => {

@@ -293,7 +293,7 @@ export const pensionExampleData = `
   "version":8}
 `;
 
-export const monitorExampleData = `{
+export const monitorExampleData1 = `{
 "name":"monitorTest",
 "assets":[
   {"NAME":"PremiumBondsLeisure","ERA":0,"VALUE":"0","QUANTITY":"","START":"01 Jun 2022","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0","LIABILITY":""},
@@ -357,6 +357,70 @@ export const monitorExampleData = `{
 ]
 ,"version":13}
 `;
+
+export const monitorExampleData2 = `{
+  "name":"Dates",
+  "assets":[
+    {"NAME":"Cash","CATEGORY":"","START":"01 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0","ERA":0}
+  ],
+  "incomes":[],
+  "expenses":[
+    {"NAME":"TV","CATEGORY":"Leisure","START":"30 june 2023","END":"30 may 2025","VALUE":"10","VALUE_SET":"30 june 2023","CPI_IMMUNE":true,"RECURRENCE":"1m"},
+    {"NAME":"Gas","CATEGORY":"Basics","START":"30 june 2025","END":"1 january 2027","VALUE":"75","VALUE_SET":"1 january 2023","CPI_IMMUNE":true,"RECURRENCE":"1m"},
+    {"NAME":"Electric","CATEGORY":"Basics","START":"1 january 2023","END":"1 janauary 2027","VALUE":"50","VALUE_SET":"1 january 2023","CPI_IMMUNE":true,"RECURRENCE":"1m"}
+  ],
+  "triggers":[],
+  "monitors":[
+    {"NAME":"Electric","ERA":0,"VALUES":[
+      {"MONTH":"Dec 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Nov 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Oct 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Sep 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Aug 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Jul 2025","EXPRESSION":"50"},
+      {"MONTH":"Jun 2025","EXPRESSION":"0.0"},
+      {"MONTH":"May 2025","EXPRESSION":"50"},
+      {"MONTH":"Apr 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Mar 2025","EXPRESSION":"50"},
+      {"MONTH":"Feb 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Jan 2025","EXPRESSION":"50"},
+      {"MONTH":"item","EXPRESSION":
+        {"NAME":"Electric","ERA":0,"VALUE":"50","VALUE_SET":"1 january 2023","START":"1 january 2023","END":"1 janauary 2027","CPI_IMMUNE":true,"CATEGORY":"","RECURRENCE":"1m"}
+      },
+      {"MONTH":"sum","EXPRESSION":150},{"MONTH":"RECURRENT_SPEND","EXPRESSION":"12.5"}
+    ]},
+    {"NAME":"TV","ERA":0,"VALUES":[
+      {"MONTH":"Dec 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Nov 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Oct 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Sep 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Aug 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Jul 2025","EXPRESSION":"0.0"},
+      {"MONTH":"Jun 2025","EXPRESSION":"0.0"},
+      {"MONTH":"May 2025","EXPRESSION":"10"},
+      {"MONTH":"Apr 2025","EXPRESSION":"10"},
+      {"MONTH":"Mar 2025","EXPRESSION":"10"},
+      {"MONTH":"Feb 2025","EXPRESSION":"10"},
+      {"MONTH":"Jan 2025","EXPRESSION":"0.0"},
+      {"MONTH":"item","EXPRESSION":
+        {"NAME":"TV","CATEGORY":"","START":"30 june 2023","END":"30 may 2025","VALUE":"17.5","VALUE_SET":"30 june 2023","CPI_IMMUNE":true,"RECURRENCE":"1m","ERA":0}
+      },
+      {"MONTH":"sum","EXPRESSION":30},
+      {"MONTH":"RECURRENT_SPEND","EXPRESSION":"2.5"}
+    ]
+  }],
+  "generators":[],
+  "settings":[
+    {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+    {"NAME":"End of view range","ERA":0,"VALUE":"01 Jan 2028","HINT":"Date at the end of range to be plotted","TYPE":"view"},
+    {"NAME":"End of monitor range","ERA":0,"VALUE":"jan 2026","HINT":"","TYPE":"adjustable"},
+    {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+    {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0},
+    {"NAME":"Beginning of view range","ERA":0,"VALUE":"31 Dec 2024","HINT":"Date at the start of range to be plotted","TYPE":"view"},
+    {"NAME":"Beginning of monitor range","ERA":0,"VALUE":"jan 2025","HINT":"","TYPE":"adjustable"}
+  ],
+  "transactions":[],"version":13
+}`;
 
 const variableDateExampleData = `{
   "name":"test",
@@ -782,8 +846,11 @@ export function getPensionExampleData(): ModelData {
   return makeModelFromJSON(pensionExampleData, "pensionExampleData");
 }
 
-export function getMonitorExampleData(): ModelData {
-  return makeModelFromJSON(monitorExampleData, "pensionExampleData");
+export function getMonitorExampleData1(): ModelData {
+  return makeModelFromJSON(monitorExampleData1, "monitorExampleData1");
+}
+export function getMonitorExampleData2(): ModelData {
+  return makeModelFromJSON(monitorExampleData2, "monitorExampleData2");
 }
 export function getVariableDateExampleData(): ModelData {
   return makeModelFromJSON(variableDateExampleData, "variableDateExample");

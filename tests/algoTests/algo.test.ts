@@ -54,10 +54,10 @@ import {
   unSuppressLogs,
 } from "../../utils/utils";
 import {
-  isHistorical,
-  makeRevalueName,
-  markForUndo,
-  revertToUndoModel,
+  isHistorical,    // this utility is being tested
+  makeRevalueName, // this utility is being tested
+  markForUndo,       // helps with testing to undo/redo test data
+  revertToUndoModel, // helps with testing to undo/redo test data
   setNonsenseSetting,
   setROI,
   setSetting,

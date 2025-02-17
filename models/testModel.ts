@@ -44,7 +44,8 @@ import {
   monitorEnd,
   monitorStart,
   DBPModel,
-  monitorModel,
+  monitorModel1,
+  monitorModel2,
 } from "../localization/stringConstants";
 import { ModelData, Setting } from "../types/interfaces";
 import {
@@ -61,7 +62,8 @@ import {
   emptyModel,
   getDefinedBenefitsPension,
   getDefinedContributionsPension,
-  getMonitorExampleData,
+  getMonitorExampleData1,
+  getMonitorExampleData2,
 } from "./exampleModels";
 import { setSetting } from "./modelUtils";
 import { simpleSetting, viewSetting } from "./exampleSettings";
@@ -1193,8 +1195,10 @@ export function getTestModel(input: string): ModelData {
     model = getDefinedContributionsPension();
   } else if (input === pensionExampleData) {
     model = getPensionExampleData();
-  } else if (input === monitorModel) {
-    model = getMonitorExampleData();
+  } else if (input === monitorModel1) {
+    model = getMonitorExampleData1();
+  } else if (input === monitorModel2) {
+    model = getMonitorExampleData2();
   }
   
   // TODO : should we make a copy here for more stable tests?
