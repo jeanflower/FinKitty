@@ -2585,17 +2585,25 @@ function expenseMonitoringForTable(
   const today = getTodaysDate(model);
   const v = getVarVal(model.settings);
 
+  const startMonitorSetting = getSettings(model.settings, monitorStart, "noneFound", false);
+  const endMonitorSetting = getSettings(model.settings, monitorEnd, "noneFound", false);
+
+  const startMonitorDate = new Date(`01 ${startMonitorSetting}`);
+  const endMonitorDate = new Date(`01 ${endMonitorSetting}`);
+
   const expenseMonitorDetailsRows = model.expenses
     .filter((e: Expense) => {
       let hasStarted = true;
       let hasEnded = false;
       const startDate = checkTriggerDate(e.START, model.triggers, v);
       if (startDate !== undefined && startDate > today) {
+      //if (startDate !== undefined && startDate > endMonitorDate) {
         hasStarted = false;
       }
       const endDate = checkTriggerDate(e.END, model.triggers, v);
       if (endDate !== undefined && endDate < today) {
-        hasEnded = true;
+      //if (endDate !== undefined && endDate < startMonitorDate) {
+          hasEnded = true;
       }
       return hasStarted && ! hasEnded;
     })
@@ -3126,7 +3134,7 @@ function makeMonitoringColMonths(
   if (start !== "noneFound" && end !== "noneFound") {
     months = makeMonitoringColMonthsFromStartEnd(start, end);
   }
- return months;
+  return months;
 }
 
 export function expensesMonitoringDivWithHeading(

@@ -407,8 +407,9 @@ export async function getDataDumpFromPage(
   pageForDataDump.set("autogenTransactionsOverviewTableDataDump", overviewTag);
   pageForDataDump.set("bondTransactionsTableDataDump", transactionsTag);
   pageForDataDump.set("bondTransactionsOverviewTableDataDump", overviewTag);
-  pageForDataDump.set("expensesSummaryexpensesMonitoringForSettingTableDataDump", monitoringTag)
-  pageForDataDump.set("expensesSummaryexpensesMonitoring2024TableDataDump", monitoringTag)
+  pageForDataDump.set("expensesSummaryexpensesMonitoringForSettingTableDataDump", monitoringTag);
+  pageForDataDump.set("expensesSummaryexpensesMonitoring2024TableDataDump", monitoringTag);
+  pageForDataDump.set("expensesDetailsexpensesMonitoringTableDataDump", monitoringTag);
 
   const tag = `${type}DataDump`;
   const page = pageForDataDump.get(tag);
