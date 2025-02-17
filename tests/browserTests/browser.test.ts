@@ -1279,8 +1279,7 @@ describe(testName, () => {
     // console.log(`ary1 = ${JSON.stringify(ary1)}`);
     expect(ary1[0].key).toEqual('Basics');
     expect(ary1[0].actualSpend).toEqual('200');
-    expect(ary1[0].predictedExpense).toEqual('600');
-    //expect(ary1[0].predictedExpense).toEqual('1500');
+    expect(ary1[0].predictedExpense).toEqual('1500');
     expect(ary1[1].key).toEqual('Leisure');
     expect(ary1[1].actualSpend).toEqual('40');
     expect(ary1[1].predictedExpense).toEqual('120');
@@ -1299,8 +1298,7 @@ describe(testName, () => {
     expect(ary2[1].proportion).toEqual('0');
 
     let ary3 = await getDataDumpFromPage(driver, "expensesDetailsexpensesMonitoringTable");
-    expect(ary3.length).toEqual(2);
-    //expect(ary3.length).toEqual(3);
+    expect(ary3.length).toEqual(3);
   });
 
   afterAll(async () => {

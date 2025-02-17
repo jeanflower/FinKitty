@@ -2582,7 +2582,6 @@ function expenseMonitoringForTable(
   todaysValues: Map<Expense, ExpenseVal>,
   parentCallbacks: ViewCallbacks,
 ) {
-  const today = getTodaysDate(model);
   const v = getVarVal(model.settings);
 
   const startMonitorSetting = getSettings(model.settings, monitorStart, "noneFound", false);
@@ -2596,13 +2595,11 @@ function expenseMonitoringForTable(
       let hasStarted = true;
       let hasEnded = false;
       const startDate = checkTriggerDate(e.START, model.triggers, v);
-      if (startDate !== undefined && startDate > today) {
-      //if (startDate !== undefined && startDate > endMonitorDate) {
+      if (startDate !== undefined && startDate > endMonitorDate) {
         hasStarted = false;
       }
       const endDate = checkTriggerDate(e.END, model.triggers, v);
-      if (endDate !== undefined && endDate < today) {
-      //if (endDate !== undefined && endDate < startMonitorDate) {
+      if (endDate !== undefined && endDate < startMonitorDate) {
           hasEnded = true;
       }
       return hasStarted && ! hasEnded;
