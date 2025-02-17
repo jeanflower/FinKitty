@@ -3220,12 +3220,6 @@ export function expensesMonitoringDivWithHeading(
       >
         Advance 1 month
       </Button>
-      {expensesMonitoringSummaryTableDiv(
-        model,
-        expDataForSettingTimeframe.summary,
-        colDatesForSettingTimeframe,
-        `expensesSummary${tableIDEnding}ForSetting`,
-      )}
       {expensesMonitoringYearSummaryTableDiv(
         model,
         expDataFor2025.summary,
@@ -3233,14 +3227,6 @@ export function expensesMonitoringDivWithHeading(
         doChecks,
         parentCallbacks,
         `expensesSummary${tableIDEnding}2025`,
-      )}
-      {expensesMonitoringYearSummaryTableDiv(
-        model,
-        expDataFor2024.summary,
-        colDatesFor2024,
-        doChecks,
-        parentCallbacks,
-        `expensesSummary${tableIDEnding}2024`,
       )}
 
       {expensesMonitoringDetailTableDiv(
@@ -3251,6 +3237,16 @@ export function expensesMonitoringDivWithHeading(
         parentCallbacks,
         `expensesDetails${tableIDEnding}`,
       )}
+
+      {expensesMonitoringYearSummaryTableDiv(
+        model,
+        expDataFor2024.summary,
+        colDatesFor2024,
+        doChecks,
+        parentCallbacks,
+        `expensesSummary${tableIDEnding}2024`,
+      )}
+
     </>,
     `Expense monitoring`,
   );

@@ -1241,15 +1241,6 @@ describe(testName, () => {
     );
 
     await gotoTabPage(driver, assetsTag);
-    
-    let ary1 = await getDataDumpFromPage(driver, "expensesSummaryexpensesMonitoringForSettingTable");
-    // console.log(`ary1 = ${JSON.stringify(ary1)}`);
-    expect(ary1[0].key).toEqual('Basic');
-    expect(ary1[0].actualSpend).toEqual('15');
-    expect(ary1[0].predictedExpense).toEqual('120');
-    expect(ary1[1].key).toEqual('Leisure');
-    expect(ary1[1].actualSpend).toEqual('20');
-    expect(ary1[1].predictedExpense).toEqual('60');
 
     let ary2 = await getDataDumpFromPage(driver, "expensesSummaryexpensesMonitoring2024Table");
     // console.log(`ary2 = ${JSON.stringify(ary2)}`);
@@ -1275,15 +1266,6 @@ describe(testName, () => {
 
     await gotoTabPage(driver, assetsTag);
     
-    let ary1 = await getDataDumpFromPage(driver, "expensesSummaryexpensesMonitoringForSettingTable");
-    // console.log(`ary1 = ${JSON.stringify(ary1)}`);
-    expect(ary1[0].key).toEqual('Basics');
-    expect(ary1[0].actualSpend).toEqual('200');
-    expect(ary1[0].predictedExpense).toEqual('1500');
-    expect(ary1[1].key).toEqual('Leisure');
-    expect(ary1[1].actualSpend).toEqual('40');
-    expect(ary1[1].predictedExpense).toEqual('120');
-
     let ary2 = await getDataDumpFromPage(driver, "expensesSummaryexpensesMonitoring2024Table");
     // console.log(`ary2 = ${JSON.stringify(ary2)}`);
     expect(ary2[0].key).toEqual('Basics');
