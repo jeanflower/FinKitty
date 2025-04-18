@@ -5356,6 +5356,8 @@ function generateMoments(
       setValue: 0,
       transaction: undefined,
     });
+  } else {
+    // log(`don't work out EvaluateAllAssets as we're after the roi`);
   }
   // for(let i = 0; i < allMoments.length; i = i + 1) {
   //  log(`allMoments[${i}] = ${allMoments[i].name} at ${allMoments[i].date.toDateString()}`);
@@ -5394,6 +5396,7 @@ function evaluateAllAssets(
   todaysExpenseValues: Map<Expense, ExpenseVal>,
   todaysSettingValues: Map<Setting, SettingVal>,
 ) {
+  // console.log(`in evaluateAllAssets`);
   const v = getVarVal(model.settings);
   model.assets.forEach((asset) => {
     let val = traceEvaluationForToday(asset.NAME, values, growths);
@@ -6363,7 +6366,8 @@ function getEvaluationsInternal(
       );
     }
     // log(`${datedMoments.length} moments left`);
-    // log(`moment.date is ${dateAsString(DateFormatType.Debug,moment.date)}`);
+    //log(`moment.name is ${name}`);
+    //log(`moment.date is ${dateAsString(DateFormatType.Debug,moment.date)}`);
 
     if (moment.name === EvaluateAllAssets) {
       evaluateAllAssets(

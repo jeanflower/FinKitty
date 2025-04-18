@@ -1164,7 +1164,7 @@ describe("evaluations tests", () => {
         ...defaultModelSettings({
           start: "30 Dec 2020",
           end: "01 Jan 2025"
-        }),
+        }),    
       ],
       monitors: [],
       generators: [],
@@ -1173,6 +1173,12 @@ describe("evaluations tests", () => {
       undoModel: undefined,
       redoModel: undefined,
     };
+    setSetting(
+      model.settings,
+      `Today's value focus date`,
+      "Aug 10 2024",
+      viewType,
+    );
 
     const evalsAndValues = getTestEvaluations(model);
 
