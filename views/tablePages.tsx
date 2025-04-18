@@ -125,12 +125,9 @@ import { getPlanningTableData } from "./../models/planningData";
 inspect;
 
 function CustomToggle({ children, eventKey }: any) {
-  const decoratedOnClick = useAccordionButton(eventKey, () =>
-    log("totally custom!"),
-  );
-
   return (
-    <Button onClick={decoratedOnClick} variant={"link"}>
+    <Button 
+      variant={"link"}>
       {children}
     </Button>
   );
