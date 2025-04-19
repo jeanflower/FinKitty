@@ -1246,14 +1246,14 @@ describe(testName, () => {
     // console.log(`ary2 = ${JSON.stringify(ary2)}`);
     expect(ary2[0].key).toEqual('Basic');
     expect(ary2[0].actualSpend).toEqual('9');
-    expect(ary2[0].allowedBudget).toEqual('510');
-    expect(ary2[0].remainingBudget).toEqual('501');
-    expect(ary2[0].proportion).toEqual('2');
+    expect(ary2[0].allowedBudget).toEqual('150');
+    expect(ary2[0].remainingBudget).toEqual('141');
+    expect(ary2[0].proportion).toEqual('6');
     expect(ary2[1].key).toEqual('Leisure');
     expect(ary2[1].actualSpend).toEqual('12');
-    expect(ary2[1].allowedBudget).toEqual('220');
-    expect(ary2[1].remainingBudget).toEqual('208');
-    expect(ary2[1].proportion).toEqual('5');
+    expect(ary2[1].allowedBudget).toEqual('160');
+    expect(ary2[1].remainingBudget).toEqual('148');
+    expect(ary2[1].proportion).toEqual('8');
   });
 
   it("should show monitoring data2", async () => {
@@ -1275,9 +1275,9 @@ describe(testName, () => {
     expect(ary2[0].proportion).toEqual('');
     expect(ary2[1].key).toEqual('Leisure');
     expect(ary2[1].actualSpend).toEqual('0');
-    expect(ary2[1].allowedBudget).toEqual('120');
-    expect(ary2[1].remainingBudget).toEqual('120');
-    expect(ary2[1].proportion).toEqual('0');
+    expect(ary2[1].allowedBudget).toEqual('0');
+    expect(ary2[1].remainingBudget).toEqual('0');
+    expect(ary2[1].proportion).toEqual('');
 
     let ary3 = await getDataDumpFromPage(driver, "expensesDetailsexpensesMonitoringTable");
     expect(ary3.length).toEqual(3);

@@ -2712,12 +2712,10 @@ function expenseMonitoringForTable(
         let budget = 0;
         if (tRow) {
           // console.log(`${inspect(tRow)}`);
-          if (summaryKey === 'Basic') {            
-            budget = parseFloat(tRow.INCOMING) - parseFloat(tRow.LEISURE);
-            console.log(`basic calcn ${budget} = ${tRow.INCOMING} - ${tRow.LEISURE}`)
+          if (summaryKey === 'Basic') {
+            budget = parseFloat(tRow.PBBASIC);
           } else if (summaryKey === 'Leisure') {
-            budget = parseFloat(tRow.LEISURE);
-            console.log(`leisure calcn ${tRow.LEISURE}`)
+            budget = parseFloat(tRow.PBLEISURE);
           }
 
           const winnings = model.transactions.filter((t) => {

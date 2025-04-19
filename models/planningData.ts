@@ -1,4 +1,4 @@
-import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions, expensesView, assetsView, fineDetail, bondMature, generatedRecurrence } from "../localization/stringConstants";
+import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions, expensesView, assetsView, fineDetail, bondMature, generatedRecurrence, chartVals } from "../localization/stringConstants";
 import { Asset, AssetOrDebtVal, ChartData, DataForView, Evaluation, Expense, ExpenseVal, Income, IncomeVal, ModelData, ReportDatum, Setting, SettingVal } from "../types/interfaces";
 import { Context, log, showObj } from "../utils/utils";
 import { getDefaultViewSettings } from "../utils/viewUtils";
@@ -40,14 +40,22 @@ export function getPlanningTableData(
     const date = expensesChartData.labels[idx];
 
     let bondsReleaseFunds = 0;
+    let pbBasic = 0;
+    let pbLeisure = 0;
     if (idx > 0) {
       const bondsIdx = idx - 1; // show bond funds one year later
       planningAssetsChartData.datasets.forEach((pscd) => {
         // console.log(`pscd = ${showObj(pscd)}`);
-        if (!pscd["label"].includes('growth') && pscd.data[bondsIdx] < 0) {
-          // console.log(`pscd.data[bondsIdx] = ${pscd.data[bondsIdx]}`);
-          // console.log(`increase bondsReleaseFunds from ${bondsReleaseFunds} using ${-pscd.data[bondsIdx]} to ${bondsReleaseFunds - pscd.data[bondsIdx]}`);
-          bondsReleaseFunds += -pscd.data[bondsIdx];
+        if ( pscd.label === "PremiumBondsBasic") {
+          pbBasic += pscd.data[bondsIdx];
+        } else if ( pscd.label === "PremiumBondsLeisure") {
+          pbLeisure += pscd.data[bondsIdx];
+        } else if ( pscd.label === "Bonds") {
+          if (!pscd["label"].includes('growth') && pscd.data[bondsIdx] < 0) {
+            // console.log(`pscd.data[bondsIdx] = ${pscd.data[bondsIdx]}`);
+            // console.log(`increase bondsReleaseFunds from ${bondsReleaseFunds} using ${-pscd.data[bondsIdx]} to ${bondsReleaseFunds - pscd.data[bondsIdx]}`);
+            bondsReleaseFunds += -pscd.data[bondsIdx];
+          }
         }
       });
     }
@@ -92,6 +100,8 @@ export function getPlanningTableData(
       BONDS: `${bondsReleaseFunds}`,
       INCOMING: `${fixedIncome + bondsReleaseFunds}`,
       SURPLUS: `${surplus}`,
+      PBBASIC: `${pbBasic}`,
+      PBLEISURE: `${pbLeisure}`,
     });
   }
   return tableData;
@@ -195,6 +205,26 @@ export function getAnnualPlanningAssetData(
   const planningAssetsChartData = makeBarData(
     planningChartData.labels,
     planningChartData.assetData,
+  );
+
+  const planningViewSettingsPB = getDefaultViewSettings();
+  planningViewSettingsPB.setModel(model);
+  planningViewSettingsPB.toggleViewFilter(Context.Asset, allItems);
+  planningViewSettingsPB.setViewSetting(`${viewDetail}${assetsView.lc}`, fineDetail);
+  planningViewSettingsPB.toggleViewFilter(Context.Asset, "PremiumBonds"); // the Planning page works with this category
+
+  const planningChartDataPB: DataForView = makeChartData(
+    model,
+    planningViewSettingsPB,
+    evals,
+  );
+  const planningAssetsPBChartData = makeBarData(
+    planningChartDataPB.labels,
+    planningChartDataPB.assetData,
+  );
+
+  planningAssetsChartData.datasets.push(
+    ...planningAssetsPBChartData.datasets,
   );
 
   return {
