@@ -14,6 +14,17 @@ const customJestConfig = {
     "!**/node_modules/**",
     "!**/tests/**",
   ],
+  // Avoid watching too many files
+  watchPathIgnorePatterns: [
+    "<rootDir>/node_modules/",
+    "<rootDir>/.next/",
+    "<rootDir>/coverage/",
+    "<rootDir>/dist/",
+    "<rootDir>/out/"
+  ],
+
+  // Disable watchman if you're still seeing watcher-related issues
+  //watchman: false
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
