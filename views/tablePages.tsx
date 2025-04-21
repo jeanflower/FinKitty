@@ -2736,7 +2736,7 @@ function expenseMonitoringForTable(
           });
           winnings.map((t) => {
             //console.log(`winnings transaction ${inspect(t)}`);
-            console.log(`budget adjusts for winnings, add ${inspect(t.TO_VALUE)}`);
+            // console.log(`budget adjusts for winnings, add ${inspect(t.TO_VALUE)}`);
             budget += parseFloat(t.TO_VALUE);
             console.log(`new budget is ${budget}`);
           })

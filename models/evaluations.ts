@@ -1561,7 +1561,7 @@ function calculateNIPayable(
   ];
 
   // log(`niPayable from income ${income} is ${showObj(niPayable)}`);
-  return niPayable;
+    return niPayable;
 }
 
 function calculateCGTPayable(
@@ -2651,7 +2651,7 @@ function payNIEstimate(
         liableIncomeFromFixed = 0;
       }
       const annualIncomeEstimate = liableIncome * 12;
-      const annualIncomeEstimateFromFixed = liableIncomeFromFixed + 12;
+      const annualIncomeEstimateFromFixed = liableIncomeFromFixed * 12;
 
       const estimateAnnualTaxDue: {
         amountLiable: number;
@@ -2700,7 +2700,7 @@ function payNIEstimate(
 
         values.set(
           `taxForFixed${person} for month`,
-          -nIMonthTaxDue,
+          -nIMonthTaxDueFromFixed,
           growths,
           getTaxMonthDate(startYearOfTaxYear, monthOfTaxYear),
           `taxForFixed${person} for month`,
@@ -2933,9 +2933,10 @@ function handleIncome(
   liabilitiesMap: Map<string, string>,
   incomes: LiableIncomes,
   sourceDescription: string,
-  isFlexibleIncome: boolean,
   isFixedIncome: boolean,
 ) {
+  const isFlexibleIncome = !isFixedIncome;
+
   // log(`handle income value = ${incomeValue}, ${moment.name}`);
   const triggers = model.triggers;
   const v = getVarVal(model.settings);
@@ -4558,7 +4559,6 @@ function processTransactionFromTo(
         liabliitiesMap,
         incomes,
         fromWord,
-        true, //isFlexibleIncome,
         false, //isFixedIncome,
       );
     } else {
@@ -5667,6 +5667,23 @@ function captureLastTaxBands(
   }
 }
 
+function isFixedIncome(
+  moment: Moment,
+  model: ModelData,
+): boolean {
+  const income = model.incomes.find((i) => {
+    return i.NAME === moment.name;
+  });
+  if (income !== undefined) {
+    if (income.CATEGORY.startsWith('Pension')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  return false;
+}
+
 function handleStartMoment(
   model: ModelData,
   values: ValuesContainer,
@@ -5779,8 +5796,7 @@ function handleStartMoment(
         liabilitiesMap,
         incomes,
         moment.name,
-        false, //isFlexibleIncome,
-        true, //isFixedIncome,
+        isFixedIncome(moment, model),
       );
     } else {
       /* istanbul ignore next */
@@ -5992,7 +6008,6 @@ function growAndEffectMoment(
             liabilitiesMap,
             incomes,
             momentName,
-            true, //isFlexibleIncome,
             false, //isFixedIncome,
           );
         }
@@ -6012,8 +6027,7 @@ function growAndEffectMoment(
           liabilitiesMap,
           incomes,
           momentName,
-          false, //isFlexibleIncome,
-          true, //isFixedIncome,
+          isFixedIncome(moment, model),
         );
       } else if (moment.type === momentType.expense) {
         // log('in getEvaluations, adjustCash:');

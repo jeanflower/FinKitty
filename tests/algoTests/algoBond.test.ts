@@ -1758,15 +1758,15 @@ describe("bonds tests", () => {
     const chartPts = result.assetData[1].chartDataPoints;
     expect(chartPts.length).toBe(10);
     expectChartData(chartPts, 0, 'Wed Dec 30 2020', 10000, -1);
-    expectChartData(chartPts, 1, 'Thu Dec 30 2021', 8800, -1);
-    expectChartData(chartPts, 2, 'Fri Dec 30 2022', 7600, -1);
-    expectChartData(chartPts, 3, 'Sat Dec 30 2023', 7600, -1);
-    expectChartData(chartPts, 4, 'Mon Dec 30 2024', 7600, -1);
-    expectChartData(chartPts, 5, 'Tue Dec 30 2025', 7600, -1);
-    expectChartData(chartPts, 6, 'Wed Dec 30 2026', 7600, -1);
-    expectChartData(chartPts, 7, 'Thu Dec 30 2027', 7600, -1);
-    expectChartData(chartPts, 8, 'Sat Dec 30 2028', 7600, -1);
-    expectChartData(chartPts, 9, 'Sun Dec 30 2029', 7600, -1);
+    expectChartData(chartPts, 1, 'Thu Dec 30 2021', 8560, -1);
+    expectChartData(chartPts, 2, 'Fri Dec 30 2022', 7120, -1);
+    expectChartData(chartPts, 3, 'Sat Dec 30 2023', 7120, -1);
+    expectChartData(chartPts, 4, 'Mon Dec 30 2024', 7120, -1);
+    expectChartData(chartPts, 5, 'Tue Dec 30 2025', 7120, -1);
+    expectChartData(chartPts, 6, 'Wed Dec 30 2026', 7120, -1);
+    expectChartData(chartPts, 7, 'Thu Dec 30 2027', 7120, -1);
+    expectChartData(chartPts, 8, 'Sat Dec 30 2028', 7120, -1);
+    expectChartData(chartPts, 9, 'Sun Dec 30 2029', 7120, -1);
     }
     
     expect(result.assetData[2].item.NAME).toBe('B');
@@ -1778,11 +1778,11 @@ describe("bonds tests", () => {
     expectChartData(chartPts, 2, 'Fri Dec 30 2022', 0, -1);
     expectChartData(chartPts, 3, 'Sat Dec 30 2023', 0, -1);
     expectChartData(chartPts, 4, 'Mon Dec 30 2024', 0, -1);
-    expectChartData(chartPts, 5, 'Tue Dec 30 2025', 1200, -1);
-    expectChartData(chartPts, 6, 'Wed Dec 30 2026', 2400, -1);
-    expectChartData(chartPts, 7, 'Thu Dec 30 2027', 2400, -1);
-    expectChartData(chartPts, 8, 'Sat Dec 30 2028', 2400, -1);
-    expectChartData(chartPts, 9, 'Sun Dec 30 2029', 2400, -1);
+    expectChartData(chartPts, 5, 'Tue Dec 30 2025', 1440, -1);
+    expectChartData(chartPts, 6, 'Wed Dec 30 2026', 2880, -1);
+    expectChartData(chartPts, 7, 'Thu Dec 30 2027', 2880, -1);
+    expectChartData(chartPts, 8, 'Sat Dec 30 2028', 2880, -1);
+    expectChartData(chartPts, 9, 'Sun Dec 30 2029', 2880, -1);
     }
     
     expect(result.assetData[3].item.NAME).toBe('MyFirstBondJul21GenFor2026');
@@ -1790,10 +1790,10 @@ describe("bonds tests", () => {
     const chartPts = result.assetData[3].chartDataPoints;
     expect(chartPts.length).toBe(10);
     expectChartData(chartPts, 0, 'Wed Dec 30 2020', 0, -1);
-    expectChartData(chartPts, 1, 'Thu Dec 30 2021', 1200, -1);
-    expectChartData(chartPts, 2, 'Fri Dec 30 2022', 1200, -1);
-    expectChartData(chartPts, 3, 'Sat Dec 30 2023', 1200, -1);
-    expectChartData(chartPts, 4, 'Mon Dec 30 2024', 1200, -1);
+    expectChartData(chartPts, 1, 'Thu Dec 30 2021', 1440, -1);
+    expectChartData(chartPts, 2, 'Fri Dec 30 2022', 1440, -1);
+    expectChartData(chartPts, 3, 'Sat Dec 30 2023', 1440, -1);
+    expectChartData(chartPts, 4, 'Mon Dec 30 2024', 1440, -1);
     expectChartData(chartPts, 5, 'Tue Dec 30 2025', 0, -1);
     expectChartData(chartPts, 6, 'Wed Dec 30 2026', 0, -1);
     expectChartData(chartPts, 7, 'Thu Dec 30 2027', 0, -1);
@@ -1807,10 +1807,10 @@ describe("bonds tests", () => {
     expect(chartPts.length).toBe(10);
     expectChartData(chartPts, 0, 'Wed Dec 30 2020', 0, -1);
     expectChartData(chartPts, 1, 'Thu Dec 30 2021', 0, -1);
-    expectChartData(chartPts, 2, 'Fri Dec 30 2022', 1200, -1);
-    expectChartData(chartPts, 3, 'Sat Dec 30 2023', 1200, -1);
-    expectChartData(chartPts, 4, 'Mon Dec 30 2024', 1200, -1);
-    expectChartData(chartPts, 5, 'Tue Dec 30 2025', 1200, -1);
+    expectChartData(chartPts, 2, 'Fri Dec 30 2022', 1440, -1);
+    expectChartData(chartPts, 3, 'Sat Dec 30 2023', 1440, -1);
+    expectChartData(chartPts, 4, 'Mon Dec 30 2024', 1440, -1);
+    expectChartData(chartPts, 5, 'Tue Dec 30 2025', 1440, -1);
     expectChartData(chartPts, 6, 'Wed Dec 30 2026', 0, -1);
     expectChartData(chartPts, 7, 'Thu Dec 30 2027', 0, -1);
     expectChartData(chartPts, 8, 'Sat Dec 30 2028', 0, -1);
