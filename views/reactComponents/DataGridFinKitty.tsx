@@ -306,8 +306,8 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
             }}
             columns={this.props.columns}
             onRowsChange={(rows: any[], data: RowsChangeData<any, any>) => {
-              //console.log(`in onRowsChange, rows = ${showObj(rows)}`);
-              //console.log(`in onRowsChange, data = ${showObj(data)}`);
+              // console.log(`in onRowsChange, rows = ${showObj(rows)}`);
+              console.log(`in onRowsChange, data = ${showObj(data)}`);
               // data.indexes is 0 for the 0th row on the screen
               // but this isn't the 0th index of the rowsData
               // so use this.sortedIndices to transform the indices
