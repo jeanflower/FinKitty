@@ -1222,6 +1222,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateHigh: 0.2,
   },
   "2023": {
+    // 2023/24
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
     lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
     adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
@@ -1239,6 +1240,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateHigh: 0.2,
   },
   "2024": {
+    // 2024/25
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
     lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
     adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
@@ -1256,6 +1258,7 @@ const TAX_MAP: TaxBandsMap = {
     cgtRateHigh: 0.2,
   },
   "2025": {
+    // 2025/26
     noTaxBand: 12570, // Note that by fixing this to the same level as previous, we get poorer
     lowTaxBand: 12570 + 37700, // because the tax baands are coded to increase with CPI
     adjustNoTaxBand: 100000, // and if they don't increase, more of our income falls into the tax bands
@@ -1264,10 +1267,11 @@ const TAX_MAP: TaxBandsMap = {
     highTaxRate: 0.4,
     topTaxRate: 0.45,
 
-    noNIBand: 9880,
-    lowNIBand: 50270,
-    lowNIRate: 0.12,
+    noNIBand: 12576,
+    lowNIBand: 50268,
+    lowNIRate: 0.08,
     highNIRate: 0.02,
+
     cgtThreshholdLow: 3000,
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
@@ -1281,10 +1285,11 @@ const TAX_MAP: TaxBandsMap = {
     highTaxRate: 0.4,
     topTaxRate: 0.45,
 
-    noNIBand: 9880,
-    lowNIBand: 50270,
-    lowNIRate: 0.12,
+    noNIBand: 12576,
+    lowNIBand: 50268,
+    lowNIRate: 0.08,
     highNIRate: 0.02,
+
     cgtThreshholdLow: 3000,
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
@@ -1298,10 +1303,11 @@ const TAX_MAP: TaxBandsMap = {
     highTaxRate: 0.4,
     topTaxRate: 0.45,
 
-    noNIBand: 9880,
-    lowNIBand: 50270,
-    lowNIRate: 0.12,
+    noNIBand: 12576,
+    lowNIBand: 50268,
+    lowNIRate: 0.08,
     highNIRate: 0.02,
+
     cgtThreshholdLow: 3000,
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
@@ -1315,10 +1321,11 @@ const TAX_MAP: TaxBandsMap = {
     highTaxRate: 0.4,
     topTaxRate: 0.45,
 
-    noNIBand: 9880,
-    lowNIBand: 50270,
-    lowNIRate: 0.12,
+    noNIBand: 12576,
+    lowNIBand: 50268,
+    lowNIRate: 0.08,
     highNIRate: 0.02,
+
     cgtThreshholdLow: 3000,
     cgtRateLow: 0.1,
     cgtRateHigh: 0.2,
