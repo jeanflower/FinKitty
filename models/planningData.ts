@@ -50,12 +50,10 @@ export function getPlanningTableData(
           pbBasic += pscd.data[bondsIdx];
         } else if ( pscd.label === "PremiumBondsLeisure") {
           pbLeisure += pscd.data[bondsIdx];
-        } else if ( pscd.label === "Bonds") {
-          if (!pscd["label"].includes('growth') && pscd.data[bondsIdx] < 0) {
-            // console.log(`pscd.data[bondsIdx] = ${pscd.data[bondsIdx]}`);
-            // console.log(`increase bondsReleaseFunds from ${bondsReleaseFunds} using ${-pscd.data[bondsIdx]} to ${bondsReleaseFunds - pscd.data[bondsIdx]}`);
-            bondsReleaseFunds += -pscd.data[bondsIdx];
-          }
+        } else if (!pscd["label"].includes('growth') && pscd.data[bondsIdx] < 0) {
+          // console.log(`pscd.data[bondsIdx] = ${pscd.data[bondsIdx]}`);
+          // console.log(`increase bondsReleaseFunds from ${bondsReleaseFunds} using ${-pscd.data[bondsIdx]} to ${bondsReleaseFunds - pscd.data[bondsIdx]}`);
+          bondsReleaseFunds += -pscd.data[bondsIdx];
         }
       });
     }
