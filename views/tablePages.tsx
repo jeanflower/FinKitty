@@ -411,57 +411,51 @@ function handleMonitoringGridRowsUpdated(
   });
   const newVal = newRow[changedColumn.key];
 
-  // log(`oldRow = ${showObj(oldRow)}`);
-  // log(`newRow = ${showObj(newRow)}`);
+  log(`oldRow = ${showObj(oldRow)}`);
+  log(`newRow = ${showObj(newRow)}`);
+  log(`changedColumn.key = ${changedColumn.key}`);
+  log(`newVal = ${newVal}`);
 
   if (oldVal === newVal) {
     return;
   }
 
-  const m: Monitor = {
-    NAME: newRow.NAME,
-    ERA: newRow.ERA,
-    VALUES: [],
+  let changedMonitor = null;
+  for(const m of model.monitors) {
+    if (m.NAME === newRow.NAME) {
+      changedMonitor = JSON.parse(JSON.stringify(m));
+      break;
+    }
   }
-  const keys = Object.keys(newRow);
-  for(const key of keys){
-    /*
-      "NAME": "dog",
-      "ERA": 0,
-      "RECURRENCE": "1m",
-      "TODAYSVALUE": "259.920149101385",
-      "September 2023": "0.0",
-      "August 2023": "0.0"      
-    */
-    if (key === 'NAME') {
-      continue;
-    }
-    if (key === 'ERA') {
-      continue;
-    }
-    if (key === 'RECURRENCE') {
-      continue;
-    }
-    if (key === 'TODAYSVALUE') {
-      continue;
-    }
-    if (key === 'index') {
-      continue;
-    }
-    // console.log(`object[${key}] = ${newRow[key]}`);
+  if(changedMonitor === null) {
+    console.log(`Error - editing a monitor but can't find suitable month ${changedColumn.key} in monitor ${newRow.NAME}`);
+    return;
+  }
 
-    m.VALUES.push({
-      MONTH: key,
-      EXPRESSION: newRow[key],
+  console.log(`changedMonitor.VALUES = ${showObj(changedMonitor.VALUES)}`);
+
+  let updatedSingleMonthValue = false;
+  for (const v of changedMonitor.VALUES) {
+    if (v.MONTH === changedColumn.key) {
+      // log(`found month ${v.MONTH} in monitor ${m.NAME}`);
+      v.EXPRESSION = newVal;
+      updatedSingleMonthValue = true;
+      break;
+    }
+  }
+  if(!updatedSingleMonthValue) {
+    changedMonitor.VALUES.push({
+      MONTH: changedColumn.key,
+      EXPRESSION: newVal,
     })
   }
-  // console.log(`new Monitor is ${showObj(m)}`);
+
   if (doChecks) {
-    // console.log(`check data ${showObj(newRow)}`); //??
-    submitMonitor(m, model);
+    console.log(`check data ${showObj(changedMonitor)}`); //??
+    submitMonitor(changedMonitor, model);
   } else {
-    console.log(`submit data ${showObj(newRow)}`);
-    submitMonitor(m, model);
+    console.log(`submit data ${showObj(changedMonitor)}`);
+    submitMonitor(changedMonitor, model);
   }
 }
 
