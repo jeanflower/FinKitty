@@ -197,6 +197,7 @@ export const bondModel = "bondModel";
 export const DBPModel = "DBPModel";
 export const monitorModel1 = "MonitorModel1";
 export const monitorModel2 = "MonitorModel2";
+export const monitorModel3 = "MonitorModel3";
 
 export interface ViewType {
   lc: string;

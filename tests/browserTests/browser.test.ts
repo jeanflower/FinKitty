@@ -7,6 +7,7 @@ import {
   ThreeChryslerModel,
   monitorModel1,
   monitorModel2,
+  monitorModel3,
 } from "../../localization/stringConstants";
 import {
   addSetting,
@@ -1281,6 +1282,30 @@ describe(testName, () => {
 
     let ary3 = await getDataDumpFromPage(driver, "expensesDetailsexpensesMonitoringTable");
     expect(ary3.length).toEqual(3);
+  });
+
+    it("should show monitoring data3", async () => {
+    const testDataModelName = "ShowMonitoring3";
+    await beforeAllWork(
+      driver,
+      testDataModelName,
+      `{"testName":"${monitorModel3}"}`,
+    );
+
+    await gotoTabPage(driver, assetsTag);
+
+    let ary2 = await getDataDumpFromPage(driver, "expensesSummaryexpensesMonitoring2024Table");
+    // console.log(`ary2 = ${JSON.stringify(ary2)}`);
+    expect(ary2[0].key).toEqual('Basic');
+    expect(ary2[0].actualSpend).toEqual('9');
+    expect(ary2[0].allowedBudget).toEqual('150');
+    expect(ary2[0].remainingBudget).toEqual('141');
+    expect(ary2[0].proportion).toEqual('6');
+    expect(ary2[1].key).toEqual('Leisure');
+    expect(ary2[1].actualSpend).toEqual('12');
+    expect(ary2[1].allowedBudget).toEqual('160');
+    expect(ary2[1].remainingBudget).toEqual('148');
+    expect(ary2[1].proportion).toEqual('8');
   });
 
   afterAll(async () => {

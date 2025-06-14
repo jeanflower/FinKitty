@@ -46,6 +46,7 @@ import {
   DBPModel,
   monitorModel1,
   monitorModel2,
+  monitorModel3,
 } from "../localization/stringConstants";
 import { ModelData, Setting } from "../types/interfaces";
 import {
@@ -64,6 +65,7 @@ import {
   getDefinedContributionsPension,
   getMonitorExampleData1,
   getMonitorExampleData2,
+  getMonitorExampleData3,
 } from "./exampleModels";
 import { setSetting } from "./modelUtils";
 import { simpleSetting, viewSetting } from "./exampleSettings";
@@ -1199,6 +1201,8 @@ export function getTestModel(input: string): ModelData {
     model = getMonitorExampleData1();
   } else if (input === monitorModel2) {
     model = getMonitorExampleData2();
+  } else if (input === monitorModel3) {
+    model = getMonitorExampleData3();
   }
   
   // TODO : should we make a copy here for more stable tests?

@@ -422,6 +422,71 @@ export const monitorExampleData2 = `{
   "transactions":[],"version":13
 }`;
 
+export const monitorExampleData3 = `{
+"name":"monitorTest",
+"assets":[
+  {"NAME":"PremiumBondsLeisure","ERA":0,"VALUE":"0","QUANTITY":"","START":"01 Jun 2022","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0","LIABILITY":""},
+  {"NAME":"PremiumBondsBasic","ERA":0,"VALUE":"0","QUANTITY":"","START":"01 Jun 2022","GROWTH":"0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":false,"IS_A_DEBT":false,"CATEGORY":"","PURCHASE_PRICE":"0","LIABILITY":""},
+  {"NAME":"Cash","CATEGORY":"","START":"01 Jan 2017","VALUE":"0.0","QUANTITY":"","GROWTH":"0.0","CPI_IMMUNE":true,"CAN_BE_NEGATIVE":true,"IS_A_DEBT":false,"LIABILITY":"","PURCHASE_PRICE":"0.0","ERA":0}],
+"incomes":[
+  {"NAME":"Inc","ERA":0,"VALUE":"10","VALUE_SET":"1 July 2023","START":"01 Jul 2023","END":"01 Jul 2025","CPI_IMMUNE":true,"LIABILITY":"Frank(incomeTax)/Frank(NI)","RECURRENCE":"1m","CATEGORY":""}],
+"expenses":[
+  {"NAME":"Holiday","ERA":0,"VALUE":"5","VALUE_SET":"1 August 2023","START":"1 August 2023","END":"1 August 2025","CPI_IMMUNE":true,"CATEGORY":"Leisure","RECURRENCE":"1m"},
+  {"NAME":"Food","CATEGORY":"Basic","START":"1 Aug 2023","END":"1 Aug 2025","VALUE":"10","VALUE_SET":"1 Aug 2023","CPI_IMMUNE":true,"RECURRENCE":"1m","ERA":0}],"triggers":[],
+"monitors":[
+  {"NAME":"Food","ERA":0,"VALUES":[
+    {"MONTH":"Mar 2024","EXPRESSION":"3"},
+    {"MONTH":"Feb 2024","EXPRESSION":"3"},
+    {"MONTH":"Jan 2024","EXPRESSION":"3"},
+    {"MONTH":"Dec 2023","EXPRESSION":"3"},
+    {"MONTH":"Nov 2023","EXPRESSION":"3"},
+    {"MONTH":"item","EXPRESSION":
+      {"NAME":"Food","CATEGORY":"Basic","START":"1 Aug 2023","END":"1 Aug 2025","VALUE":"10","VALUE_SET":"1 Aug 2023","CPI_IMMUNE":true,"RECURRENCE":"1m","ERA":0}
+    },
+    {"MONTH":"sum","EXPRESSION":27},
+    {"MONTH":"RECURRENT_SPEND","EXPRESSION":"2.25"}
+    ]
+  },
+  {"NAME":"Holiday","ERA":0,"VALUES":[
+    {"MONTH":"Mar 2024","EXPRESSION":"4"},
+    {"MONTH":"Feb 2024","EXPRESSION":"4"},
+    {"MONTH":"Jan 2024","EXPRESSION":"4"},
+    {"MONTH":"Dec 2023","EXPRESSION":"4"},
+    {"MONTH":"Nov 2023","EXPRESSION":"4"},
+    {"MONTH":"item","EXPRESSION":
+      {"NAME":"Holiday","ERA":0,"VALUE":"5","VALUE_SET":"1 August 2023","START":"1 August 2023","END":"1 August 2025","CPI_IMMUNE":true,"CATEGORY":"Leisure","RECURRENCE":"1m"}
+    },
+    {"MONTH":"sum","EXPRESSION":36},
+    {"MONTH":"RECURRENT_SPEND","EXPRESSION":"3"}
+    ]
+  }
+],
+"generators":[
+  {"NAME":"early","ERA":0,"TYPE":"Bonds","DETAILS":{"VALUE":"5","GROWTH":"0","CATEGORY":"Bonds","START":"1 June 2022","DURATION":"1y","SOURCE":"Cash","TARGET":"Cash","YEAR":"2023","RECURRENCE":"","RECURRENCE_STOP":""}},
+  {"NAME":"late","ERA":0,"TYPE":"Bonds","DETAILS":{"VALUE":"4","GROWTH":"0","CATEGORY":"Bonds","START":"1 Jun 2023","DURATION":"1y","SOURCE":"Cash","TARGET":"Cash","YEAR":"2025","RECURRENCE":"","RECURRENCE_STOP":""}},
+  {"TYPE":"Bonds","NAME":"early 2","ERA":0,"DETAILS":{"VALUE":"100","GROWTH":"0","CATEGORY":"Bonds","START":"1 June 2022","DURATION":"1y","SOURCE":"Cash","TARGET":"Cash","YEAR":"2024","RECURRENCE":"","RECURRENCE_STOP":""}},
+  {"TYPE":"Bonds","NAME":"right","ERA":0,"DETAILS":{"VALUE":"200","GROWTH":"0","CATEGORY":"Bonds","START":"1 June 2023","DURATION":"1y","SOURCE":"Cash","TARGET":"Cash","YEAR":"2024","RECURRENCE":"","RECURRENCE_STOP":""}}
+],
+"settings":[
+  {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+  {"NAME":"End of view range","ERA":0,"VALUE":"01 Jan 2027","HINT":"Date at the end of range to be plotted","TYPE":"view"},
+  {"NAME":"End of monitor range","ERA":0,"VALUE":"Jun 2023","HINT":"","TYPE":"adjustable"},
+  {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+  {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0},
+  {"NAME":"Beginning of view range","ERA":0,"VALUE":"31 Dec 2022","HINT":"Date at the start of range to be plotted","TYPE":"view"},
+  {"NAME":"Beginning of monitor range","ERA":0,"VALUE":"Apr 2023","HINT":"","TYPE":"adjustable"}
+],
+"transactions":[
+  {"NAME":"PBLWinnings 3","ERA":0,"CATEGORY":"","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"","TO":"PremiumBondsLeisure","TO_ABSOLUTE":true,"TO_VALUE":"9","DATE":"1 July 2025","STOP_DATE":"","RECURRENCE":"","TYPE":"custom"},
+  {"NAME":"PBLWinnings 2","ERA":0,"CATEGORY":"","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"","TO":"PremiumBondsLeisure","TO_ABSOLUTE":true,"TO_VALUE":"160","DATE":"1 July 2024","STOP_DATE":"","RECURRENCE":"","TYPE":"custom"},
+  {"NAME":"PBLWinnings 1","ERA":0,"CATEGORY":"","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"","TO":"PremiumBondsLeisure","TO_ABSOLUTE":true,"TO_VALUE":"8","DATE":"1 July 2023","STOP_DATE":"","RECURRENCE":"","TYPE":"custom"},
+  {"NAME":"PBBWinnings 3","ERA":0,"CATEGORY":"","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"","TO":"PremiumBondsBasic","TO_ABSOLUTE":true,"TO_VALUE":"7","DATE":"1 July 2025","STOP_DATE":"","RECURRENCE":"","TYPE":"custom"},
+  {"NAME":"PBBWinnings 2","ERA":0,"CATEGORY":"","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"","TO":"PremiumBondsBasic","TO_ABSOLUTE":true,"TO_VALUE":"150","DATE":"1 July 2024","STOP_DATE":"","RECURRENCE":"","TYPE":"custom"},
+  {"NAME":"PBBWinnings 1","ERA":0,"CATEGORY":"","FROM":"","FROM_ABSOLUTE":false,"FROM_VALUE":"","TO":"PremiumBondsBasic","TO_ABSOLUTE":true,"TO_VALUE":"6","DATE":"1 July 2023","STOP_DATE":"","RECURRENCE":"","TYPE":"custom"}
+]
+,"version":13}
+`;
+
 const variableDateExampleData = `{
   "name":"test",
   "assets":[
@@ -851,6 +916,9 @@ export function getMonitorExampleData1(): ModelData {
 }
 export function getMonitorExampleData2(): ModelData {
   return makeModelFromJSON(monitorExampleData2, "monitorExampleData2");
+}
+export function getMonitorExampleData3(): ModelData {
+  return makeModelFromJSON(monitorExampleData3, "monitorExampleData3");
 }
 export function getVariableDateExampleData(): ModelData {
   return makeModelFromJSON(variableDateExampleData, "variableDateExample");
