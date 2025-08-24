@@ -2760,8 +2760,8 @@ class AppContent extends Component<AppProps, AppState> {
             "Check model",
             async () => {
               const response = checkModelData(
-                reactAppComponent.state.modelDataRaw,
-                modelName,
+                reactAppComponent.state.modelDataProcessed,
+                "has been processed",
               );
               // log(`showAlert check result ${response}`);
               showAlert(response);
@@ -2954,7 +2954,7 @@ class AppContent extends Component<AppProps, AppState> {
     return (
       <div className="ml-3">
         {triggersTableDivWithHeading(
-          this.state.modelDataRaw,
+          this.state.modelDataProcessed,
           this.options.checkModelOnEdit,
           parentCallbacks,
           "",
