@@ -33,7 +33,7 @@ import {
   Transaction,
 } from "../types/interfaces";
 import { DateFormatType, log, makeDateFromString, showObj } from "../utils/utils";
-import { checkModel } from "./checks";
+import { checkModel, generateAndCheckModel } from "./checks";
 
 import { makeModelFromJSONString } from "./modelFromJSON";
 import { getSettings, getVarVal, isATransaction } from "./modelQueries";
@@ -242,15 +242,18 @@ export function applyRedoToModel(model: ModelData): boolean {
   }
   return false;
 }
-export function attemptRenameLong(
+
+
+function attemptRenameLongInternal(
   model: ModelData,
   doChecks: boolean,
+  checkFunction: (model: ModelData) => { message: string },
   old: string,
   replacement: string,
 ): string {
   // log(`attempt rename from ${old} to ${replacement}`);
 
-  const outcome = checkModel(model);
+  const outcome = checkFunction(model);
   /* istanbul ignore if */
   if (outcome.message !== "") {
     return `Error: pre-rename model ${showObj(model)} fails checks with ${showObj(outcome)}`;
@@ -344,7 +347,7 @@ export function attemptRenameLong(
     return message;
   }
   if (doChecks) {
-    const outcome = checkModel(model);
+    const outcome = checkFunction(model);
     /* istanbul ignore if */
     if (outcome.message !== "") {
       log(`Error: reverted model fails checks with ${showObj(outcome)}`);
@@ -357,6 +360,28 @@ export function attemptRenameLong(
   } else {
     return "";
   }
+}
+
+export function attemptRenameLongRaw(
+  model: ModelData,
+  doChecks: boolean,
+  old: string,
+  replacement: string,
+): string {
+  // log(`attempt rename from ${old} to ${replacement}`);
+
+  return attemptRenameLongInternal(model, doChecks, generateAndCheckModel, old, replacement);
+}
+
+export function attemptRenameLong(
+  model: ModelData,
+  doChecks: boolean,
+  old: string,
+  replacement: string,
+): string {
+  // log(`attempt rename from ${old} to ${replacement}`);
+
+  return attemptRenameLongInternal(model, doChecks, checkModel, old, replacement);
 }
 
 function standardiseDate(dateString: string): string {

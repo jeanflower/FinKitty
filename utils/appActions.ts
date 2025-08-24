@@ -1,6 +1,7 @@
 import { saveModelLSM } from "../database/loadSaveModel";
 import {
   attemptRenameLong,
+  attemptRenameLongRaw,
   markForUndo,
   revertToUndoModel,
 } from "../models/modelUtils";
@@ -21,7 +22,7 @@ export async function attemptRename(
     sourceID: number,
   ) => Promise<void>,
 ): Promise<string> {
-  const message = attemptRenameLong(model, doChecks, old, replacement);
+  const message = attemptRenameLongRaw(model, doChecks, old, replacement);
   // log(`message from attemptRenameLong is ${message}`);
   if (message === "") {
     // log(`message is empty, go to refreshData`);
