@@ -428,8 +428,11 @@ function handleMonitoringGridRowsUpdated(
     }
   }
   if(changedMonitor === null) {
-    log(`Error - editing a monitor but can't find suitable month ${changedColumn.key} in monitor ${newRow.NAME}`);
-    return;
+    changedMonitor = {
+      NAME: newRow.NAME,
+      VALUES: [],
+      ERA: 0,
+    }
   }
 
   // log(`changedMonitor.VALUES = ${showObj(changedMonitor.VALUES)}`);
