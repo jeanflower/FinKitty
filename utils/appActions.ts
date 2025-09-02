@@ -1,13 +1,12 @@
 import { saveModelLSM } from "../database/loadSaveModel";
 import {
-  attemptRenameLong,
   attemptRenameLongRaw,
   markForUndo,
   revertToUndoModel,
 } from "../models/modelUtils";
 import { DeleteResult, Item, ModelData } from "../types/interfaces";
 import { getUserID } from "./user";
-import { checkModel } from "../models/checks";
+import { generateAndCheckModel } from "../models/checks";
 import { Context, log } from "./utils";
 
 export async function attemptRename(
@@ -131,7 +130,7 @@ async function deleteItemsRecursive(
   let message = "";
   let checksClean = false;
   while (!checksClean) {
-    const outcome = checkModel(model);
+    const outcome = generateAndCheckModel(model);
     checksClean = outcome.message === "";
     if (checksClean) {
       break;
