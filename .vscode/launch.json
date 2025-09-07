@@ -4,6 +4,16 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+     {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug named npm test",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["test", "--", "-t", "pay income tax on monthly crystallized pension to savings"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"]
+    },
     {
       "type": "chrome",
       "request": "launch",
