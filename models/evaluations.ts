@@ -1938,32 +1938,32 @@ interface LiabilityTotalAndSources {
     source: string;
   }[];
 }
-interface LiableIncomes {
+interface Liabilities {
   inTaxYear: {
     cgt: {
       gains: undefined | Map<string, LiabilityTotalAndSources>;
     },
     incomeTax: {
       total: undefined | Map<string, LiabilityTotalAndSources>;
-      fromFixedIncome: undefined | Map<string, number>; // TODO use LiabilityTotalAndSources
-      fromFlexibleIncome: undefined | Map<string, number>;  // TODO use LiabilityTotalAndSources
+      fixedIncome: undefined | Map<string, number>;
+      flexibleIncome: undefined | Map<string, LiabilityTotalAndSources>; 
     },
     NI: {
       total: undefined | Map<string, LiabilityTotalAndSources>;
-      fromFixedIncome: undefined | Map<string, number>;
-      fromFlexibleIncome: undefined | Map<string, number>;
+      fixedIncomeNi: undefined | Map<string, number>;
+      flexibleIncomeNi: undefined | Map<string, number>;
     },
   };
   inTaxMonth: {
     incomeTax: {
-      totall: undefined | Map<string, number>; // TODO use LiabilityTotalAndSources
-      fromFixedIncomee: undefined | Map<string, number>; // TODO use LiabilityTotalAndSources
-      fromFlexibleIncomee: undefined | Map<string, number>; // TODO use LiabilityTotalAndSources
+      total: undefined | Map<string, number>; 
+      fixedIncome: undefined | Map<string, number>;
+      flexibleIncomeTM: undefined | Map<string, LiabilityTotalAndSources>; 
     },
     NI: {
-      totall: undefined | Map<string, number>;
-      fromFixedIncomee: undefined | Map<string, number>;
-      fromFlexibleIncomee: undefined | Map<string, number>;
+      total: undefined | Map<string, number>;
+      fixedIncome: undefined | Map<string, number>;
+      flexibleIncome: undefined | Map<string, number>;
 
     },
   };
@@ -1984,7 +1984,7 @@ function OptimizeIncomeTax(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   person: string,
-  incomes: LiableIncomes,
+  incomes: Liabilities,
   evaluations: Evaluation[],
   model: ModelData,
 ) {
@@ -2050,16 +2050,18 @@ function OptimizeIncomeTax(
           // using up the allowance in optimised way is a 'flexible' income
           // not a 'fixed' income
           const flexibleIncomesMap =
-            incomes.inTaxYear.incomeTax.fromFlexibleIncome;
+            incomes.inTaxYear.incomeTax.flexibleIncome;
           if (flexibleIncomesMap === undefined) {
             throw new Error("flexibleIncomesMap should be defined");
           }
           // log(`look for a flexibleIncomes map for ${person}`);
           let personVal = flexibleIncomesMap.get(person);
           if (personVal === undefined) {
-            personVal = 0;
+            personVal = { amount: 0, sources: [] };
+            flexibleIncomesMap.set(person, personVal);
           }
-          flexibleIncomesMap.set(person, personVal + amountToTransfer);
+          const sourceKey = `auto-transfer from ${valueKey}`;
+          addToTaxLiability(personVal, amountToTransfer, sourceKey);
 
           unusedAllowance = unusedAllowance - amountToTransfer;
           // log(`use allowance by transferring ${amountToTransfer}`);
@@ -2101,7 +2103,7 @@ function OptimizeIncomeTax(
 }
 
 function settleUpTax(
-  incomes: LiableIncomes,
+  incomes: Liabilities,
   taxMonthlyPaymentsPaid: TaxPaymentsMade,
   startYearOfTaxYear: number,
   values: ValuesContainer,
@@ -2163,7 +2165,7 @@ function settleUpTax(
     if (taxType === incomeTax && personLiabilityMap !== undefined) {
       const incomeTaxPersonLiabilityMap = personLiabilityMap;
       const incomeFixedPersonLiabilityMap =
-        incomes.inTaxYear.incomeTax.fromFixedIncome;
+        incomes.inTaxYear.incomeTax.fixedIncome;
       if (incomeFixedPersonLiabilityMap === undefined) {
         throw new Error(
           "expect incomeFixedPersonLiabilityMap to have been set up",
@@ -2256,39 +2258,42 @@ function settleUpTax(
 
         // reset the flexible and fixed income trackers too
         const flexibleIncomesMap =
-          incomes.inTaxYear.incomeTax.fromFlexibleIncome;
+          incomes.inTaxYear.incomeTax.flexibleIncome;
         if (flexibleIncomesMap === undefined) {
           throw new Error("flexibleIncomesMap should be defined");
         }
-        flexibleIncomesMap.set(person, 0);
+        flexibleIncomesMap.set(person, { amount: 0, sources: [] });
 
-        const fixedIncomesMap = incomes.inTaxYear.incomeTax.fromFixedIncome;
+        const fixedIncomesMap = incomes.inTaxYear.incomeTax.fixedIncome;
         if (fixedIncomesMap === undefined) {
           throw new Error("fixedIncomesMap should be defined");
         }
         fixedIncomesMap.set(person, 0);
 
-        const liableIncomeTaxInTaxMonth = incomes.inTaxMonth.incomeTax.totall;
+        const liableIncomeTaxInTaxMonth = incomes.inTaxMonth.incomeTax.total;
         if (liableIncomeTaxInTaxMonth === undefined) {
           throw new Error("liableIncomeTaxInTaxMonth should be defined");
         }
         liableIncomeTaxInTaxMonth.set(person, 0);
 
         const liableFixedIncomeTaxInTaxMonth =
-          incomes.inTaxMonth.incomeTax.fromFixedIncomee;
+          incomes.inTaxMonth.incomeTax.fixedIncome;
         if (liableFixedIncomeTaxInTaxMonth === undefined) {
           throw new Error("liableFixedIncomeTaxInTaxMonth should be defined");
         }
         liableFixedIncomeTaxInTaxMonth.set(person, 0);
 
         const liableFlexibleIncomeTaxInTaxMonth =
-          incomes.inTaxMonth.incomeTax.fromFlexibleIncomee;
+          incomes.inTaxMonth.incomeTax.flexibleIncomeTM;
         if (liableFlexibleIncomeTaxInTaxMonth === undefined) {
           throw new Error(
             "liableFlexibleIncomeTaxInTaxMonth should be defined",
           );
         }
-        liableFlexibleIncomeTaxInTaxMonth.set(person, 0);
+        liableFlexibleIncomeTaxInTaxMonth.set(person, {
+          amount: 0,
+          sources: [],
+        });
 
         incomeTaxMonthlyPaymentsPaid.set(person, 0);
         incomeFixedTaxMonthlyPaymentsPaid.set(person, 0);
@@ -2297,25 +2302,25 @@ function settleUpTax(
     } else if (taxType === nationalInsurance && personLiabilityMap !== undefined) {
       const niPersonLiabilityMap = personLiabilityMap;
 
-      const niFixedPersonLiabilityMap = incomes.inTaxYear.NI.fromFixedIncome;
+      const niFixedPersonLiabilityMap = incomes.inTaxYear.NI.fixedIncomeNi;
       if (niFixedPersonLiabilityMap === undefined) {
         throw new Error("expect niFixedPersonLiabilityMap to have been set up");
       }
 
-      let liableIncomeNIInTaxMonth = incomes.inTaxMonth.NI.totall;
+      let liableIncomeNIInTaxMonth = incomes.inTaxMonth.NI.total;
       /* istanbul ignore if  */ //redundant untested
       if (liableIncomeNIInTaxMonth === undefined) {
         log("Error : expect maps to have been set up in accumulateLiability");
         liableIncomeNIInTaxMonth = new Map<string, number>();
-        incomes.inTaxMonth.NI.totall = liableIncomeNIInTaxMonth;
+        incomes.inTaxMonth.NI.total = liableIncomeNIInTaxMonth;
       }
 
-      let liableFixedIncomeNIInTaxMonth = incomes.inTaxMonth.NI.fromFixedIncomee;
+      let liableFixedIncomeNIInTaxMonth = incomes.inTaxMonth.NI.fixedIncome;
       /* istanbul ignore if  */ //redundant untested
       if (liableFixedIncomeNIInTaxMonth === undefined) {
         log("Error : expect maps to have been set up in accumulateLiability");
         liableFixedIncomeNIInTaxMonth = new Map<string, number>();
-        incomes.inTaxMonth.NI.fromFixedIncomee = liableFixedIncomeNIInTaxMonth;
+        incomes.inTaxMonth.NI.fixedIncome = liableFixedIncomeNIInTaxMonth;
       }
 
       let nIMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.NIxTotal;
@@ -2335,7 +2340,7 @@ function settleUpTax(
       }
 
       for (const [person, amount] of niPersonLiabilityMap) {
-        const niFromFixedIncomeMap = incomes.inTaxYear.NI.fromFixedIncome;
+        const niFromFixedIncomeMap = incomes.inTaxYear.NI.fixedIncomeNi;
         if (niFromFixedIncomeMap === undefined) {
           throw new Error("Expected NIFromFixedIncome to be defined");
         }
@@ -2517,7 +2522,7 @@ function getTaxMonthDate(startYearOfTaxYear: number, monthOfTaxYear: number) {
 }
 
 function payTaxEstimate(
-  incomes: LiableIncomes,
+  liabilities: Liabilities,
   taxMonthlyPaymentsPaid: TaxPaymentsMade,
   startYearOfTaxYear: number,
   monthOfTaxYear: number,
@@ -2528,25 +2533,25 @@ function payTaxEstimate(
 ) {
   // income tax
   // log(`payTaxEstimate for month ${monthOfTaxYear} and startYearOfTaxYear ${startYearOfTaxYear}`);
-  let liableIncomeTaxInTaxMonth = incomes.inTaxMonth.incomeTax.totall;
+  let liableIncomeTaxInTaxMonth = liabilities.inTaxMonth.incomeTax.total;
   if (liableIncomeTaxInTaxMonth === undefined) {
     liableIncomeTaxInTaxMonth = new Map<string, number>();
-    incomes.inTaxMonth.incomeTax.totall = liableIncomeTaxInTaxMonth;
+    liabilities.inTaxMonth.incomeTax.total = liableIncomeTaxInTaxMonth;
   }
 
   let liableFixedIncomeTaxInTaxMonth =
-    incomes.inTaxMonth.incomeTax.fromFixedIncomee;
+    liabilities.inTaxMonth.incomeTax.fixedIncome;
   if (liableFixedIncomeTaxInTaxMonth === undefined) {
     liableFixedIncomeTaxInTaxMonth = new Map<string, number>();
-    incomes.inTaxMonth.incomeTax.fromFixedIncomee =
+    liabilities.inTaxMonth.incomeTax.fixedIncome =
       liableFixedIncomeTaxInTaxMonth;
   }
 
   let liableFlexibleIncomeTaxInTaxMonth =
-    incomes.inTaxMonth.incomeTax.fromFlexibleIncomee;
+    liabilities.inTaxMonth.incomeTax.flexibleIncomeTM;
   if (liableFlexibleIncomeTaxInTaxMonth === undefined) {
-    liableFlexibleIncomeTaxInTaxMonth = new Map<string, number>();
-    incomes.inTaxMonth.incomeTax.fromFlexibleIncomee =
+    liableFlexibleIncomeTaxInTaxMonth = new Map<string, LiabilityTotalAndSources>();
+    liabilities.inTaxMonth.incomeTax.flexibleIncomeTM =
       liableFlexibleIncomeTaxInTaxMonth;
   }
 
@@ -2568,7 +2573,8 @@ function payTaxEstimate(
     if (fixedVal === undefined) {
       fixedVal = 0;
     }
-    let flexVal = liableFlexibleIncomeTaxInTaxMonth.get(person);
+    let flexValObj = liableFlexibleIncomeTaxInTaxMonth.get(person);
+    let flexVal = flexValObj?.amount;
     if (flexVal === undefined) {
       flexVal = 0;
     }
@@ -2647,11 +2653,11 @@ function payTaxEstimate(
     }
     liableIncomeTaxInTaxMonth.set(person, 0);
     liableFixedIncomeTaxInTaxMonth.set(person, 0);
-    liableFlexibleIncomeTaxInTaxMonth.set(person, 0);
+    liableFlexibleIncomeTaxInTaxMonth.set(person, { amount: 0, sources: [] });
   }
 }
 function payNIEstimate(
-  incomes: LiableIncomes,
+  incomes: Liabilities,
   taxMonthlyPaymentsPaid: TaxPaymentsMade,
   startYearOfTaxYear: number,
   monthOfTaxYear: number,
@@ -2662,15 +2668,15 @@ function payNIEstimate(
 ) {
   // log(`pay NI estimate for month ${monthOfTaxYear} and startYearOfTaxYear ${startYearOfTaxYear} `)
   // NI
-  let liableNIInTaxMonth = incomes.inTaxMonth.NI.totall;
+  let liableNIInTaxMonth = incomes.inTaxMonth.NI.total;
   if (liableNIInTaxMonth === undefined) {
     liableNIInTaxMonth = new Map<string, number>();
-    incomes.inTaxMonth.NI.totall = liableNIInTaxMonth;
+    incomes.inTaxMonth.NI.total = liableNIInTaxMonth;
   }
-  let liableNIInTaxMonthFromFixed = incomes.inTaxMonth.NI.fromFixedIncomee;
+  let liableNIInTaxMonthFromFixed = incomes.inTaxMonth.NI.fixedIncome;
   if (liableNIInTaxMonthFromFixed === undefined) {
     liableNIInTaxMonthFromFixed = new Map<string, number>();
-    incomes.inTaxMonth.NI.fromFixedIncomee = liableNIInTaxMonthFromFixed;
+    incomes.inTaxMonth.NI.fixedIncome = liableNIInTaxMonthFromFixed;
   }
   let nIMonthlyPaymentsPaid = taxMonthlyPaymentsPaid.NIxTotal;
   if (nIMonthlyPaymentsPaid === undefined) {
@@ -2789,7 +2795,7 @@ function accumulateLiability(
   liability: string,
   type: string, // incomeTax or nationalInsurance
   incomeValue: number,
-  incomes: LiableIncomes,
+  incomes: Liabilities,
   typeOfMoment: string,
   isFlexibleIncome: boolean,
   isFixedIncome: boolean,
@@ -2818,8 +2824,8 @@ function accumulateLiability(
         string,
         LiabilityTotalAndSources
       >();
-      incomes.inTaxYear.incomeTax.fromFixedIncome = new Map<string, number>();
-      incomes.inTaxYear.incomeTax.fromFlexibleIncome = new Map<string, number>();
+      incomes.inTaxYear.incomeTax.fixedIncome = new Map<string, number>();
+      incomes.inTaxYear.incomeTax.flexibleIncome = new Map<string, LiabilityTotalAndSources>();
       personLiabilityMap = incomes.inTaxYear.incomeTax.total;
     }
   } else if (type === nationalInsurance) {
@@ -2828,8 +2834,8 @@ function accumulateLiability(
     if (personLiabilityMap === undefined) {
       // log(`set up new map for NI`);
       incomes.inTaxYear.NI.total = new Map<string, LiabilityTotalAndSources>();
-      incomes.inTaxYear.NI.fromFixedIncome = new Map<string, number>();
-      incomes.inTaxYear.NI.fromFlexibleIncome = new Map<string, number>();
+      incomes.inTaxYear.NI.fixedIncomeNi = new Map<string, number>();
+      incomes.inTaxYear.NI.flexibleIncomeNi = new Map<string, number>();
       personLiabilityMap = incomes.inTaxYear.NI.total;
     }
   }
@@ -2848,17 +2854,22 @@ function accumulateLiability(
   }
   if (type === incomeTax) {
     if (isFlexibleIncome) {
-      const flexibleIncomesMap = incomes.inTaxYear.incomeTax.fromFlexibleIncome;
+      const flexibleIncomesMap = incomes.inTaxYear.incomeTax.flexibleIncome;
       if (flexibleIncomesMap !== undefined) {
         let personVal = flexibleIncomesMap.get(liability);
         if (personVal === undefined) {
-          personVal = 0;
+          personVal = {
+            amount: 0,
+            sources: [],
+          };
+          flexibleIncomesMap.set(liability, personVal);
         }
-        flexibleIncomesMap.set(liability, personVal + incomeValue);
+        const sourceKey = sourceDescription;
+        addToTaxLiability(personVal, incomeValue, sourceKey);
       }
     }
     if (isFixedIncome) {
-      const fixedIncomesMap = incomes.inTaxYear.incomeTax.fromFixedIncome;
+      const fixedIncomesMap = incomes.inTaxYear.incomeTax.fixedIncome;
       if (fixedIncomesMap !== undefined) {
         let personVal = fixedIncomesMap.get(liability);
         if (personVal === undefined) {
@@ -2869,26 +2880,26 @@ function accumulateLiability(
     }
 
     /////////// TODO duplication of code
-    let liableIncomeTaxInTaxMonth = incomes.inTaxMonth.incomeTax.totall;
+    let liableIncomeTaxInTaxMonth = incomes.inTaxMonth.incomeTax.total;
     /* istanbul ignore if  */ //redundant untested
     if (liableIncomeTaxInTaxMonth === undefined) {
       liableIncomeTaxInTaxMonth = new Map<string, number>();
-      incomes.inTaxMonth.incomeTax.totall = liableIncomeTaxInTaxMonth;
+      incomes.inTaxMonth.incomeTax.total = liableIncomeTaxInTaxMonth;
     }
     let liableFixedIncomeTaxInTaxMonth =
-      incomes.inTaxMonth.incomeTax.fromFixedIncomee;
+      incomes.inTaxMonth.incomeTax.fixedIncome;
     /* istanbul ignore if  */ //redundant untested
     if (liableFixedIncomeTaxInTaxMonth === undefined) {
       liableFixedIncomeTaxInTaxMonth = new Map<string, number>();
-      incomes.inTaxMonth.incomeTax.fromFixedIncomee =
+      incomes.inTaxMonth.incomeTax.fixedIncome =
         liableFixedIncomeTaxInTaxMonth;
     }
     let liableFlexibleIncomeTaxInTaxMonth =
-      incomes.inTaxMonth.incomeTax.fromFlexibleIncomee;
+      incomes.inTaxMonth.incomeTax.flexibleIncomeTM;
     /* istanbul ignore if  */ //redundant untested
     if (liableFlexibleIncomeTaxInTaxMonth === undefined) {
-      liableFlexibleIncomeTaxInTaxMonth = new Map<string, number>();
-      incomes.inTaxMonth.incomeTax.fromFlexibleIncomee =
+      liableFlexibleIncomeTaxInTaxMonth = new Map<string, LiabilityTotalAndSources>();
+      incomes.inTaxMonth.incomeTax.flexibleIncomeTM =
         liableFlexibleIncomeTaxInTaxMonth;
     }
 
@@ -2912,10 +2923,11 @@ function accumulateLiability(
       let taxFlexibleLiability =
         liableFlexibleIncomeTaxInTaxMonth.get(liability);
       if (taxFlexibleLiability === undefined) {
-        taxFlexibleLiability = 0;
+        taxFlexibleLiability = { amount: 0, sources: []  };
+        liableFlexibleIncomeTaxInTaxMonth.set(liability, taxFlexibleLiability);
       }
-      const newFlexibleLiability = taxFlexibleLiability + incomeValue;
-      liableFlexibleIncomeTaxInTaxMonth.set(liability, newFlexibleLiability);
+      const sourceKey = sourceDescription;
+      addToTaxLiability(taxFlexibleLiability, incomeValue, sourceKey);
     }
 
     /*
@@ -2937,20 +2949,20 @@ function accumulateLiability(
     }
   }
   if (type === nationalInsurance) {
-    let liableNIInTaxMonth = incomes.inTaxMonth.NI.totall;
+    let liableNIInTaxMonth = incomes.inTaxMonth.NI.total;
     /* istanbul ignore if */
     if (liableNIInTaxMonth === undefined) {
       log(`Error: don't expect liableNIInTaxMonth to be undefined!`);
       liableNIInTaxMonth = new Map<string, number>();
-      incomes.inTaxMonth.NI.totall = liableNIInTaxMonth;
+      incomes.inTaxMonth.NI.total = liableNIInTaxMonth;
     }
 
-    let liableNIFromFixedInTaxMonth = incomes.inTaxMonth.NI.fromFixedIncomee;
+    let liableNIFromFixedInTaxMonth = incomes.inTaxMonth.NI.fixedIncome;
     /* istanbul ignore if */
     if (liableNIInTaxMonth === undefined) {
       log(`Error: don't expect liableNIInTaxMonth to be undefined!`);
       liableNIFromFixedInTaxMonth = new Map<string, number>();
-      incomes.inTaxMonth.NI.fromFixedIncomee = liableNIFromFixedInTaxMonth;
+      incomes.inTaxMonth.NI.fixedIncome = liableNIFromFixedInTaxMonth;
     }
 
     let taxLiability = liableNIInTaxMonth.get(liability);
@@ -2972,7 +2984,7 @@ function handleIncome(
   model: ModelData,
   pensionTransactions: Transaction[],
   liabilitiesMap: Map<string, string>,
-  incomes: LiableIncomes,
+  incomes: Liabilities,
   sourceDescription: string,
   targetAssetName: string,
   isFixedIncome: boolean,
@@ -3715,7 +3727,7 @@ function revalueApplied(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
-  incomes: LiableIncomes,
+  incomes: Liabilities,
   model: ModelData,
 ) {
   if (!t.NAME.startsWith(revalue)) {
@@ -4343,7 +4355,7 @@ function handleCGTLiability(
   growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
   liabliitiesMap: Map<string, string>,
-  incomes: LiableIncomes,
+  incomes: Liabilities,
   model: ModelData,
 ) {
   // log(`${fromWord} reducing from ${preFromValue} by ${fromChange}`);
@@ -4458,7 +4470,7 @@ function processTransactionFromTo(
   model: ModelData,
   pensionTransactions: Transaction[],
   liabliitiesMap: Map<string, string>,
-  incomes: LiableIncomes,
+  incomes: Liabilities,
 ): string {
   // log(`process t = ${showObj(t)}`);
   // log(`processTransactionFromTo fromWord = ${fromWord} toWord = ${toWord}, date = ${dateAsString(DateFormatType.Debug,moment.date)}`);
@@ -4782,7 +4794,7 @@ function processTransactionMoment(
   model: ModelData,
   pensionTransactions: Transaction[],
   liabliitiesMap: Map<string, string>,
-  incomes: LiableIncomes,
+  incomes: Liabilities,
 ) {
   // log(`in processTransactionMoment`);
   // transactions have a direct effect on their
@@ -5538,7 +5550,7 @@ function handleTaxObligations(
     startYearOfTaxYear: number | undefined;
     monthOfTaxYear: number | undefined;
   },
-  incomes: LiableIncomes,
+  incomes: Liabilities,
   taxMonthlyPaymentsPaid: TaxPaymentsMade,
   evaluations: Evaluation[],
 ) {
@@ -5735,7 +5747,7 @@ function handleStartMoment(
   moment: Moment,
   pensionTransactions: Transaction[],
   liabilitiesMap: Map<string, string>,
-  incomes: LiableIncomes,
+  incomes: Liabilities,
   evaluations: Evaluation[],
 ) {
   // Starts are well defined
@@ -5882,7 +5894,7 @@ function growAndEffectMoment(
   moment: Moment,
   pensionTransactions: Transaction[],
   liabilitiesMap: Map<string, string>,
-  incomes: LiableIncomes,
+  incomes: Liabilities,
   evaluations: Evaluation[],
 ) {
   let momentName = moment.name;
@@ -6378,17 +6390,17 @@ function getEvaluationsInternal(
   // for monthly income tax payments, we only need a map from
   // the person who is liable to pay and
   // a value for the accrued liable value as a tax month progresses
-  const incomes: LiableIncomes = {
+  const incomes: Liabilities = {
     inTaxMonth: {
       incomeTax: {
-        totall: undefined,
-        fromFixedIncomee: undefined,
-        fromFlexibleIncomee: undefined,
+        total: undefined,
+        fixedIncome: undefined,
+        flexibleIncomeTM: undefined,
       },
       NI: {
-        totall: undefined,
-        fromFixedIncomee: undefined,
-        fromFlexibleIncomee: undefined,
+        total: undefined,
+        fixedIncome: undefined,
+        flexibleIncome: undefined,
       },
     },
     inTaxYear: {
@@ -6397,13 +6409,13 @@ function getEvaluationsInternal(
       },
       incomeTax: {
         total: undefined,
-        fromFixedIncome: undefined,
-        fromFlexibleIncome: undefined,
+        fixedIncome: undefined,
+        flexibleIncome: undefined,
       },
       NI: {
         total: undefined,
-        fromFixedIncome: undefined,
-        fromFlexibleIncome: undefined,
+        fixedIncomeNi: undefined,
+        flexibleIncomeNi: undefined,
       }
     },
   };
