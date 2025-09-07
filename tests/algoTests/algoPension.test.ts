@@ -3635,7 +3635,7 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
   });
 
   // transfers from crystallized pensions are liable to Income tax
-  it("pay income tax on monthly crystallized pension", () => {
+  it("pay income tax on monthly crystallized pension to cash", () => {
     const roi = {
       start: "April 6, 2018 00:00:00",
       end: "April 2, 2019 00:00:00",
@@ -3794,6 +3794,206 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 11, "Wed Mar 06 2019", 32500, -1);
     }
 
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+  });
+
+  // transfers from crystallized pensions are liable to Income tax
+  it("pay income tax on monthly crystallized pension to savings", () => {
+    const roi = {
+      start: "April 6, 2018 00:00:00",
+      end: "April 2, 2019 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          // when you take out from your pension pot
+          ...simpleTransaction,
+          NAME: "Each month GetSomePension", //
+          FROM: crystallizedPension + "Joe.PNN", // name is important
+          FROM_VALUE: "2500", // a monthly payment
+          TO: "Savings",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1.0", // all of what is removed goes
+          DATE: "April 7 2018",
+          STOP_DATE: "April 4 2019",
+          RECURRENCE: "1m",
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: "April 6 2018",
+        },
+        {
+          ...simpleAsset,
+          NAME: "Savings",
+          CAN_BE_NEGATIVE: false,
+          START: "April 6 2018",
+        },
+        {
+          ...simpleAsset,
+          NAME: crystallizedPension + "Joe.PNN", // name is important - will be '+incomeTax+'Joe
+          START: "April 6 2018",
+          VALUE: "60000",
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(74);
+    expectEvals(evals, 0, 'Cash', 'Fri Apr 06 2018', 0, -1);
+    expectEvals(evals, 1, 'Savings', 'Fri Apr 06 2018', 0, -1);
+    expectEvals(evals, 2, '-CPTaxable Joe.PNN', 'Fri Apr 06 2018', 60000, -1);
+    expectEvals(evals, 3, '-CPTaxable Joe.PNN', 'Sat Apr 07 2018', 57500, -1);
+    expectEvals(evals, 4, 'Savings', 'Sat Apr 07 2018', 2500, -1);
+    expectEvals(evals, 5, 'Cash', 'Sat May 05 2018', -291.66, 2);
+    expectEvals(evals, 6, 'Cash', 'Sun May 06 2018', -291.66, 2);
+    expectEvals(evals, 7, 'Savings', 'Sun May 06 2018', 2500, -1);
+    expectEvals(evals, 8, '-CPTaxable Joe.PNN', 'Sun May 06 2018', 57500, -1);
+    expectEvals(evals, 9, '-CPTaxable Joe.PNN', 'Mon May 07 2018', 55000, -1);
+    expectEvals(evals, 10, 'Savings', 'Mon May 07 2018', 5000, -1);
+    expectEvals(evals, 11, 'Cash', 'Tue Jun 05 2018', -583.32, 2);
+    expectEvals(evals, 12, 'Cash', 'Wed Jun 06 2018', -583.32, 2);
+    expectEvals(evals, 13, 'Savings', 'Wed Jun 06 2018', 5000, -1);
+    expectEvals(evals, 14, '-CPTaxable Joe.PNN', 'Wed Jun 06 2018', 55000, -1);
+    expectEvals(evals, 15, '-CPTaxable Joe.PNN', 'Thu Jun 07 2018', 52500, -1);
+    expectEvals(evals, 16, 'Savings', 'Thu Jun 07 2018', 7500, -1);
+    expectEvals(evals, 17, 'Cash', 'Thu Jul 05 2018', -874.98, 2);
+    expectEvals(evals, 18, 'Cash', 'Fri Jul 06 2018', -874.98, 2);
+    expectEvals(evals, 19, 'Savings', 'Fri Jul 06 2018', 7500, -1);
+    expectEvals(evals, 20, '-CPTaxable Joe.PNN', 'Fri Jul 06 2018', 52500, -1);
+    expectEvals(evals, 21, '-CPTaxable Joe.PNN', 'Sat Jul 07 2018', 50000, -1);
+    expectEvals(evals, 22, 'Savings', 'Sat Jul 07 2018', 10000, -1);
+    expectEvals(evals, 23, 'Cash', 'Sun Aug 05 2018', -1166.64, 2);
+    expectEvals(evals, 24, 'Cash', 'Mon Aug 06 2018', -1166.64, 2);
+    expectEvals(evals, 25, 'Savings', 'Mon Aug 06 2018', 10000, -1);
+    expectEvals(evals, 26, '-CPTaxable Joe.PNN', 'Mon Aug 06 2018', 50000, -1);
+    expectEvals(evals, 27, '-CPTaxable Joe.PNN', 'Tue Aug 07 2018', 47500, -1);
+    expectEvals(evals, 28, 'Savings', 'Tue Aug 07 2018', 12500, -1);
+    expectEvals(evals, 29, 'Cash', 'Wed Sep 05 2018', -1458.30, 2);
+    expectEvals(evals, 30, 'Cash', 'Thu Sep 06 2018', -1458.30, 2);
+    expectEvals(evals, 31, 'Savings', 'Thu Sep 06 2018', 12500, -1);
+    expectEvals(evals, 32, '-CPTaxable Joe.PNN', 'Thu Sep 06 2018', 47500, -1);
+    expectEvals(evals, 33, '-CPTaxable Joe.PNN', 'Fri Sep 07 2018', 45000, -1);
+    expectEvals(evals, 34, 'Savings', 'Fri Sep 07 2018', 15000, -1);
+    expectEvals(evals, 35, 'Cash', 'Fri Oct 05 2018', -1749.96, 2);
+    expectEvals(evals, 36, 'Cash', 'Sat Oct 06 2018', -1749.96, 2);
+    expectEvals(evals, 37, 'Savings', 'Sat Oct 06 2018', 15000, -1);
+    expectEvals(evals, 38, '-CPTaxable Joe.PNN', 'Sat Oct 06 2018', 45000, -1);
+    expectEvals(evals, 39, '-CPTaxable Joe.PNN', 'Sun Oct 07 2018', 42500, -1);
+    expectEvals(evals, 40, 'Savings', 'Sun Oct 07 2018', 17500, -1);
+    expectEvals(evals, 41, 'Cash', 'Mon Nov 05 2018', -2041.62, 2);
+    expectEvals(evals, 42, 'Cash', 'Tue Nov 06 2018', -2041.62, 2);
+    expectEvals(evals, 43, 'Savings', 'Tue Nov 06 2018', 17500, -1);
+    expectEvals(evals, 44, '-CPTaxable Joe.PNN', 'Tue Nov 06 2018', 42500, -1);
+    expectEvals(evals, 45, '-CPTaxable Joe.PNN', 'Wed Nov 07 2018', 40000, -1);
+    expectEvals(evals, 46, 'Savings', 'Wed Nov 07 2018', 20000, -1);
+    expectEvals(evals, 47, 'Cash', 'Wed Dec 05 2018', -2333.28, 2);
+    expectEvals(evals, 48, 'Cash', 'Thu Dec 06 2018', -2333.28, 2);
+    expectEvals(evals, 49, 'Savings', 'Thu Dec 06 2018', 20000, -1);
+    expectEvals(evals, 50, '-CPTaxable Joe.PNN', 'Thu Dec 06 2018', 40000, -1);
+    expectEvals(evals, 51, '-CPTaxable Joe.PNN', 'Fri Dec 07 2018', 37500, -1);
+    expectEvals(evals, 52, 'Savings', 'Fri Dec 07 2018', 22500, -1);
+    expectEvals(evals, 53, 'Cash', 'Sat Jan 05 2019', -2624.94, 2);
+    expectEvals(evals, 54, 'Cash', 'Sun Jan 06 2019', -2624.94, 2);
+    expectEvals(evals, 55, 'Savings', 'Sun Jan 06 2019', 22500, -1);
+    expectEvals(evals, 56, '-CPTaxable Joe.PNN', 'Sun Jan 06 2019', 37500, -1);
+    expectEvals(evals, 57, '-CPTaxable Joe.PNN', 'Mon Jan 07 2019', 35000, -1);
+    expectEvals(evals, 58, 'Savings', 'Mon Jan 07 2019', 25000, -1);
+    expectEvals(evals, 59, 'Cash', 'Tue Feb 05 2019', -2916.60, 2);
+    expectEvals(evals, 60, 'Cash', 'Wed Feb 06 2019', -2916.60, 2);
+    expectEvals(evals, 61, 'Savings', 'Wed Feb 06 2019', 25000, -1);
+    expectEvals(evals, 62, '-CPTaxable Joe.PNN', 'Wed Feb 06 2019', 35000, -1);
+    expectEvals(evals, 63, '-CPTaxable Joe.PNN', 'Thu Feb 07 2019', 32500, -1);
+    expectEvals(evals, 64, 'Savings', 'Thu Feb 07 2019', 27500, -1);
+    expectEvals(evals, 65, 'Cash', 'Tue Mar 05 2019', -3208.26, 2);
+    expectEvals(evals, 66, 'Cash', 'Wed Mar 06 2019', -3208.26, 2);
+    expectEvals(evals, 67, 'Savings', 'Wed Mar 06 2019', 27500, -1);
+    expectEvals(evals, 68, '-CPTaxable Joe.PNN', 'Wed Mar 06 2019', 32500, -1);
+    expectEvals(evals, 69, '-CPTaxable Joe.PNN', 'Thu Mar 07 2019', 30000, -1);
+    expectEvals(evals, 70, 'Savings', 'Thu Mar 07 2019', 30000, -1);
+    expectEvals(evals, 71, 'Cash', 'Fri Apr 05 2019', -3500, -1);
+    expectEvals(evals, 72, '(incomeTax)', 'Fri Apr 05 2019', 3500, -1);
+    expectEvals(evals, 73, 'Joe income (net)', 'Fri Apr 05 2019', 26500, -1);
+
+    const viewSettings = defaultTestViewSettings();
+
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // log(showObj(result));
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(3);
+    expect(result.assetData[0].item.NAME).toBe('Cash');
+    {
+    const chartPts = result.assetData[0].chartDataPoints;
+    expect(chartPts.length).toBe(12);
+    expectChartData(chartPts, 0, 'Fri Apr 06 2018', 0, -1);
+    expectChartData(chartPts, 1, 'Sun May 06 2018', -291.66, 2);
+    expectChartData(chartPts, 2, 'Wed Jun 06 2018', -583.32, 2);
+    expectChartData(chartPts, 3, 'Fri Jul 06 2018', -874.98, 2);
+    expectChartData(chartPts, 4, 'Mon Aug 06 2018', -1166.64, 2);
+    expectChartData(chartPts, 5, 'Thu Sep 06 2018', -1458.30, 2);
+    expectChartData(chartPts, 6, 'Sat Oct 06 2018', -1749.96, 2);
+    expectChartData(chartPts, 7, 'Tue Nov 06 2018', -2041.62, 2);
+    expectChartData(chartPts, 8, 'Thu Dec 06 2018', -2333.28, 2);
+    expectChartData(chartPts, 9, 'Sun Jan 06 2019', -2624.94, 2);
+    expectChartData(chartPts, 10, 'Wed Feb 06 2019', -2916.60, 2);
+    expectChartData(chartPts, 11, 'Wed Mar 06 2019', -3208.26, 2);
+    }
+    
+    expect(result.assetData[1].item.NAME).toBe('Savings');
+    {
+    const chartPts = result.assetData[1].chartDataPoints;
+    expect(chartPts.length).toBe(12);
+    expectChartData(chartPts, 0, 'Fri Apr 06 2018', 0, -1);
+    expectChartData(chartPts, 1, 'Sun May 06 2018', 2500, -1);
+    expectChartData(chartPts, 2, 'Wed Jun 06 2018', 5000, -1);
+    expectChartData(chartPts, 3, 'Fri Jul 06 2018', 7500, -1);
+    expectChartData(chartPts, 4, 'Mon Aug 06 2018', 10000, -1);
+    expectChartData(chartPts, 5, 'Thu Sep 06 2018', 12500, -1);
+    expectChartData(chartPts, 6, 'Sat Oct 06 2018', 15000, -1);
+    expectChartData(chartPts, 7, 'Tue Nov 06 2018', 17500, -1);
+    expectChartData(chartPts, 8, 'Thu Dec 06 2018', 20000, -1);
+    expectChartData(chartPts, 9, 'Sun Jan 06 2019', 22500, -1);
+    expectChartData(chartPts, 10, 'Wed Feb 06 2019', 25000, -1);
+    expectChartData(chartPts, 11, 'Wed Mar 06 2019', 27500, -1);
+    }
+    
+    expect(result.assetData[2].item.NAME).toBe('-CPTaxable Joe.PNN');
+    {
+    const chartPts = result.assetData[2].chartDataPoints;
+    expect(chartPts.length).toBe(12);
+    expectChartData(chartPts, 0, 'Fri Apr 06 2018', 60000, -1);
+    expectChartData(chartPts, 1, 'Sun May 06 2018', 57500, -1);
+    expectChartData(chartPts, 2, 'Wed Jun 06 2018', 55000, -1);
+    expectChartData(chartPts, 3, 'Fri Jul 06 2018', 52500, -1);
+    expectChartData(chartPts, 4, 'Mon Aug 06 2018', 50000, -1);
+    expectChartData(chartPts, 5, 'Thu Sep 06 2018', 47500, -1);
+    expectChartData(chartPts, 6, 'Sat Oct 06 2018', 45000, -1);
+    expectChartData(chartPts, 7, 'Tue Nov 06 2018', 42500, -1);
+    expectChartData(chartPts, 8, 'Thu Dec 06 2018', 40000, -1);
+    expectChartData(chartPts, 9, 'Sun Jan 06 2019', 37500, -1);
+    expectChartData(chartPts, 10, 'Wed Feb 06 2019', 35000, -1);
+    expectChartData(chartPts, 11, 'Wed Mar 06 2019', 32500, -1);
+    }
+    
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
   });

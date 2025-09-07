@@ -1184,20 +1184,6 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         }
       }
     }
-    if (t.FROM.startsWith(crystallizedPension)) {
-      if (t.TO.startsWith(crystallizedPension)) {
-        // ok we can transfer from one CP to another
-      } else if (t.TO === CASH_ASSET_NAME) {
-        // ok we will trigger income tax on this
-      } else {
-        // flag a problem
-        return (
-          `Transaction '${getDisplayName(t.NAME, t.TYPE)}'` +
-          ` needs to go to ${CASH_ASSET_NAME}` +
-          ` for proper income tax calculation`
-        );
-      }
-    }
     if (t.FROM_VALUE === "") {
       return `Transaction from ${t.FROM} needs a non-empty from value`;
     } else if (!isNumberString(t.FROM_VALUE)) {

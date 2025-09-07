@@ -1611,7 +1611,7 @@ function calculateCGTPayable(
   return payable;
 }
 
-function adjustCash(
+function adjustAsset(
   amount: number,
   d: Date,
   values: ValuesContainer,
@@ -1619,26 +1619,27 @@ function adjustCash(
   evaluations: Evaluation[],
   model: ModelData,
   source: string, // what led to the change
+  targetAssetName: string, // which asset to adjust (e.g. Cash
 ) {
   // log(`adjustCash by amount = ${amount} at ${dateAsString(DateFormatType.Debug,d)}`);
-  let cashValue = getNumberValue(values, CASH_ASSET_NAME, false);
-  // log(`current stored value = ${cashValue}`);
-  if (cashValue === undefined) {
-    // log('don't adjust undefined cash asset');
+  let assetValue = getNumberValue(values, targetAssetName, false);
+  // log(`current stored value = ${assetValue}`);
+  if (assetValue === undefined) {
+    // log('don't adjust undefined asset');
     // NB some tests have an expense and watch its value
-    // without having a cash asset to decrement
+    // without having an asset to decrement
   } else {
     let scaleBy: number | undefined;
-    const gd = growthData(CASH_ASSET_NAME, growths, values);
-    if (cashValue !== undefined && gd.adjustForCPI) {
+    const gd = growthData(targetAssetName, growths, values);
+    if (assetValue !== undefined && gd.adjustForCPI) {
       const baseVal = gd.baseVal;
       scaleBy = baseVal;
       // log(`for CPI, scaleBy = ${scaleBy}`);
-      // log(`cashValue * scaleBy = ${cashValue} * ${scaleBy} = ${cashValue * scaleBy}`);
-      cashValue = cashValue * scaleBy;
+      // log(`assetValue * scaleBy = ${assetValue} * ${scaleBy} = ${assetValue * scaleBy}`);
+      assetValue = assetValue * scaleBy;
     }
-    // log(`newValue = cashValue + amount = ${cashValue} + ${amount} = ${cashValue + amount}`);
-    let newValue = cashValue + amount;
+    // log(`newValue = assetValue + amount = ${assetValue} + ${amount} = ${assetValue + amount}`);
+    let newValue = assetValue + amount;
     // log(`in adjustCash, setValue to ${newValue}`);
     if (scaleBy) {
       // log(`newValue / scaleBy = ${newValue} / ${scaleBy} = ${newValue / scaleBy}`);
@@ -1649,7 +1650,7 @@ function adjustCash(
       growths,
       evaluations,
       d,
-      CASH_ASSET_NAME,
+      targetAssetName,
       newValue,
       model,
       source,
@@ -1658,6 +1659,26 @@ function adjustCash(
   }
 }
 
+function adjustCash(
+  amount: number,
+  d: Date,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  evaluations: Evaluation[],
+  model: ModelData,
+  source: string, // what led to the change
+) {
+  adjustAsset(
+    amount,
+    d,
+    values,
+    growths,
+    evaluations,
+    model,
+    source,
+    CASH_ASSET_NAME
+  );
+}
 function sumTaxDue(
   taxDueList: { amountLiable: number; rate: number }[],
 ): number {
@@ -2042,16 +2063,16 @@ interface LiableIncomes {
   inTaxYear: {
     capitalGains: undefined | Map<string, LiabilityTotalAndSources>;
     incomeTaxTotal: undefined | Map<string, LiabilityTotalAndSources>;
-    incomeTaxFromFixedIncome: undefined | Map<string, number>;
-    incomeTaxFromFlexibleIncome: undefined | Map<string, number>;
+    incomeTaxFromFixedIncome: undefined | Map<string, number>; // TODO use LiabilityTotalAndSources
+    incomeTaxFromFlexibleIncome: undefined | Map<string, number>;  // TODO use LiabilityTotalAndSources
     NITotal: undefined | Map<string, LiabilityTotalAndSources>;
     NIFromFixedIncome: undefined | Map<string, number>;
     NIFromFlexibleIncome: undefined | Map<string, number>;
   };
   inTaxMonth: {
-    incomeTaxTotall: undefined | Map<string, number>;
-    incomeTaxFromFixedIncomee: undefined | Map<string, number>;
-    incomeTaxFromFlexibleIncomee: undefined | Map<string, number>;
+    incomeTaxTotall: undefined | Map<string, number>; // TODO use LiabilityTotalAndSources
+    incomeTaxFromFixedIncomee: undefined | Map<string, number>; // TODO use LiabilityTotalAndSources
+    incomeTaxFromFlexibleIncomee: undefined | Map<string, number>; // TODO use LiabilityTotalAndSources
     NIITotall: undefined | Map<string, number>;
     NIFromFixedIncomee: undefined | Map<string, number>;
     NIFromFlexibleIncomee: undefined | Map<string, number>;
@@ -2578,7 +2599,7 @@ function payTaxEstimate(
       // log(`es payIncomeTax for ${startYearOfTaxYear}, monthly estimate is ${estimateMonthTaxDue}`);
       if (estimateMonthTaxDue > 0) {
         // log(`adjust cash for tax estimate ${estimateMonthTaxDue}`);
-        adjustCash(
+        adjustAsset(
           -estimateMonthTaxDue,
           getTaxMonthDate(startYearOfTaxYear, monthOfTaxYear),
           values,
@@ -2586,6 +2607,7 @@ function payTaxEstimate(
           evaluations,
           model,
           person,
+          CASH_ASSET_NAME, // TODO pay tax from different assets not just CASH
         );
         let estimatesPaid = incomeTaxMonthlyPaymentsPaid.get(person);
         if (estimatesPaid === undefined) {
@@ -2940,6 +2962,7 @@ function handleIncome(
   liabilitiesMap: Map<string, string>,
   incomes: LiableIncomes,
   sourceDescription: string,
+  targetAssetName: string,
   isFixedIncome: boolean,
 ) {
   const isFlexibleIncome = !isFixedIncome;
@@ -2973,18 +2996,18 @@ function handleIncome(
   }
 
   // default income increment is all of the income
-  let amountForCashIncrement = incomeValue;
+  let amountForAssetIncrement = incomeValue;
   let amountForIncomeTax = incomeValue;
   let amountForNI = incomeValue;
   // some types of pension scheme reduce NI liability
 
   if (moment.type === momentType.asset) {
     // asset growth does not transfer money into cash
-    amountForCashIncrement = 0;
+    amountForAssetIncrement = 0;
   }
 
   // when we receive income
-  // the amount paid to cash is sometimes
+  // the amount paid is sometimes
   // reduced to account for pension contributions
   // and it sometimes adjusts defined contributions pension asset
   // and it sometimes adjusts defined benefits pension benefit
@@ -2993,7 +3016,7 @@ function handleIncome(
       return;
     }
 
-    // log(`consider pension transaction: ${pt.NAME}`);
+    // log(`consider pension transaction: ${showObj(pt)}`);
 
     const ptDate = getTriggerDate(pt.DATE, triggers, v);
     if (ptDate > moment.date) {
@@ -3039,7 +3062,7 @@ function handleIncome(
       // target benefit
       // log(`at ${moment.date.toDateString()}, pay ${amountFrom} into pension : ${pt.NAME}`);
 
-      amountForCashIncrement -= amountFrom;
+      amountForAssetIncrement -= amountFrom;
       amountForIncomeTax -= amountFrom;
 
       if (pt.NAME.startsWith(pensionSS)) {     
@@ -3047,7 +3070,7 @@ function handleIncome(
         amountForNI -= amountFrom;
       }
     } else if (pt.NAME.startsWith(pensionSS)) {
-      amountForCashIncrement -= amountFrom;
+      amountForAssetIncrement -= amountFrom;
     }
 
     let amountForPension = 0;
@@ -3120,24 +3143,25 @@ function handleIncome(
     }
   });
 
-  // pay income into cash
-  if (amountForCashIncrement > 0) {
+  // pay income into asset
+  if (amountForAssetIncrement > 0) {
     // log(`cash source = ${sourceDescription}`);
     // log(`in handleIncome, adjustCash: amountForCashIncrement = ${amountForCashIncrement}`);
-    adjustCash(
-      amountForCashIncrement,
+    adjustAsset(
+      amountForAssetIncrement,
       moment.date,
       values,
       growths,
       evaluations,
       model,
       sourceDescription,
+      targetAssetName
     );
     if (isFixedIncome) {
       // console.log(`report fixed income ${moment.date.toDateString()}, ${sourceDescription}, ${amountForCashIncrement}`);
       values.set(
         `incomeFixed${sourceDescription}`,
-        amountForCashIncrement,
+        amountForAssetIncrement,
         growths,
         moment.date,
         `incomeFixed${sourceDescription}`,
@@ -4552,7 +4576,7 @@ function processTransactionFromTo(
     // into ${toWord}`);
     if (
       fromWord.startsWith(crystallizedPension) &&
-      toWord === CASH_ASSET_NAME
+      !toWord.startsWith(crystallizedPension)
     ) {
       // log(`for ${fromWord}, register ${toChange} pension withdrawal on ${moment.date}, ${moment.name} as liable for income tax`);
       handleIncome(
@@ -4566,6 +4590,7 @@ function processTransactionFromTo(
         liabliitiesMap,
         incomes,
         fromWord,
+        toWord,
         false, //isFixedIncome,
       );
     } else {
@@ -5803,6 +5828,7 @@ function handleStartMoment(
         liabilitiesMap,
         incomes,
         moment.name,
+        CASH_ASSET_NAME,
         isFixedIncome(moment, model),
       );
     } else {
@@ -6015,6 +6041,7 @@ function growAndEffectMoment(
             liabilitiesMap,
             incomes,
             momentName,
+            CASH_ASSET_NAME,
             false, //isFixedIncome,
           );
         }
@@ -6034,6 +6061,7 @@ function growAndEffectMoment(
           liabilitiesMap,
           incomes,
           momentName,
+          CASH_ASSET_NAME,
           isFixedIncome(moment, model),
         );
       } else if (moment.type === momentType.expense) {

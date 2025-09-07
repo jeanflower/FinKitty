@@ -851,51 +851,6 @@ describe("checks tests", () => {
 
     expect(checkModel(model2).message).toEqual(``);
 
-    const roi = {
-      start: "March 1, 2018",
-      end: "April 2, 2018",
-    };
-    const model3: ModelData = {
-      ...emptyModel,
-      transactions: [
-        {
-          // when you take cash from your pension pot
-          ...simpleTransaction,
-          NAME: "get some pension", //
-          FROM: crystallizedPension + "Joe.PNN", // name is important
-          FROM_VALUE: "30000", // a one-off payment
-          TO: "ISA",
-          TO_ABSOLUTE: false,
-          TO_VALUE: "1.0", // all of what is removed goes to cash
-          DATE: "March 20 2018",
-        },
-      ],
-      assets: [
-        {
-          ...simpleAsset,
-          NAME: CASH_ASSET_NAME,
-          CAN_BE_NEGATIVE: true,
-          START: "March 1 2018",
-        },
-        {
-          ...simpleAsset,
-          NAME: "ISA",
-          CAN_BE_NEGATIVE: true,
-          START: "March 1 2018",
-        },
-        {
-          ...simpleAsset,
-          NAME: crystallizedPension + "Joe.PNN", // name is important - will be '+incomeTax+'Joe
-          START: "March 1 2018",
-          VALUE: "60000",
-        },
-      ],
-      settings: [...defaultModelSettings(roi)],
-    };
-    expect(checkModel(model3).message).toEqual(
-      `Transaction 'get some pension' needs to go to Cash for proper income tax calculation`,
-    );
-
     unSuppressLogs();
   });
   it("check expense", () => {
