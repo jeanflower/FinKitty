@@ -35,7 +35,7 @@ import {
   bondInvest,
   bondMature,
 } from "../../localization/stringConstants";
-import { getEvaluations, processGenerators } from "../../models/evaluations";
+import { EvaluationHelper, getEvaluations, processGenerators } from "../../models/evaluations";
 import {
   emptyModel,
   simpleExpense,
@@ -68,6 +68,8 @@ import {
   Expense,
   Income,
   Asset,
+  ReportValueChecker,
+  ReportDatum,
 } from "../../types/interfaces";
 import { DateFormatType, log } from "../../utils/utils";
 import { diffModels } from "../../models/diffModels";
@@ -114,6 +116,45 @@ export function printTestCodeForEvals(evals: Evaluation[]) {
   }
   log(result);
 }
+
+export function printTestCodeForReportData(reportData: ReportDatum[]) {
+  log("printTestCodeForReportData:");
+  let result = "";
+  result += `expect(reportData.length).toBe(${reportData.length});\n`;
+  for (let i = 0; i < reportData.length; i += 1) {
+    // log(`reportData[${i}] is ${showObj(reportData[i])}`);
+    result +=
+      `expect(reportData[${i}].date).toEqual('` + reportData[i].date + `');\n`;
+    result += `expect(reportData[${i}].name).toBe('${reportData[i].name}');\n`;
+
+    const oldVal = reportData[i].oldVal;
+    if (oldVal === undefined) {
+      result += `expect(reportData[${i}].oldVal).toBe(undefined);\n`;
+    } else {
+      if (typeof reportData[i].oldVal === "number") {
+        if (oldVal.toFixed(0) === `${reportData[i].oldVal}`) {
+          result += `expect(reportData[${i}].oldVal).toBe(${reportData[i].oldVal});\n`;
+        } else {
+          result += `expect(reportData[${i}].oldVal).toBe(${oldVal.toFixed(2)});\n`;
+        }
+      }
+    }
+    const newVal = reportData[i].newVal;
+    if (newVal === undefined) {
+      result += `expect(reportData[${i}].newVal).toBe(undefined);\n`;
+    } else {
+      if (typeof reportData[i].newVal === "number") {
+        if (newVal.toFixed(0) === `${reportData[i].newVal}`) {
+          result += `expect(reportData[${i}].newVal).toBe(${reportData[i].newVal});\n`;
+        } else {
+          result += `expect(reportData[${i}].newVal).toBe(${newVal.toFixed(2)});\n`;
+        }
+      }
+    }
+  }
+  log(result);
+}  
+
 
 export function expectChartData(
   pts: ChartDataPoint[],
@@ -635,6 +676,36 @@ export function getTestEvaluations(
   }
   return evalnsAndVals;
 }
+
+export function getTestEvaluationsForReport(
+  unprocessedModel: ModelData,
+  reporter: ReportValueChecker,
+): {
+  evaluations: Evaluation[];
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+  todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+  todaysIncomeValues: Map<Income, IncomeVal>;
+  todaysExpenseValues: Map<Expense, ExpenseVal>;
+  todaysSettingValues: Map<Setting, SettingVal>;
+  reportData: ReportDatum[];
+} {
+  const model = makeModelFromJSONString(JSON.stringify(unprocessedModel));
+  model.name = 'ready to be processed';
+
+  processGenerators(model);
+  model.name = 'has been processed';
+
+  const helper = new EvaluationHelper(
+    reporter,
+    100,
+    monthly,
+  );
+  let evaluationsAndVals = getEvaluations(model, helper);
+
+  return evaluationsAndVals;
+}
+
+
 export function getICLabel(person: string) {
   return makeIncomeTaxTag(person);
 }
