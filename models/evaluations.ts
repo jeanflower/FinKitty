@@ -1437,12 +1437,14 @@ function getTaxBands(
   return result;
 }
 
-export function calculateIncomeTaxPayable(
-  income: number,
+export function calculateIncrementalIncomeTaxPayable(
+  paidUpIncome: number,
+  incrementalIncome: number, 
   startYearOfTaxYear: number,
   values: ValuesContainer,
 ) {
-  // log(`in calculateTaxPayable`);
+  // log(`in calculateIncomeTaxPayable`);
+  const income = paidUpIncome + incrementalIncome;
   const bands = getTaxBands(income, startYearOfTaxYear, values);
   // log(`tax bands are ${showObj(bands)}`);
 
@@ -1491,6 +1493,30 @@ export function calculateIncomeTaxPayable(
     // income falls into no tax band
     incomeInLowTaxBand = 0;
   }
+
+  if (paidUpIncome > incomeInLowTaxBand)
+  {
+    paidUpIncome -= incomeInLowTaxBand;
+    incomeInLowTaxBand = 0;
+    if (paidUpIncome > incomeInHighTaxBand)
+    {
+      paidUpIncome -= incomeInHighTaxBand;
+      incomeInHighTaxBand = 0;
+      incomeInTopTaxBand -= paidUpIncome;
+      paidUpIncome = 0;
+    }
+    else
+    {
+      incomeInHighTaxBand -= paidUpIncome;
+      paidUpIncome = 0;
+    }
+  } 
+  else
+  {
+    incomeInLowTaxBand -= paidUpIncome;
+    paidUpIncome = 0;
+  }
+
   const taxPayable = [
     {
       amountLiable: incomeInTopTaxBand,
@@ -1508,6 +1534,14 @@ export function calculateIncomeTaxPayable(
 
   // log(`taxPayable from income ${income} is ${showObj(taxPayable)}`);
   return taxPayable;
+}
+
+export function calculateIncomeTaxPayable(
+  income: number,
+  startYearOfTaxYear: number,
+  values: ValuesContainer,
+) {
+  return calculateIncrementalIncomeTaxPayable(0, income, startYearOfTaxYear, values);
 }
 
 function calculateNIPayable(
@@ -1766,6 +1800,9 @@ function payIncomeTax(
     amountLiable: number;
     rate: number;
   }[] = calculateIncomeTaxPayable(income, startOfTaxYear.getFullYear(), values);
+  // log(`taxDue for ${source} on ${startOfTaxYear} = ${taxDue}`);
+  const totalTaxDue = sumTaxDue(taxDue);
+
   const taxDueForFixed: {
     amountLiable: number;
     rate: number;
@@ -1774,8 +1811,6 @@ function payIncomeTax(
     startOfTaxYear.getFullYear(),
     values,
   );
-  // log(`taxDue for ${source} on ${startOfTaxYear} = ${taxDue}`);
-  const totalTaxDue = sumTaxDue(taxDue);
   // log(`totalTaxDue for ${source}, ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDue)}`);
   const totalTaxDueForFixed = sumTaxDue(taxDueForFixed);
 
@@ -2569,18 +2604,24 @@ function payTaxEstimate(
   }
 
   for (const [person, liableIncome] of liableIncomeTaxInTaxMonth) {
+    // log(`pay income tax estimate for ${person} for ${liableIncome} for month ${monthOfTaxYear}, year ${startYearOfTaxYear}`);
+    // For this month, look at the fixed income amount 
     let fixedVal = liableFixedIncomeTaxInTaxMonth.get(person);
     if (fixedVal === undefined) {
       fixedVal = 0;
     }
+
+    // For this month, look at the flexible income amount 
     let flexValObj = liableFlexibleIncomeTaxInTaxMonth.get(person);
-    let flexVal = flexValObj?.amount;
-    if (flexVal === undefined) {
-      flexVal = 0;
+    if (flexValObj === undefined) {
+      flexValObj = {
+        amount: 0,
+        sources: [],
+      };
     }
-    if (Math.abs(liableIncome - (fixedVal + flexVal)) > 0.0001) {
+    if (Math.abs(liableIncome - (fixedVal + flexValObj.amount)) > 0.0001) {
       throw new Error(
-        `expected fixed + flex === total; ${fixedVal} + ${flexVal} !== ${liableIncome}`,
+        `expected fixed + flex === total; ${fixedVal} + ${flexValObj.amount} !== ${liableIncome}`,
       );
     }
 
@@ -2588,8 +2629,36 @@ function payTaxEstimate(
     if (monthOfTaxYear === 3) {
       // log(`don't make monthly estimate in April`);
     } else if (liableIncome > 0) {
-      const annualIncomeEstimate = liableIncome * 12;
-      const annualIncomeFixedEstimate = fixedVal * 12;
+      const numMonthsLeftInTaxYear = 11 - (monthOfTaxYear >= 4 ? monthOfTaxYear - 4 : monthOfTaxYear + 8);
+
+      // estimate an annual income
+      let annualIncomeFixedEstimate = 0;
+      let annualIncomeEstimate = 0;
+      
+      const useOldCode = false;
+
+      if (useOldCode) {
+        annualIncomeFixedEstimate = fixedVal * 12;
+        annualIncomeEstimate = liableIncome * 12;
+      } else {
+        // Use fixed income to estimate annual tax as if we only had a fixed income
+        let fixedIncomeSoFar = liabilities.inTaxYear.incomeTax.fixedIncome?.get(person);
+        if (fixedIncomeSoFar === undefined) {
+          fixedIncomeSoFar = 0.0;
+        }
+        annualIncomeFixedEstimate = fixedIncomeSoFar + fixedVal * numMonthsLeftInTaxYear;
+
+        // Use total income to estimate annual tax
+        let totalIncomeSoFar = liabilities.inTaxYear.incomeTax.total?.get(person);
+        if (totalIncomeSoFar === undefined) {
+          totalIncomeSoFar = {
+            amount: 0,
+            sources: [],
+          };
+        }
+        annualIncomeEstimate = totalIncomeSoFar.amount + liableIncome * numMonthsLeftInTaxYear;        
+      }
+      
       const estimateAnnualTaxDue: {
         amountLiable: number;
         rate: number;
@@ -2608,13 +2677,47 @@ function payTaxEstimate(
       );
       const annualEstimate = sumTaxDue(estimateAnnualTaxDue);
       const annualEstimateFixed = sumTaxDue(estimateAnnualTaxDueFixed);
-      // log(`es payIncomeTax for ${startYearOfTaxYear}, annual estimate is ${annualEstimate}`);
-      const estimateMonthTaxDue =
-        Math.floor((annualEstimate / 12) * 100 + 0.00001) / 100;
-      const estimateMonthTaxDueFixed =
-        Math.floor((annualEstimateFixed / 12) * 100 + 0.00001) / 100;
 
-      // log(`es payIncomeTax for ${startYearOfTaxYear}, monthly estimate is ${estimateMonthTaxDue}`);
+      let estimateMonthTaxDueFixed = 0.0;
+      let estimateMonthTaxDue = 0.0;
+
+      if (useOldCode) {
+        // log(`es payIncomeTax for ${startYearOfTaxYear}, annual estimate is ${annualEstimate}`);
+        estimateMonthTaxDueFixed =
+          Math.floor((annualEstimateFixed / 12) * 100 + 0.00001) / 100;
+        estimateMonthTaxDue =
+          Math.floor((annualEstimate / 12) * 100 + 0.00001) / 100;
+      } else {
+        let taxFixedPaidSoFar = incomeFixedTaxMonthlyPaymentsPaid.get(person);
+        if (taxFixedPaidSoFar === undefined) {
+          taxFixedPaidSoFar = 0.0;
+        }
+        const annualEstimateDueFixed = annualEstimateFixed - taxFixedPaidSoFar;
+        estimateMonthTaxDueFixed =
+          Math.floor((annualEstimateDueFixed / (numMonthsLeftInTaxYear + 1)) * 100 + 0.00001) / 100;     
+
+        let taxPaidSoFar = incomeTaxMonthlyPaymentsPaid.get(person);
+        if (taxPaidSoFar === undefined) {
+          taxPaidSoFar = 0.0;
+        }
+        const annualEstimateDue = annualEstimate - taxPaidSoFar;
+        estimateMonthTaxDue =
+          Math.floor((annualEstimateDue / (numMonthsLeftInTaxYear + 1)) * 100 + 0.00001) / 100;     
+      }
+
+      // log(`es incomeTax for ${startYearOfTaxYear}, annual estimate is ${annualEstimate}`);
+      // log(`es incomeTax for ${startYearOfTaxYear}, monthly estimate is ${estimateMonthTaxDue}`);
+
+      if(printDebug())
+      {
+        log(`${person} for ${startYearOfTaxYear}, month ${monthOfTaxYear}, 
+          \nfixed income this month ${fixedVal}, 
+          \nannual estimate is ${annualIncomeFixedEstimate}, 
+          \nannual tax estimate is ${annualEstimateFixed}, 
+          \nmonthly estimate is ${estimateMonthTaxDueFixed}`
+        );
+      }
+
       if (estimateMonthTaxDue > 0) {
         // log(`adjust cash for tax estimate ${estimateMonthTaxDue}`);
         adjustAsset(

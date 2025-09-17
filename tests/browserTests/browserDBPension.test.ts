@@ -254,7 +254,7 @@ describe(testName, () => {
     expect(cashAsset.GROWS_WITH_CPI).toEqual("No");
     expect(cashAsset.IS_A_DEBT).toEqual("No");
     expect(cashAsset.CAN_BE_NEGATIVE).toEqual("Yes");
-    expect(parseFloat(cashAsset.TODAYSVALUE)).toBeCloseTo(25060.38, 8);
+    expect(parseFloat(cashAsset.TODAYSVALUE)).toBeCloseTo(25935.36, 8);
     expect(cashAsset.index).toEqual(0);
     expect(cashAsset.ERA).toEqual(0);
 
@@ -272,7 +272,7 @@ describe(testName, () => {
     expect(cashAsset.GROWS_WITH_CPI).toEqual("No");
     expect(cashAsset.IS_A_DEBT).toEqual("No");
     expect(cashAsset.CAN_BE_NEGATIVE).toEqual("Yes");
-    expect(parseFloat(cashAsset.TODAYSVALUE)).toBeCloseTo(25060.38, 8);
+    expect(parseFloat(cashAsset.TODAYSVALUE)).toBeCloseTo(25935.36, 8);
     expect(cashAsset.index).toEqual(0);
     expect(cashAsset.ERA).toEqual(0);
 

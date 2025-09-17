@@ -133,9 +133,9 @@ export function printTestCodeForReportData(reportData: ReportDatum[]) {
     } else {
       if (typeof reportData[i].oldVal === "number") {
         if (oldVal.toFixed(0) === `${reportData[i].oldVal}`) {
-          result += `expect(reportData[${i}].oldVal).toBe(${reportData[i].oldVal});\n`;
+          result += `expect(reportData[${i}].oldVal).toBeCloseTo(${reportData[i].oldVal}, 2);\n`;
         } else {
-          result += `expect(reportData[${i}].oldVal).toBe(${oldVal.toFixed(2)});\n`;
+          result += `expect(reportData[${i}].oldVal).toBeCloseTo(${oldVal.toFixed(2)}, 2);\n`;
         }
       }
     }
@@ -145,9 +145,9 @@ export function printTestCodeForReportData(reportData: ReportDatum[]) {
     } else {
       if (typeof reportData[i].newVal === "number") {
         if (newVal.toFixed(0) === `${reportData[i].newVal}`) {
-          result += `expect(reportData[${i}].newVal).toBe(${reportData[i].newVal});\n`;
+          result += `expect(reportData[${i}].newVal).toBeCloseTo(${reportData[i].newVal}, 2);\n`;
         } else {
-          result += `expect(reportData[${i}].newVal).toBe(${newVal.toFixed(2)});\n`;
+          result += `expect(reportData[${i}].newVal).toBeCloseTo(${newVal.toFixed(2)}, 2);\n`;
         }
       }
     }

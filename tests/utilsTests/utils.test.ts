@@ -1753,7 +1753,7 @@ describe("utils tests", () => {
     });
 
     expect(getTestEvaluations(model2, true, true).evaluations.length).toBe(
-      2850,
+      2847,
     );
     const oldModelCopy = JSON.parse(JSON.stringify(model2));
 
