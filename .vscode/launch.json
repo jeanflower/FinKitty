@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "Debug named npm test",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["test", "--", "-t", "pay income tax on monthly crystallized pension to savings fortnight transfers"],
+      "runtimeArgs": ["test", "--", "-t", "pay income tax on monthly crystallized pension to savings monthly transfers"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "skipFiles": ["<node_internals>/**"]
