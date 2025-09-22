@@ -45,21 +45,21 @@ export const minimalModel: ModelData = {
   settings: [
     {
       NAME: cpi,
-      VALUE: "2.5",
+      VALUE: "0.0",
       HINT: cpiHint,
       TYPE: constType,
       ERA: 0,
     },
     {
       NAME: roiStart,
-      VALUE: "01 Jan 2017",
+      VALUE: "01 Jan 2025",
       HINT: roiStartHint,
       TYPE: viewType,
       ERA: 0,
     },
     {
       NAME: roiEnd,
-      VALUE: "01 Jan 2023",
+      VALUE: "01 Jan 2069",
       HINT: roiEndHint,
       TYPE: viewType,
       ERA: 0,
@@ -80,14 +80,14 @@ export const minimalModel: ModelData = {
     },
     {
       NAME: monitorStart,
-      VALUE: "Nov 2022",
+      VALUE: "Jan 2025",
       HINT: '',
       TYPE: adjustableType,
       ERA: 0,
     },
     {
       NAME: monitorEnd,
-      VALUE: "Nov 2023",
+      VALUE: "Jan 2026",
       HINT: '',
       TYPE: adjustableType,
       ERA: 0,
