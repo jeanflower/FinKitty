@@ -18,7 +18,7 @@ export class SimpleFormatter extends React.Component<SimpleFormatterProps> {
         overlay={(props: any) => (
           <Tooltip
             {...props}
-          >{`${this.props.name}:${this.props.value}`}</Tooltip>
+          >{`${this.props.name}: ${this.props.value}`}</Tooltip>
         )}
       >
         <span>{this.props.value}</span>
@@ -43,7 +43,7 @@ export class SettingFormatter extends React.Component<SimpleFormatterProps> {
       <OverlayTrigger
         placement="top"
         overlay={(props: any) => (
-          <Tooltip {...props}>{`${this.props.name}:${tidyValue}`}</Tooltip>
+          <Tooltip {...props}>{`${this.props.name}: ${tidyValue}`}</Tooltip>
         )}
       >
         <span>{tidyValue}</span>

@@ -1,5 +1,5 @@
 import React, { Component, FormEvent } from "react";
-import { Button, Col, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 
 import { checkAssetLiability, checkRecurrence, isValidValue } from "../../models/checks";
 import {
@@ -248,6 +248,149 @@ function handleBondGeneratorGridRowsUpdated(
         YEAR: newRow.YEAR,
         RECURRENCE: newRow.RECURRENCE,
         RECURRENCE_STOP: newRow.RECURRENCE_STOP,        
+      }
+    };
+    console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
+    submitGenerator(generatorForSubmission, model);
+  }
+}
+
+function handleDCPGeneratorGridRowsUpdated(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  rows: any[],
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+  args: any,
+){
+  // log(`handleDCPGeneratorGridRowsUpdated ${JSON.stringify(args)}`);
+  const newTable = args[0];
+  const change = args[1];
+  const changedIndexes = change.indexes;
+  const changedColumn = change.column;
+
+  if (changedIndexes.length > 1) {
+    throw new Error(`don't handle multirow edits`);
+  }
+
+  const oldRow = rows.find((r) => {
+    return r.index === changedIndexes[0];
+  });
+  const oldVal = oldRow[changedColumn.key];
+
+  const newRow = newTable.find((r: any) => {
+    return r.index === changedIndexes[0];
+  });
+  const newVal = newRow[changedColumn.key];
+
+  if (oldVal === newVal) {
+    return;
+  }
+
+  if (changedColumn.key === "NAME") {
+    if (doChecks) {
+      if (oldVal !== newVal) {
+        const clashCheck = checkForWordClashInModel(model, newVal, "already");
+        if (clashCheck !== "") {
+          showAlert(clashCheck);
+          return;
+        }
+      }
+    }
+    attemptRename(doChecks, oldVal, newVal, showAlert, refreshData);
+    return;
+  }
+
+  const matchedGenerator = model.generators.filter((g) => {
+    return g.NAME === oldRow.NAME;
+  });
+  if (matchedGenerator.length !== 1) {
+    log(`Error: generator ${oldRow.NAME} not found in model?`);
+    return;
+  }
+
+  newRow[changedColumn.key] = newVal;
+
+  const parsedValue = makeCashValueFromString(newRow.VALUE);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+
+  console.log(`in table change, newRow = ${inspect(newRow)}`)
+
+  if (doChecks) {
+    if (!parsedGrowth.checksOK) {
+      showAlert(`generator growth ${newRow.GROWTH} not understood`);
+      newRow[changedColumn.key] = oldVal;
+    } else {
+      // log(`parsedValue = ${showObj(parsedValue)}`);
+      const valueForSubmission = parsedValue.checksOK
+        ? `${parsedValue.value}`
+        : newRow.VALUE;
+      // log(`valueForSubmission = ${valueForSubmission}`);
+      const generatorForSubmission: Generator = {
+        TYPE: "Defined Contributions",
+        NAME: newRow.NAME,
+        ERA: newRow.ERA,
+        DETAILS: {
+          VALUE: valueForSubmission,
+          GROWS_WITH_CPI: newRow.GROWS_WITH_CPI,
+          GROWTH: parsedGrowth.value,
+          TAX_LIABILITY: newRow.TAX_LIABILITY,
+          CATEGORY: newRow.CATEGORY,
+          START: newRow.START,
+          STOP: newRow.STOP,
+          CRYSTALLIZE: newRow.CRYSTALLIZE,
+          SS: newRow.SS,
+          INCOME_SOURCE: newRow.INCOME_SOURCE,
+          CONTRIBUTION_AMOUNT: newRow.CONTRIBUTION_AMOUNT,
+          EMP_CONTRIBUTION_AMOUNT: newRow.EMP_CONTRIBUTION_AMOUNT,
+          TRANSFER_TO: newRow.TRANSFER_TO, 
+          TRANSFER_DATE: newRow.TRANSFER_DATE,       
+        }
+      };
+      console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
+      submitGenerator(generatorForSubmission, model);
+    }
+  } else {
+    // log(`parsedValue = ${showObj(parsedValue)}`);
+    const valueForSubmission = parsedValue.checksOK
+      ? `${parsedValue.value}`
+      : newRow.VALUE;
+    // log(`valueForSubmission = ${valueForSubmission}`);
+    const generatorForSubmission: Generator = {
+      TYPE: "Defined Contributions",
+      NAME: newRow.NAME,
+      ERA: newRow.ERA,
+      DETAILS: {
+        VALUE: valueForSubmission,
+        GROWS_WITH_CPI: newRow.GROWS_WITH_CPI,
+        GROWTH: parsedGrowth.value,
+        TAX_LIABILITY: newRow.TAX_LIABILITY,
+        CATEGORY: newRow.CATEGORY,
+        START: newRow.START,
+        STOP: newRow.STOP,
+        CRYSTALLIZE: newRow.CRYSTALLIZE,
+        SS: newRow.SS,
+        INCOME_SOURCE: newRow.INCOME_SOURCE,
+        CONTRIBUTION_AMOUNT: newRow.CONTRIBUTION_AMOUNT,
+        EMP_CONTRIBUTION_AMOUNT: newRow.EMP_CONTRIBUTION_AMOUNT,
+        TRANSFER_TO: newRow.TRANSFER_TO, 
+        TRANSFER_DATE: newRow.TRANSFER_DATE, 
       }
     };
     console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
@@ -831,7 +974,7 @@ export class AddDeleteAssetForm extends Component<
     );
   }
 
-  private renderGeneratorsTable(
+  private renderBondGeneratorsTable(
     generators: Generator[],
   ){
     const rowData = addIndices(generators.map((g) => {
@@ -949,120 +1092,6 @@ export class AddDeleteAssetForm extends Component<
     /> 
 
     return bondTable;
-  }
-
-  private renderGenerators(
-    generators: Generator[],
-  ) {
-    // log(`render ${generators.length} generators`);
-    return generators.map((g) => {
-      // log(`use key = ${g.NAME}`);
-      return <div
-          id={g.NAME}
-          key={g.NAME}
-        >
-        <div><b>{g.NAME}</b></div>
-        {Object.keys(g.DETAILS).map((key) => {
-          return <div key={key}>
-            {`${key} ${g.DETAILS[key]}`}
-          </div>;
-        })}
-        <Button
-          onClick={()=>{
-            console.log(`edit ${g.NAME}`);
-            if (g.TYPE === "Defined Contributions") {       
-              const details: DCGeneratorDetails = g.DETAILS;       
-              this.setState({
-                inputMode: inputtingPension,
-
-                NAME: g.NAME,
-                VALUE: details.VALUE,
-                QUANTITY: '',
-                START: details.START,
-                GROWTH: details.GROWTH,
-                GROWS_WITH_INFLATION: details.GROWS_WITH_CPI ? details.GROWS_WITH_CPI : 'n',
-                LIABILITY: details.TAX_LIABILITY,
-                PURCHASE_PRICE: '',
-                CATEGORY: details.CATEGORY,
-                DCP_STOP: details.STOP,
-                DCP_CRYSTALLIZE: details.CRYSTALLIZE,
-                DCP_SS: details.SS,
-                DCP_INCOME_SOURCE: details.INCOME_SOURCE,
-                DCP_CONTRIBUTION_AMOUNT: details.CONTRIBUTION_AMOUNT,
-                DCP_EMP_CONTRIBUTION_AMOUNT: details.EMP_CONTRIBUTION_AMOUNT,
-                DCP_TRANSFER_TO: details.TRANSFER_TO,
-                DCP_TRANSFER_DATE: details.TRANSFER_DATE,
-              });
-              this.setSelect(
-                this.incomeSourceSelectID, 
-                this.props.model.incomes.map((a) => {return a.NAME}).indexOf(details.INCOME_SOURCE) + 1
-              );
-            } else if(g.TYPE === "Bonds") {
-              const details: BondGeneratorDetails = g.DETAILS;
-
-              this.setState({
-                inputMode: inputtingBonds,
-
-                NAME: g.NAME,
-                VALUE: details.VALUE,
-                START: details.START,
-                GROWTH: details.GROWTH,
-                CATEGORY: details.CATEGORY,
-                BOND_DURATION: details.DURATION,
-                BOND_SOURCE: details.SOURCE,
-                BOND_TARGET: details.TARGET,
-                BOND_YEAR: details.YEAR,
-                BOND_RECURRENCE: details.RECURRENCE,
-                BOND_RECURRENCE_STOP: details.RECURRENCE_STOP,
-              });
-              const items = this.getAssetOptions();
-              const itemNames = items.map((a) => {return a.NAME});
-              console.log(`look for ${details.SOURCE} in ${itemNames}`)
-              this.setSelect('selectSourceAsset', itemNames.indexOf(details.SOURCE) + 1);
-              this.setSelect('selectTargetAsset', itemNames.indexOf(details.TARGET) + 1);
-            }
-          }}
-        >Edit</Button>
-
-        <Button
-          onClick={async ()=>{
-            console.log(`delete ${g.NAME}`);
-            const outcome = await this.props.deleteGeneratorFunction(g.NAME);
-            if (outcome.itemsDeleted) {
-              this.props.showAlert(`deleted ${g.NAME}`);
-              // clear fields
-              this.setState(this.defaultState);
-              this.resetSelect(this.incomeSourceSelectID);
-            } else {
-              this.props.showAlert(outcome.message);
-            }
-          }}
-        >Delete</Button>
-      </div>
-    })
-  }
-  
-  private renderDCPGenerators(
-    generators: Generator[],
-  ){
-    return <>
-      {this.renderGenerators(
-        generators.filter((g) => {
-          return g.TYPE === 'Defined Contributions';
-        })
-      )}
-    </>;
-  }
-  private renderBondGenerators(
-    generators: Generator[],
-  ){
-    return <>
-      {this.renderGeneratorsTable(
-        generators.filter((g) => {
-          return g.TYPE === 'Bonds';
-        })
-      )}
-    </>;
   }
 
   private inputModeButtons(){
@@ -1192,10 +1221,6 @@ export class AddDeleteAssetForm extends Component<
     // log('rendering an AddDeleteAssetForm');
     return (
       <>
-        <div className="ml-3 my-4">
-          {this.renderDCPGenerators(this.props.model.generators)}
-          {this.renderBondGenerators(this.props.model.generators)}
-        </div>
         {this.inputModeButtons()}
         <form className="container-fluid" onSubmit={this.addFromForm}>
           {this.topRowOfForm()}

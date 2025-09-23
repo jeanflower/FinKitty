@@ -11,6 +11,8 @@ import {
   defaultColumn,
   addIndices,
   cashValueColumn,
+  renderBondGeneratorsTable,
+  renderDCPGeneratorsTable,
 } from "./tablePages";
 import { checkAsset, checkTransaction } from "../models/checks";
 
@@ -187,6 +189,32 @@ export function assetsDiv(
         "",
       )}
       {todaysAssetsTable(model, todaysValues, parentCallbacks)}
+      {collapsibleFragment(
+        renderBondGeneratorsTable(
+          model,
+          parentCallbacks.showAlert,
+          doChecks,
+          parentCallbacks.submitGenerator,
+          parentCallbacks.deleteGenerator,
+          parentCallbacks.setEraGenerator,
+          parentCallbacks.attemptRename,
+          parentCallbacks.refreshData
+        ),
+        `Bond generators`,
+      )}
+      {collapsibleFragment(
+        renderDCPGeneratorsTable(
+          model,
+          parentCallbacks.showAlert,
+          doChecks,
+          parentCallbacks.submitGenerator,
+          parentCallbacks.deleteGenerator,
+          parentCallbacks.setEraGenerator,
+          parentCallbacks.attemptRename,
+          parentCallbacks.refreshData
+        ),
+        `Defined Contributions Pension generators`,
+      )}
       {collapsibleFragment(
         <div className="addNewAsset">
           <AddDeleteAssetForm

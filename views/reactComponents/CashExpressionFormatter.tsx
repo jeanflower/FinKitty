@@ -50,7 +50,7 @@ class CashExpressionFormatter extends React.Component<CashExpressionFormatterPro
       <OverlayTrigger
         placement="top"
         overlay={(props: any) => (
-          <Tooltip {...props}>{`${this.props.name}:${result}`}</Tooltip>
+          <Tooltip {...props}>{`${this.props.name}: ${result}`}</Tooltip>
         )}
       >
         <span className={className}>{result}</span>

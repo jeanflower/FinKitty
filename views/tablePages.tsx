@@ -37,7 +37,10 @@ import {
 } from "../localization/stringConstants";
 import {
   Asset,
+  BondGeneratorDetails,
+  DCGeneratorDetails,
   Expense,
+  Generator,
   Income,
   ModelData,
   Item,
@@ -3932,4 +3935,580 @@ export function optimizerDiv(
       {makeContainedBarChart(cd, chartSettings, settings)}
     </div>
   );
+}
+
+function handleBondGeneratorGridRowsUpdated(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  rows: any[],
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+  args: any,
+){
+  // log(`handleBondGeneratorGridRowsUpdated ${JSON.stringify(args)}`);
+  const newTable = args[0];
+  const change = args[1];
+  const changedIndexes = change.indexes;
+  const changedColumn = change.column;
+
+  if (changedIndexes.length > 1) {
+    throw new Error(`don't handle multirow edits`);
+  }
+
+  const oldRow = rows.find((r) => {
+    return r.index === changedIndexes[0];
+  });
+  const oldVal = oldRow[changedColumn.key];
+
+  const newRow = newTable.find((r: any) => {
+    return r.index === changedIndexes[0];
+  });
+  const newVal = newRow[changedColumn.key];
+
+  if (oldVal === newVal) {
+    return;
+  }
+
+  if (changedColumn.key === "NAME") {
+    if (doChecks) {
+      if (oldVal !== newVal) {
+        const clashCheck = checkForWordClashInModel(model, newVal, "already");
+        if (clashCheck !== "") {
+          showAlert(clashCheck);
+          return;
+        }
+      }
+    }
+    attemptRename(doChecks, oldVal, newVal, showAlert, refreshData);
+    return;
+  }
+
+  const matchedGenerator = model.generators.filter((g) => {
+    return g.NAME === oldRow.NAME;
+  });
+  if (matchedGenerator.length !== 1) {
+    log(`Error: generator ${oldRow.NAME} not found in model?`);
+    return;
+  }
+
+  newRow[changedColumn.key] = newVal;
+
+  const parsedValue = makeCashValueFromString(newRow.VALUE);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+
+  console.log(`in table change, newRow = ${inspect(newRow)}`)
+
+  if (doChecks) {
+    if (!parsedGrowth.checksOK) {
+      showAlert(`generator growth ${newRow.GROWTH} not understood`);
+      newRow[changedColumn.key] = oldVal;
+    } else {
+      // log(`parsedValue = ${showObj(parsedValue)}`);
+      const valueForSubmission = parsedValue.checksOK
+        ? `${parsedValue.value}`
+        : newRow.VALUE;
+      // log(`valueForSubmission = ${valueForSubmission}`);
+      const generatorForSubmission: Generator = {
+        TYPE: "Bonds",
+        NAME: newRow.NAME,
+        ERA: newRow.ERA,
+        DETAILS: {
+          VALUE: valueForSubmission,
+          GROWTH: parsedGrowth.value,
+          CATEGORY: newRow.CATEGORY,
+          START: newRow.START,
+          DURATION: newRow.BOND_DURATION,
+          SOURCE: newRow.BOND_SOURCE,
+          TARGET: newRow.BOND_TARGET,
+          YEAR: newRow.BOND_YEAR,
+          RECURRENCE: newRow.BOND_RECURRENCE,
+          RECURRENCE_STOP: newRow.BOND_RECURRENCE_STOP,        
+        }
+      };
+      console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
+      submitGenerator(generatorForSubmission, model);
+    }
+  } else {
+    // log(`parsedValue = ${showObj(parsedValue)}`);
+    const valueForSubmission = parsedValue.checksOK
+      ? `${parsedValue.value}`
+      : newRow.VALUE;
+    // log(`valueForSubmission = ${valueForSubmission}`);
+    const generatorForSubmission: Generator = {
+      TYPE: "Bonds",
+      NAME: newRow.NAME,
+      ERA: newRow.ERA,
+      DETAILS: {
+        VALUE: valueForSubmission,
+        GROWTH: parsedGrowth.value,
+        CATEGORY: newRow.CATEGORY,
+        START: newRow.START,
+        DURATION: newRow.DURATION,
+        SOURCE: newRow.SOURCE,
+        TARGET: newRow.TARGET,
+        YEAR: newRow.YEAR,
+        RECURRENCE: newRow.RECURRENCE,
+        RECURRENCE_STOP: newRow.RECURRENCE_STOP,        
+      }
+    };
+    console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
+    submitGenerator(generatorForSubmission, model);
+  }
+}
+
+function handleDCPGeneratorGridRowsUpdated(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  rows: any[],
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+  args: any,
+){
+  // log(`handleDCPGeneratorGridRowsUpdated ${JSON.stringify(args)}`);
+  const newTable = args[0];
+  const change = args[1];
+  const changedIndexes = change.indexes;
+  const changedColumn = change.column;
+
+  if (changedIndexes.length > 1) {
+    throw new Error(`don't handle multirow edits`);
+  }
+
+  const oldRow = rows.find((r) => {
+    return r.index === changedIndexes[0];
+  });
+  const oldVal = oldRow[changedColumn.key];
+
+  const newRow = newTable.find((r: any) => {
+    return r.index === changedIndexes[0];
+  });
+  const newVal = newRow[changedColumn.key];
+
+  if (oldVal === newVal) {
+    return;
+  }
+
+  if (changedColumn.key === "NAME") {
+    if (doChecks) {
+      if (oldVal !== newVal) {
+        const clashCheck = checkForWordClashInModel(model, newVal, "already");
+        if (clashCheck !== "") {
+          showAlert(clashCheck);
+          return;
+        }
+      }
+    }
+    attemptRename(doChecks, oldVal, newVal, showAlert, refreshData);
+    return;
+  }
+
+  const matchedGenerator = model.generators.filter((g) => {
+    return g.NAME === oldRow.NAME;
+  });
+  if (matchedGenerator.length !== 1) {
+    log(`Error: generator ${oldRow.NAME} not found in model?`);
+    return;
+  }
+
+  newRow[changedColumn.key] = newVal;
+
+  const parsedValue = makeCashValueFromString(newRow.VALUE);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+
+  console.log(`in table change, newRow = ${inspect(newRow)}`)
+
+  if (doChecks) {
+    if (!parsedGrowth.checksOK) {
+      showAlert(`generator growth ${newRow.GROWTH} not understood`);
+      newRow[changedColumn.key] = oldVal;
+    } else {
+      // log(`parsedValue = ${showObj(parsedValue)}`);
+      const valueForSubmission = parsedValue.checksOK
+        ? `${parsedValue.value}`
+        : newRow.VALUE;
+      // log(`valueForSubmission = ${valueForSubmission}`);
+      const generatorForSubmission: Generator = {
+        TYPE: "Defined Contributions",
+        NAME: newRow.NAME,
+        ERA: newRow.ERA,
+        DETAILS: {
+          VALUE: valueForSubmission,
+          GROWS_WITH_CPI: newRow.GROWS_WITH_CPI,
+          GROWTH: parsedGrowth.value,
+          TAX_LIABILITY: newRow.TAX_LIABILITY,
+          CATEGORY: newRow.CATEGORY,
+          START: newRow.START,
+          STOP: newRow.STOP,
+          CRYSTALLIZE: newRow.CRYSTALLIZE,
+          SS: newRow.SS,
+          INCOME_SOURCE: newRow.INCOME_SOURCE,
+          CONTRIBUTION_AMOUNT: newRow.CONTRIBUTION_AMOUNT,
+          EMP_CONTRIBUTION_AMOUNT: newRow.EMP_CONTRIBUTION_AMOUNT,
+          TRANSFER_TO: newRow.TRANSFER_TO, 
+          TRANSFER_DATE: newRow.TRANSFER_DATE,       
+        }
+      };
+      console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
+      submitGenerator(generatorForSubmission, model);
+    }
+  } else {
+    // log(`parsedValue = ${showObj(parsedValue)}`);
+    const valueForSubmission = parsedValue.checksOK
+      ? `${parsedValue.value}`
+      : newRow.VALUE;
+    // log(`valueForSubmission = ${valueForSubmission}`);
+    const generatorForSubmission: Generator = {
+      TYPE: "Defined Contributions",
+      NAME: newRow.NAME,
+      ERA: newRow.ERA,
+      DETAILS: {
+        VALUE: valueForSubmission,
+        GROWS_WITH_CPI: newRow.GROWS_WITH_CPI,
+        GROWTH: parsedGrowth.value,
+        TAX_LIABILITY: newRow.TAX_LIABILITY,
+        CATEGORY: newRow.CATEGORY,
+        START: newRow.START,
+        STOP: newRow.STOP,
+        CRYSTALLIZE: newRow.CRYSTALLIZE,
+        SS: newRow.SS,
+        INCOME_SOURCE: newRow.INCOME_SOURCE,
+        CONTRIBUTION_AMOUNT: newRow.CONTRIBUTION_AMOUNT,
+        EMP_CONTRIBUTION_AMOUNT: newRow.EMP_CONTRIBUTION_AMOUNT,
+        TRANSFER_TO: newRow.TRANSFER_TO, 
+        TRANSFER_DATE: newRow.TRANSFER_DATE, 
+      }
+    };
+    console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
+    submitGenerator(generatorForSubmission, model);
+  }
+}
+
+export function renderBondGeneratorsTable(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  submitGenerator: (
+    generator: Generator,
+  ) => Promise<void>,
+  deleteGenerator: (name: string) => Promise<DeleteResult>,
+  setEraGenerator: (name: string, value: number) => Promise<boolean>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+){
+  const generators: Generator[] = model.generators.filter((g) => {
+    return g.TYPE === "Bonds";
+  });
+  const rowData = addIndices(generators.map((g) => {
+    const details: BondGeneratorDetails = g.DETAILS;
+    return {
+      NAME: g.NAME,
+      ERA: g.ERA,
+      VALUE: details.VALUE,
+      START: details.START,
+      GROWTH: details.GROWTH,
+      CATEGORY: details.CATEGORY,
+      BOND_DURATION: details.DURATION,
+      BOND_SOURCE: details.SOURCE,
+      BOND_TARGET: details.TARGET,
+      BOND_YEAR: details.YEAR,
+      BOND_RECURRENCE: details.RECURRENCE,
+      BOND_RECURRENCE_STOP: details.RECURRENCE_STOP,
+    }
+  }));
+
+  const bondTable =  <DataGridFinKitty
+    tableID='bondGeneratorTable'
+    rows={rowData}
+    columns={[
+      /*
+      {
+        ...defaultColumn,
+        key: 'index',
+        name: 'index',
+      },
+      */
+      faveColumn(
+        deleteGenerator,
+        setEraGenerator,
+        "bondGeneratorTable",
+      ),
+      {
+        ...defaultColumn,
+        key: "NAME",
+        name: "name",
+      },
+      {
+        ...cashValueColumn,
+        key: "VALUE",
+        name: `value`,
+      },
+      {
+        ...triggerDateColumn(model),
+        key: "START",
+        name: `start`,
+      },
+      {
+        ...growthColumn(model.settings),
+        key: "GROWTH",
+        name: 'growth',
+      },
+      {
+        ...defaultColumn,
+        key: "CATEGORY",
+        name: `category`,
+      },
+      {
+        ...defaultColumn,
+        key: "BOND_DURATION",
+        name: `duration`,
+      },
+      {
+        ...defaultColumn,
+        key: "BOND_SOURCE",
+        name: `source`,
+      },
+      {
+        ...defaultColumn,
+        key: "BOND_TARGET",
+        name: `target`,
+      },
+      {
+        ...defaultColumn,
+        key: "BOND_YEAR",
+        name: `year`,
+      },
+      {
+        ...defaultColumn,
+        key: "BOND_RECURRENCE",
+        name: `recurrence`,
+      },
+      {
+        ...defaultColumn,
+        key: "BOND_RECURRENCE_STOP",
+        name: `recurrence stop`,
+      },
+    ]}
+    model={model}
+    handleGridRowsUpdated={function (...args: any[]) {
+      return handleBondGeneratorGridRowsUpdated(
+        model,
+        showAlert,
+        doChecks,
+        rowData,
+        submitGenerator,
+        attemptRename,
+        refreshData,
+        args,
+      );
+    }}
+  /> 
+
+  return bondTable;
+}
+
+export function renderDCPGeneratorsTable(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  submitGenerator: (
+    generator: Generator,
+  ) => Promise<void>,
+  deleteGenerator: (name: string) => Promise<DeleteResult>,
+  setEraGenerator: (name: string, value: number) => Promise<boolean>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+){
+  const generators: Generator[] = model.generators.filter((g) => {
+    return g.TYPE === "Defined Contributions";
+  });
+
+  const rowData = addIndices(generators.map((g) => {
+    const details: DCGeneratorDetails = g.DETAILS;
+    return {
+      NAME: g.NAME,
+      ERA: g.ERA,
+      VALUE: details.VALUE,
+      GROWS_WITH_CPI: details.GROWS_WITH_CPI,
+      GROWTH: details.GROWTH,
+      TAX_LIABILITY: details.TAX_LIABILITY,
+      CATEGORY: details.CATEGORY,
+      START: details.START,
+      STOP: details.STOP,
+      CRYSTALLIZE: details.CRYSTALLIZE,
+      SS: details.SS,
+      INCOME_SOURCE: details.INCOME_SOURCE,
+      CONTRIBUTION_AMOUNT: details.CONTRIBUTION_AMOUNT,
+      EMP_CONTRIBUTION_AMOUNT: details.EMP_CONTRIBUTION_AMOUNT,
+      TRANSFER_TO: details.TRANSFER_TO,
+      TRANSFER_DATE: details.TRANSFER_DATE,
+    }
+  }));
+
+  const dcptable =  <DataGridFinKitty
+    tableID='dcpGeneratorTable'
+    rows={rowData}
+    columns={[
+      /*
+      {
+        ...defaultColumn,
+        key: 'index',
+        name: 'index',
+      },
+      */
+      faveColumn(
+        deleteGenerator,
+        setEraGenerator,
+        "bondGeneratorTable",
+      ),
+      {
+        ...defaultColumn,
+        key: "NAME",
+        name: "name",
+      },
+      {
+        ...cashValueColumn,
+        key: "VALUE",
+        name: `value`,
+      },
+      {
+        ...defaultColumn,
+        key: "GROWS_WITH_CPI",
+        name: `grows with cpi`,
+      },
+      {
+        ...growthColumn(model.settings),
+        key: "GROWTH",
+        name: 'growth',
+      },
+      {
+        ...triggerDateColumn(model),
+        key: "START",
+        name: `start contributions`,
+      },
+      {
+        ...triggerDateColumn(model),
+        key: "STOP",
+        name: `stop contributions`,
+      },
+      {
+        ...defaultColumn,
+        key: "CRYSTALLIZE",
+        name: `crystallize`,
+      },
+      {
+        ...defaultColumn,
+        key: "SS",
+        name: `sal. sacrifice`,
+      },
+      {
+        ...defaultColumn,
+        key: "INCOME_SOURCE",
+        name: `income source`,
+      },
+      {
+        ...defaultColumn,
+        key: "CONTRIBUTION_AMOUNT",
+        name: `contribution amount`,
+      },
+      {
+        ...defaultColumn,
+        key: "EMP_CONTRIBUTION_AMOUNT",
+        name: `employer contribution amount`,
+      },
+      {...defaultColumn,
+        key: "TAX_LIABILITY",
+        name: `tax liability`,
+      },
+      {
+        ...defaultColumn,
+        key: "TRANSFER_TO",
+        name: `transfer to`,
+      },
+      {
+        ...triggerDateColumn(model),
+        key: "TRANSFER_DATE",
+        name: `transfer date`,
+      },
+      {
+        ...defaultColumn,
+        key: "CATEGORY",
+        name: `category`,
+      },
+    ]}
+    model={model}
+    handleGridRowsUpdated={function (...args: any[]) {
+      return handleDCPGeneratorGridRowsUpdated(
+        model,
+        showAlert,
+        doChecks,
+        rowData,
+        submitGenerator,
+        attemptRename,
+        refreshData,
+        args,
+      );
+    }}
+  /> 
+
+  return dcptable;
 }

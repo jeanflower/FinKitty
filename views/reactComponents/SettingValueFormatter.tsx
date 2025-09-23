@@ -38,7 +38,7 @@ class SettingValFormatter extends React.Component<SettingValFormatterProps> {
       <OverlayTrigger
         placement="top"
         overlay={(props: any) => (
-          <Tooltip {...props}>{`${this.props.name}:${result}`}</Tooltip>
+          <Tooltip {...props}>{`${this.props.name}: ${result}`}</Tooltip>
         )}
       >
         <span className="float: right">{result}</span>

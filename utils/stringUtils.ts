@@ -843,11 +843,15 @@ export function makeDateTooltip(
   varValue: number,
 ) {
   // log(`triggers.length = ${triggers.length}`);
-  let result = "";
+  let result = `${input}`;
   if (input !== "") {
     const date = checkTriggerDate(input, triggers, varValue);
     if (date !== undefined) {
-      result = dateAsString(DateFormatType.View, date);
+      const dateString = dateAsString(DateFormatType.View, date);
+      if(dateString !== input) {
+        result += "\n";
+        result += dateAsString(DateFormatType.View, date);
+      }
     }
   }
   // log(`make date tooltip for ${input}: ${result}`);

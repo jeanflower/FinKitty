@@ -1158,30 +1158,30 @@ describe("utils tests", () => {
       DATE: "1 Jan 2018",
     };
     expect(makeDateTooltip("a", [simpleTrigger], varVal)).toEqual(
-      "01 Jan 2018",
+      "a\n01 Jan 2018",
     );
     expect(makeDateTooltip("", [simpleTrigger], varVal)).toEqual("");
-    expect(makeDateTooltip("nonsense", [simpleTrigger], varVal)).toEqual("");
+    expect(makeDateTooltip("nonsense", [simpleTrigger], varVal)).toEqual("nonsense");
     expect(makeDateTooltip("a", [simpleTrigger], varVal)).toEqual(
-      "01 Jan 2018",
+      "a\n01 Jan 2018",
     );
     expect(makeDateTooltip("a+1y", [simpleTrigger], varVal)).toEqual(
-      "01 Jan 2019",
+      "a+1y\n01 Jan 2019",
     );
     expect(makeDateTooltip("a-1y", [simpleTrigger], varVal)).toEqual(
-      "01 Jan 2017",
+      "a-1y\n01 Jan 2017",
     );
     expect(makeDateTooltip("a+1m", [simpleTrigger], varVal)).toEqual(
-      "01 Feb 2018",
+      "a+1m\n01 Feb 2018",
     );
     expect(makeDateTooltip("a-1m", [simpleTrigger], varVal)).toEqual(
-      "01 Dec 2017",
+      "a-1m\n01 Dec 2017",
     );
     expect(makeDateTooltip("a+1d", [simpleTrigger], varVal)).toEqual(
-      "02 Jan 2018",
+      "a+1d\n02 Jan 2018",
     );
     expect(makeDateTooltip("a-1d", [simpleTrigger], varVal)).toEqual(
-      "31 Dec 2017",
+      "a-1d\n31 Dec 2017",
     );
   });
   it("makeStringFromPurchasePrice", () => {

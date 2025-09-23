@@ -14,7 +14,7 @@ class PcFormatter extends React.Component<PcFormatterProps> {
       <OverlayTrigger
         placement="top"
         overlay={(props: any) => (
-          <Tooltip {...props}>{`${this.props.name}:${x}`}</Tooltip>
+          <Tooltip {...props}>{`${this.props.name}: ${x}`}</Tooltip>
         )}
       >
         <span>{x}%</span>

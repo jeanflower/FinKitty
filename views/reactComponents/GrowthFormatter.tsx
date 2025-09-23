@@ -17,7 +17,7 @@ class GrowthFormatter extends React.Component<GrowthFormatterProps> {
       <OverlayTrigger
         placement="top"
         overlay={(props: any) => (
-          <Tooltip {...props}>{`${this.props.name}:${x}`}</Tooltip>
+          <Tooltip {...props}>{`${this.props.name}: ${x}`}</Tooltip>
         )}
       >
         <span>{x}</span>

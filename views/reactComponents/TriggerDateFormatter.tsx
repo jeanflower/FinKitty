@@ -45,7 +45,7 @@ class TriggerDateFormatter extends React.Component<TriggerDateFormatterProps> {
       <OverlayTrigger
         placement="top"
         overlay={(props: any) => (
-          <Tooltip {...props}>{`${this.props.name}:${makeDateTooltipLocal(
+          <Tooltip {...props}>{`${this.props.name}: ${makeDateTooltipLocal(
             this.props,
           )}`}</Tooltip>
         )}
