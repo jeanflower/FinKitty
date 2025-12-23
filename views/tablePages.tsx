@@ -3114,6 +3114,18 @@ export function expensesMonitoringDivWithHeading(
     parentCallbacks,
   );
 
+  const colDatesFor2026 = makeMonitoringColMonthsFromStartEnd('Jan 2026', 'Jan 2027');
+  const expDataFor2026 = expenseMonitoringForTable(
+    model, 
+    expensesChartData,
+    planningExpensesChartData, // for Basic and Leisure for Planning
+    planningAssetsChartData, // for maturing Bonds for Planning
+    reportData,
+    colDatesFor2026,
+    todaysValues, 
+    parentCallbacks,
+  );
+
   return collapsibleFragment(
     <>
       <Button
@@ -3149,13 +3161,14 @@ export function expensesMonitoringDivWithHeading(
       >
         Advance 1 month
       </Button>
+
       {expensesMonitoringYearSummaryTableDiv(
         model,
-        expDataFor2025.summary,
-        colDatesFor2025,
+        expDataFor2026.summary,
+        colDatesFor2026,
         doChecks,
         parentCallbacks,
-        `expensesSummary${tableIDEnding}2025`,
+        `expensesSummary${tableIDEnding}2026`,
       )}
 
       {expensesMonitoringDetailTableDiv(
@@ -3165,6 +3178,15 @@ export function expensesMonitoringDivWithHeading(
         doChecks,
         parentCallbacks,
         `expensesDetails${tableIDEnding}`,
+      )}
+
+      {expensesMonitoringYearSummaryTableDiv(
+        model,
+        expDataFor2025.summary,
+        colDatesFor2025,
+        doChecks,
+        parentCallbacks,
+        `expensesSummary${tableIDEnding}2025`,
       )}
 
       {expensesMonitoringYearSummaryTableDiv(
