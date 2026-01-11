@@ -8003,10 +8003,10 @@ describe("evaluations tests", () => {
     expect(filterForOld(model.assets).length).toBe(0);
     expect(filterForOld(model.expenses).length).toBe(2);
 
-    model.settings[5].VALUE = "01 Jan 2026";
+    model.settings[5].VALUE = "01 Jan 2028";
     expect(filterForOld(model.incomes).length).toBe(1);
 
-    model.settings[5].VALUE = "01 Jan 2026";
+    model.settings[5].VALUE = "01 Jan 2028";
     expect(filterForOld(model.transactions).length).toBe(1);
 
     model.settings[5].VALUE = "01 Jan 2048";

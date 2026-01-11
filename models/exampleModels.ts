@@ -135,7 +135,7 @@ export const billAndBenExampleData = `{
 export const mortgageSwitchExampleData = `{
 "name": "Mortgage switch",
 "triggers":[
-  {"NAME":"GetRidOfCar","DATE":"31 Dec 2025"},
+  {"NAME":"GetRidOfCar","DATE":"31 Dec 2026"},
   {"NAME":"StopMainWork","DATE":"31 Dec 2050"},
   {"NAME":"TransferMortgage","DATE":"1 Jan 2028"}],
 "expenses":[
