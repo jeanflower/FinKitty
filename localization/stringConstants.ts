@@ -120,8 +120,10 @@ export const pensionPrefix = `${penPrefix}EN `;
 export const pensionSS = `${penPrefix}SS `;
 export const pensionDB = `${penPrefix}DB `;
 export const pensionTransfer = `${penPrefix}T `;
-export const moveTaxFreePart = `${cpPrefix}TaxFreeM `;
-export const taxFree = `${cpPrefix}TaxFree `;
+export const taxFreePart = 'TaxFree';
+export const taxablePart = 'Taxable';
+export const moveTaxFreePart = `${cpPrefix}${taxFreePart}M `;
+export const taxFree = `${cpPrefix}${taxFreePart} `;
 export const transferCrystallizedPension = `${cpPrefix}T `;
 
 export const generatedRecurrence = 'GenFor';
