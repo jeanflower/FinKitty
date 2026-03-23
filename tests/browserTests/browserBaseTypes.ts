@@ -26,13 +26,87 @@ export const dBSleep = 1500; // time to round trip through DB
 export const calcSleep = 1000; // time to recalculate charts etc
 const shortSleep = 200;
 
+function previewText(s: string, max = 80): string {
+  if (s.length <= max) {
+    return s;
+  }
+  return `${s.slice(0, max)}…`;
+}
+
+async function describeFillTarget(el: any): Promise<string> {
+  try {
+    const tag = await el.getTagName();
+    const type = await el.getAttribute("type");
+    const idAttr = await el.getAttribute("id");
+    const nameAttr = await el.getAttribute("name");
+    const displayed = await el.isDisplayed();
+    const enabled = await el.isEnabled();
+    return `element <${tag}> id="${idAttr ?? ""}" name="${nameAttr ?? ""}" type="${type ?? ""}" displayed=${displayed} enabled=${enabled}`;
+  } catch (stateErr: unknown) {
+    const m = stateErr instanceof Error ? stateErr.message : String(stateErr);
+    return `(could not inspect element: ${m})`;
+  }
+}
+
+/** Always visible in Jest; `log()` is often a no-op when doLogIncremental is false. */
+function reportFillFailure(line: string): void {
+  /* eslint-disable no-console */
+  console.error(`[browser test fill] ${line}`);
+  /* eslint-enable no-console */
+  log(line);
+}
+
+async function scrollElementIntoViewWithContext(
+  driver: ThenableWebDriver,
+  el: any,
+  contextLine: string,
+): Promise<void> {
+  try {
+    await driver.executeScript(
+      `arguments[0].scrollIntoView({ block: 'center' });`,
+      el,
+    );
+  } catch (e: unknown) {
+    const detail = await describeFillTarget(el);
+    const orig = e instanceof Error ? e.message : String(e);
+    const line = `${contextLine} | ${detail} | ${orig}`;
+    reportFillFailure(line);
+    throw new Error(line);
+  }
+}
+
+async function sendKeysWithFillContext(
+  el: any,
+  keys: string,
+  contextLine: string,
+): Promise<unknown> {
+  try {
+    return await el.sendKeys(keys);
+  } catch (e: unknown) {
+    const detail = await describeFillTarget(el);
+    const orig = e instanceof Error ? e.message : String(e);
+    const line = `${contextLine} | ${detail} | ${orig}`;
+    reportFillFailure(line);
+    throw new Error(line);
+  }
+}
+
 export function getDriver() {
   // from
   // https://jakebinstein.com/blog/how-to-set-browser-capabilities-in-webdriverjs-example-headless-mode/
 
-  const browserOptions = {
+  const browserOptions: { args: string[] } = {
     args: ["--disable-gpu", "--no-sandbox"],
   };
+
+  // Shrink Chrome UI + page (like zoom under 100%) on small / HiDPI screens so controls stay reachable.
+  // Example: FINKITTY_CHROME_DEVICE_SCALE_FACTOR=0.85 npm test
+  const scaleFactor = process.env.FINKITTY_CHROME_DEVICE_SCALE_FACTOR;
+  if (scaleFactor !== undefined && scaleFactor.trim() !== "") {
+    browserOptions.args.push(
+      `--force-device-scale-factor=${scaleFactor.trim()}`,
+    );
+  }
 
   // this hasn't worked for a long time - needs fresh attention
   //if (headless) {
@@ -112,9 +186,13 @@ export async function clickButton(driver: ThenableWebDriver, id: string) {
     return;
   }
   if (btn.length !== 1) {
-    log(`there is not one button with id = ${id} - test will fail`);
+    const msg = `clickButton: expected exactly 1 element with id="${id}", found ${btn.length}`;
+    reportFillFailure(msg);
   }
-  expect(btn.length === 1).toBe(true);
+  expect({ buttonId: id, elementCount: btn.length }).toEqual({
+    buttonId: id,
+    elementCount: 1,
+  });
 }
 
 export async function fillInputById(
@@ -122,31 +200,90 @@ export async function fillInputById(
   id: string,
   content: string,
 ) {
-  const input = await driver.findElements(webdriver.By.id(id));
+  let input: any[] = [];
+  for (let i = 0; i < 10; i = i + 1) {
+    input = await driver.findElements(webdriver.By.id(id));
+    if (input.length === 1) {
+      break;
+    }
+    await sleep(200, `input id=${id} not ready yet`);
+  }
   if (input.length !== 1) {
     log(`found ${input.length} elements with id=${id} for content ${content}`);
   }
   expect(input.length === 1).toBe(true);
+  await scrollElementIntoViewWithContext(
+    driver,
+    input[0],
+    `fillInputById id="${id}" step="scroll into view" content="${previewText(content)}"`,
+  );
+  const byIdCtx = (step: string) =>
+    `fillInputById id="${id}" step="${step}" content="${previewText(content)}"`;
+
   if (id === "liquidateForCash") {
     // clear away a default 'No' before adding new text
-    await input[0].sendKeys(Key.BACK_SPACE); //N
-    await input[0].sendKeys(Key.BACK_SPACE); //o
+    await sendKeysWithFillContext(
+      input[0],
+      Key.BACK_SPACE,
+      byIdCtx("clear default (1/2)"),
+    );
+    await sendKeysWithFillContext(
+      input[0],
+      Key.BACK_SPACE,
+      byIdCtx("clear default (2/2)"),
+    );
   }
   if (id === "fromValue") {
     // clear away a default '100%' before adding new text
-    await input[0].sendKeys(Key.BACK_SPACE); //1
-    await input[0].sendKeys(Key.BACK_SPACE); //0
-    await input[0].sendKeys(Key.BACK_SPACE); //0
-    await input[0].sendKeys(Key.BACK_SPACE); //%
+    await sendKeysWithFillContext(
+      input[0],
+      Key.BACK_SPACE,
+      byIdCtx("clear fromValue (1/4)"),
+    );
+    await sendKeysWithFillContext(
+      input[0],
+      Key.BACK_SPACE,
+      byIdCtx("clear fromValue (2/4)"),
+    );
+    await sendKeysWithFillContext(
+      input[0],
+      Key.BACK_SPACE,
+      byIdCtx("clear fromValue (3/4)"),
+    );
+    await sendKeysWithFillContext(
+      input[0],
+      Key.BACK_SPACE,
+      byIdCtx("clear fromValue (4/4)"),
+    );
   }
   if (id === "toValue") {
     // clear away a default '100%' before adding new text
-    await input[0].sendKeys(Key.BACK_SPACE); //1
-    await input[0].sendKeys(Key.BACK_SPACE); //0
-    await input[0].sendKeys(Key.BACK_SPACE); //0
-    await input[0].sendKeys(Key.BACK_SPACE); //%
+    await sendKeysWithFillContext(
+      input[0],
+      Key.BACK_SPACE,
+      byIdCtx("clear toValue (1/4)"),
+    );
+    await sendKeysWithFillContext(
+      input[0],
+      Key.BACK_SPACE,
+      byIdCtx("clear toValue (2/4)"),
+    );
+    await sendKeysWithFillContext(
+      input[0],
+      Key.BACK_SPACE,
+      byIdCtx("clear toValue (3/4)"),
+    );
+    await sendKeysWithFillContext(
+      input[0],
+      Key.BACK_SPACE,
+      byIdCtx("clear toValue (4/4)"),
+    );
   }
-  const result = await input[0].sendKeys(content);
+  const result = await sendKeysWithFillContext(
+    input[0],
+    content,
+    byIdCtx("type value"),
+  );
   //log(`got ${result} from content ${content}`);
   return result;
 }
@@ -186,12 +323,16 @@ async function scrollIntoView(
     break;
   }
   if (input.length !== 1) {
+    const msg = `scrollIntoView: expected 1 element for ${byName ? "name" : "id"}="${name}", found ${input.length}`;
+    reportFillFailure(msg);
     log(`found ${input.length} elements for ${name}, expected 1 element`);
     // expect(input.length === 1).toBe(true);
   } else {
-    await driver.executeScript(
-      `arguments[0].scrollIntoView({ block: 'center' });`,
+    const by = byName ? "name" : "id";
+    await scrollElementIntoViewWithContext(
+      driver,
       input[0],
+      `scrollIntoView before fill (${by}="${name}")`,
     );
   }
 }
@@ -207,9 +348,17 @@ export async function fillInputByName(
 
   const input = await driver.findElements(webdriver.By.name(name));
   if (input.length === 1) {
-    await input[0].sendKeys(content);
+    const byNameCtx = (step: string) =>
+      `fillInputByName name="${name}" step="${step}" content="${previewText(content)}"`;
+    await sendKeysWithFillContext(
+      input[0],
+      content,
+      byNameCtx("type value"),
+    );
   } else {
-    log(`expected 1 input for ${name}, failed to sendKeys ${content}`);
+    log(
+      `fillInputByName: expected 1 input name="${name}", found ${input.length}; content="${previewText(content)}"`,
+    );
   }
 }
 
@@ -248,6 +397,13 @@ export async function beforeAllWork(
     1500, // was calcSleep twice
     "--- after browser loads URI",
   );
+
+  const pageZoom = process.env.FINKITTY_BROWSER_PAGE_ZOOM;
+  if (pageZoom !== undefined && pageZoom.trim() !== "") {
+    await driver.executeScript(
+      `document.documentElement.style.zoom = ${JSON.stringify(pageZoom.trim())}`,
+    );
+  }
 
   // Handle errors around SSL certificates
   // push through "Advanced" and "Proceed"
