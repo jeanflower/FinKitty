@@ -35,6 +35,7 @@ import {
   log,
   makeDateFromString,
   printDebug,
+  saveLogsUsingFs,
   showObj,
 } from "../utils/utils";
 import { generateSequenceOfDates, processGenerators } from "./evaluations";
@@ -54,7 +55,7 @@ import {
 } from "../utils/stringUtils";
 import { getROI } from "./modelUtils";
 import { getCategory } from "./category";
-import { ViewSettings, getDisplayedView } from "../utils/viewUtils";
+import { ViewSettings, getDisplayedView, getNameForChart } from "../utils/viewUtils";
 import { getSettings, getVarVal } from "./modelQueries";
 import {
   Setting,
@@ -180,6 +181,7 @@ function makeChartDataPoints(
   dates.forEach((date) => {
     const dateString = dateAsString(DateFormatType.Test, date);
     items.forEach((item) => {
+      // log(`get item ${item} from map for date ${dateString}`);
       let value = 0.0;
       // log(`get data from map for date ${dateString}`);
       const nameValueMap = dateNameValueMap.get(dateString);
@@ -219,6 +221,7 @@ function makeChartDataPoints(
         } else {
           // log(`no birthDate given, dataLabel = ${dataLabel}`);
         }
+        // log(`chart data point for ${item}: ${showObj({label: dataLabel, y: value})}`);
         chartArray.push({
           label: dataLabel,
           y: value,
@@ -280,7 +283,7 @@ function displayWordAs(
   };
 
   const assetMatch = model.assets.filter((a) => {
-    return a.NAME === word;
+    return getNameForChart(a.NAME, model) === word;
   });
   if (assetMatch.length !== 0) {
     // log(`matched name ${word}`);
@@ -289,7 +292,7 @@ function displayWordAs(
       // Include if focus is allItems or this asset name
       const setAsset = viewSettings.getShowItem(
         Context.Asset,
-        assetMatch[0].NAME,
+        getNameForChart(assetMatch[0].NAME, model),
       );
       if (setAsset) {
         result.asset = true;
@@ -316,14 +319,14 @@ function displayWordAs(
       if (a.IS_A_DEBT) {
         // Have a debt with a matching category
         // Include if focus is allItems or this category name
-        const setDebt = viewSettings.getShowItem(Context.Debt, a.NAME);
+        const setDebt = viewSettings.getShowItem(Context.Debt, getNameForChart(a.NAME, model));
         if (setDebt) {
           result.debt = true;
         }
       } else {
         // Have an asset with a matching category
         // Include if focus is allItems or this category name
-        const setAsset = viewSettings.getShowItem(Context.Asset, a.NAME);
+        const setAsset = viewSettings.getShowItem(Context.Asset, getNameForChart(a.NAME, model));
         if (setAsset) {
           result.asset = true;
         }
@@ -708,6 +711,7 @@ function addAssetValueToChart(
   valueForChart: number,
   assetOrDebtNameValueMap: Map<string, number>,
   mapKey: string,
+  model: ModelData,
   showAssetAdditions: boolean,
   showAssetReductions: boolean,
   assetOrDebtValueSources: string[],
@@ -733,9 +737,26 @@ function addAssetValueToChart(
   } else {
     // log(`log chart delta ${valueForChart}`);
     assetOrDebtNameValueMap.set(mapKey, valueForChart);
-    if (assetOrDebtValueSources.indexOf(mapKey) < 0) {
+
+    let keyCopy = mapKey;
+    const parts = keyCopy.split(separator);
+    if(parts.length == 2)
+    {
+      const combinedName = `${getNameForChart(parts[0], model)}${separator}${getNameForChart(parts[1], model)}`;
+      if(combinedName !== keyCopy){
+        keyCopy = combinedName;
+      }
+    }
+    else if(parts.length == 1)
+    {
+      const trimmedName = getNameForChart(keyCopy, model);
+      if(trimmedName !== keyCopy){
+        keyCopy = trimmedName;
+      }
+    }
+    if (assetOrDebtValueSources.indexOf(keyCopy) < 0) {
       // log(`log chart mapKey ${mapKey}`);
-      assetOrDebtValueSources.push(mapKey);
+      assetOrDebtValueSources.push(keyCopy);
     }
   }
 }
@@ -751,7 +772,7 @@ export function makeChartData(
     todaysExpenseValues: Map<Expense, ExpenseVal>;
     todaysSettingValues: Map<Setting, SettingVal>;
   },
-) {
+): DataForView {
   if (needsEmptyCharts(evaluationsAndVals)) {
     return emptyCharts();
   }
@@ -766,7 +787,7 @@ export function makeChartData(
   });
   let incomeNames: string[] = model.incomes.map((i) => i.NAME);
   let expenseNames: string[] = model.expenses.map((e) => e.NAME);
-  let assetNames: string[] = assets.map((a) => a.NAME);
+  let assetNames: string[] = assets.map((a) => getNameForChart(a.NAME, model));
   let debtNames: string[] = debts.map((d) => d.NAME);
 
   const categoryCache = new Map<string, string>();
@@ -957,7 +978,58 @@ export function makeChartData(
 
     logMapOfMapofMap(typeDateNameValueMap);
     // log(`evaln.name = ${evaln.name}, evalnType = ${evalnType}`);
+  });
+  // log(`taxTotal = ${taxTotal}`);
 
+  logMapOfMapofMap(typeDateNameValueMap);
+
+  // combine items which share the same evalNameForChart
+  // scan typeDateNameValueMap and combine 
+  for(const [type, dateNameValueMap] of typeDateNameValueMap){
+    if(type === "assetOrDebtFocus" || type === "Asset"){
+      for(const [date, nameValueMap] of dateNameValueMap){
+        for(const [name, value] of nameValueMap){
+          const evalNameForChart = getNameForChart(name, model);
+          if(evalNameForChart !== name){
+            // need to combine
+            //log(`combine ${name}, ${value} into ${evalNameForChart}`);
+            const existingValue = nameValueMap.get(evalNameForChart);
+            if(existingValue === undefined){
+              //log(`set ${evalNameForChart} = ${value}`);
+              nameValueMap.set(evalNameForChart, value);
+            } else {
+              const newValue = existingValue + value;
+              //log(`change ${evalNameForChart} from ${existingValue} to ${newValue}`);
+              nameValueMap.set(evalNameForChart, newValue);
+            }
+            nameValueMap.delete(name);
+          }
+        }
+      }
+    }
+  }
+
+  logMapOfMapofMap(typeDateNameValueMap);
+
+  evaluationsAndVals.evaluations.forEach((evaln) => {
+    const firstDateAfterEvaln = allDates.find((d) => d >= evaln.date);
+    if (firstDateAfterEvaln === undefined) {
+      // no need to capture data from this evaluation
+      // it's after all our dates for the chart
+      // log(`evaln = ${showObj(evaln)} not in date range - don't process`);
+      return;
+    }
+    const evalnType = getDisplayType(evaln, nameToTypeMap);
+    if (!evalnType) {
+      // e.g. when quantities change we come here
+      return;
+    }
+    let evalNameForChart = evaln.name;
+    if(getDisplayType(evaln, nameToTypeMap) == "Asset")
+    {
+      evalNameForChart = getNameForChart(evaln.name, model);
+    }
+  
     // accumulate data for assets, debts, tax
     let doIncludeEvaln = false;
     if (evalnType === evaluationType.taxLiability) {
@@ -1000,9 +1072,9 @@ export function makeChartData(
       // log(`include taxLiability? = ${doIncludeEvaln}`);
     } else {
       doIncludeEvaln =
-        viewSettings.getShowItem(Context.Asset, evaln.name) ||
-        viewSettings.getShowItem(Context.Debt, evaln.name);
-      // log(`include ${evaln.name}? = ${doIncludeEvaln}`);
+        viewSettings.getShowItem(Context.Asset, evalNameForChart) ||
+        viewSettings.getShowItem(Context.Debt, evalNameForChart);
+      // log(`include ${evalNameForChart}? = ${doIncludeEvaln}`);
     }
     // log(`doIncludeEvaln = ${doIncludeEvaln}`);
     if (doIncludeEvaln) {
@@ -1030,14 +1102,28 @@ export function makeChartData(
           // and assets plot values or deltas according to assetChartSetting.
           if (evalnType !== evaluationType.taxLiability && showAssetValues) {
             // Log asset values.
-            // log(`add data[${evaln.name}] = ${evaln.value}`);
-            if (assetOrDebtValueSources.indexOf(evaln.name) < 0) {
-              // log(`add value source ${evaln.name}`);
-              assetOrDebtValueSources.push(evaln.name);
+            // log(`add data[${evalNameForChart}] = ${evaln.value}`);
+            if (assetOrDebtValueSources.indexOf(evalNameForChart) < 0) {
+              // log(`add value source ${evalNameForChart}`);
+              assetOrDebtValueSources.push(evalNameForChart);
             }
             // we display the latest evaluation, even if there
             // was one already, we overwrite the value
-            assetOrDebtNameValueMap.set(evaln.name, evaln.value);
+
+            const dateNameValueMap = typeDateNameValueMap.get(evalnType);
+            if(dateNameValueMap === undefined){
+              throw new Error(`expected dateNameValueMap for ${evalnType}`);
+            }
+            const nameValueMap = dateNameValueMap.get(date);
+            if(nameValueMap === undefined){
+              throw new Error(`expected nameValueMap for ${date}`);
+            }
+            const value = nameValueMap.get(evalNameForChart);
+            if(value === undefined){
+              throw new Error(`expected value for ${evalNameForChart}`);
+            }
+
+            assetOrDebtNameValueMap.set(evalNameForChart, value);
           } else if (evalnType === evaluationType.taxLiability) {
             const mapKey = evaln.source;
             // log(`setting tax chart data ${mapKey}, ${evaln.value}`);
@@ -1056,20 +1142,21 @@ export function makeChartData(
             // compare prevValue against evaln data
             if (prevValue !== evaln.oldValue) {
               // log(
-              //   `${evaln.name} at ${evaln.date} was ${evaln.oldValue}, last known was ${prevValue}`,
+              //   `${evalNameForChart} at ${evaln.date} was ${evaln.oldValue}, last known was ${prevValue}`,
               // );
               const unidentifiedChange = evaln.oldValue - prevValue;
               addAssetValueToChart(
                 unidentifiedChange,
                 assetOrDebtNameValueMap,
-                `unidentified${separator}${evaln.name}`,
+                `unidentified${separator}${evalNameForChart}`,
+                model,
                 showAssetAdditions,
                 showAssetReductions,
                 assetOrDebtValueSources,
               );
               prevValue = evaln.oldValue;
             }
-            // log(`asset ${evaln.name} val is `+
+            // log(`asset ${evalNameForChart} val is `+
             //    `${evaln.value}, was ${prevValue}`);
             // log(`and the source of change is ${evaln.source}`);
             // log(`and change happened ${evaln.date}`);
@@ -1078,19 +1165,51 @@ export function makeChartData(
               valueForChart,
               assetOrDebtNameValueMap,
               mapKey,
+              model,
               showAssetAdditions,
               showAssetReductions,
               assetOrDebtValueSources,
             );
             // log(`set asset value as 'previous'
-            //   for ${evaln.name} is ${evaln.value}`);
+            //   for ${evalNameForChart} is ${evaln.value}`);
             prevEvalAssetValue.set(evaln.name, evaln.value);
           }
         }
       }
     }
   });
-  // log(`taxTotal = ${taxTotal}`);
+
+  logMapOfMapofMap(typeDateNameValueMap);
+
+  // combine items which share the same evalNameForChart
+  // scan typeDateNameValueMap and combine 
+  const focusMap = typeDateNameValueMap.get("assetOrDebtFocus");
+  if(focusMap != undefined){
+    for(const [date, nameValueMap] of focusMap){
+      for(const [name, value] of nameValueMap){
+
+        const parts = name.split(separator);
+        if(parts.length == 2)
+          {
+          const combinedName = `${getNameForChart(parts[0], model)}${separator}${getNameForChart(parts[1], model)}`;
+          if(combinedName !== name){
+            // need to combine
+            //log(`combine ${name}, ${value} into ${evalNameForChart}`);
+            const existingValue = nameValueMap.get(combinedName);
+            if(existingValue === undefined){
+              //log(`set ${evalNameForChart} = ${value}`);
+              nameValueMap.set(combinedName, value);
+            } else {
+              const newValue = existingValue + value;
+              //log(`change ${evalNameForChart} from ${existingValue} to ${newValue}`);
+              nameValueMap.set(combinedName, newValue);
+            }
+            nameValueMap.delete(name);
+          }
+        }
+      }
+    }
+  }
 
   logMapOfMapofMap(typeDateNameValueMap);
 
@@ -1200,7 +1319,15 @@ export function makeChartData(
     } else if (showAllAssets) {
       // when showing all assets and values,
       // use assetNames (not sources)
-      assetChartNames = assetNames;
+      let chartAssetNames: string[] = [];
+      for(const aName of assetNames){
+        const chartName = getNameForChart(aName, model);
+        if(!chartAssetNames.includes(chartName))
+        {
+          chartAssetNames.push(chartName);
+        }
+      }
+      assetChartNames = chartAssetNames;
     } else {
       assetChartNames = assetOrDebtValueSources;
     }
@@ -1329,10 +1456,15 @@ export function makeChartDataFromEvaluations(
   processGenerators(modelProcessed);
   modelProcessed.name = 'has been processed';
 
+  // this determines the buttons and chart data for the Asset chart
+  // (and others)
+  // e.g. we will combine together pension assets
   viewSettings.setModel(modelProcessed);
   const result = makeChartData(modelProcessed, viewSettings, evaluationsAndVals);
 
   result.taxData.sort((a, b) => lessThan(a.item.NAME, b.item.NAME));
+
+  // saveLogsUsingFs();
 
   return result;
 }

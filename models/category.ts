@@ -1,3 +1,4 @@
+import { getNameForChart } from "../utils/viewUtils";
 import { separator } from "../localization/stringConstants";
 import { ItemCategory, ModelData } from "../types/interfaces";
 import { log } from "../utils/utils";
@@ -5,8 +6,8 @@ import { makeSourceForFromChange } from "./evaluations";
 
 log;
 
-function getCategoryFromItems(name: string, items: ItemCategory[]) {
-  const found = items.find((i) => i.NAME === name);
+function getCategoryFromItems(name: string, items: ItemCategory[], model: ModelData) {
+  const found = items.find((i) => getNameForChart(i.NAME, model) === name);
   if (found !== undefined) {
     if (found.CATEGORY.length > 0) {
       return found.CATEGORY;
@@ -19,15 +20,15 @@ function getCategoryFromItems(name: string, items: ItemCategory[]) {
 
 function getCategorySub(name: string, model: ModelData) {
   // log(`look for category for ${name}`);
-  let category: string | undefined = getCategoryFromItems(name, model.incomes);
+  let category: string | undefined = getCategoryFromItems(name, model.incomes, model);
   if (category === undefined) {
-    category = getCategoryFromItems(name, model.expenses);
+    category = getCategoryFromItems(name, model.expenses, model);
   }
   if (category === undefined) {
-    category = getCategoryFromItems(name, model.assets);
+    category = getCategoryFromItems(name, model.assets, model);
   }
   if (category === undefined) {
-    category = getCategoryFromItems(name, model.transactions);
+    category = getCategoryFromItems(name, model.transactions, model);
   }
   const foundTransaction = model.transactions.find((i) => {
     const source1 = makeSourceForFromChange(i);

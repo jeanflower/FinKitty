@@ -55,7 +55,7 @@ import {
   Tooltip as ChartTooltip,
   Legend,
 } from "chart.js";
-import { getColor, ViewSettings } from "../utils/viewUtils";
+import { getColor, getNameForChart, ViewSettings } from "../utils/viewUtils";
 import { makeStringFromCashValue } from "../utils/stringUtils";
 import { getSettings, isNumberString } from "../models/modelQueries";
 
@@ -836,9 +836,33 @@ export function assetsOrDebtsChartDivWithButtons(
   } else {
     // log(`assetChartData = ${assetChartData}`);
     const context = isDebt ? Context.Debt : Context.Asset;
-    const items = model.assets.filter((obj) => {
-      return obj.IS_A_DEBT === (context === Context.Debt);
-    });
+    const items: ItemCategory[] = [];
+    
+    for(const a of model.assets)
+    {
+      if(a.IS_A_DEBT !== (context === Context.Debt))
+      {
+        continue;
+      }
+      if(context === Context.Debt)
+      {
+        items.push({
+          NAME: a.NAME,
+          CATEGORY: a.CATEGORY,
+          ERA: a.ERA,
+        });
+        continue;
+      }      
+      const chartName = getNameForChart(a.NAME, model);
+      if(items.find((obj => obj.NAME === chartName)) === undefined)
+      {
+        items.push({
+          NAME: chartName,
+          CATEGORY: a.CATEGORY,
+          ERA: a.ERA,
+        });
+      }
+    }
 
     return (
       <div

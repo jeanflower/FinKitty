@@ -30,9 +30,61 @@ import {
   planningView,
   monitoringView,
   coarseDetail,
+  pensionPrefix,
+  cpPrefix,
+  crystallizedPension,
+  dot,
+  taxFree,
+  pensionTransfer,
+  moveTaxFreePart,
+  transferCrystallizedPension,
 } from "../localization/stringConstants";
 import { allViews } from "./allViews";
 import { Context, log, printDebug } from "./utils";
+
+export function getNameForChart(rawName: string, model: ModelData): string {
+  if(model.assets.find(a => a.NAME === rawName) === undefined)
+  {
+    return rawName;
+  }
+
+  // log(`getNameForChart for rawName ${rawName}`);
+  let assetName = rawName;
+  let splitAtDot = false;
+  if(rawName.startsWith(pensionPrefix)) {
+    assetName = rawName.substring(pensionPrefix.length);
+  } else if(rawName.startsWith(crystallizedPension)) {
+    assetName = rawName.substring(crystallizedPension.length);    
+    splitAtDot = true
+  } else if(rawName.startsWith(taxFree)) {
+    assetName = rawName.substring(taxFree.length);
+    splitAtDot = true
+  } else if(rawName.startsWith(pensionTransfer)) {
+    assetName = rawName.substring(pensionTransfer.length);
+    splitAtDot = true
+  } else if(rawName.startsWith(moveTaxFreePart)) {
+    assetName = rawName.substring(moveTaxFreePart.length);
+    splitAtDot = true
+  } else if(rawName.startsWith(transferCrystallizedPension)) {
+    assetName = rawName.substring(transferCrystallizedPension.length);
+    splitAtDot = true
+  }
+  if(splitAtDot)
+  {
+    let parts = assetName.split(dot);
+    //log(`parts = ${parts}`);
+    if(parts.length == 1)
+    {
+      assetName = parts[0];
+    } else if(parts.length == 2) {
+      assetName = parts[1];
+    } else {
+      throw new Error(`unexpected taxFree asset name ${rawName} is not of form penName or personName.penName`);
+    }  
+    // log(`returning ${assetName}`);
+  }
+  return assetName;
+}
 
 export class ViewSettings {
   private kvPairs: Map<string, string> = new Map<string, string>();
@@ -243,7 +295,12 @@ e.g.
       if (a.IS_A_DEBT) {
         this.setItemFromModel(Context.Debt, a);
       } else {
-        this.setItemFromModel(Context.Asset, a);
+        const chartConcept = {
+          NAME: getNameForChart(a.NAME, model),
+          CATEGORY: a.CATEGORY,
+          ERA: a.ERA,
+        };
+        this.setItemFromModel(Context.Asset, chartConcept);
       }
     });
     model.expenses.forEach((a) => {
