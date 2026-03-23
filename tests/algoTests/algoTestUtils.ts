@@ -34,6 +34,8 @@ import {
   valueFocusDateHint,
   bondInvest,
   bondMature,
+  taxablePart,
+  taxFreePart,
 } from "../../localization/stringConstants";
 import { EvaluationHelper, getEvaluations, processGenerators } from "../../models/evaluations";
 import {
@@ -395,6 +397,8 @@ export function getTestEvaluations(
         newName = pensionPrefix + newName;
       } else if (oldName.startsWith(taxFree)) {
         newName = taxFree + newName;
+      } else if (oldName.endsWith(taxFreePart)) {
+        newName = newName + taxFreePart;
       } else if (oldName.startsWith(crystallizedPension)) {
         newName = crystallizedPension + newName;
       }
@@ -548,6 +552,10 @@ export function getTestEvaluations(
         newName = newName + bondInvest;
       } else if (oldName.endsWith(bondMature)) {
         newName = newName + bondMature;
+      } else if (oldName.endsWith(taxablePart)) {
+        newName = newName + taxablePart;
+      } else if (oldName.endsWith(taxFreePart)) {
+        newName = newName + taxFreePart;
       } else if (oldName.endsWith("5y")) {
         newName = newName + "5y";
       } else if (oldName.endsWith("4y")) {

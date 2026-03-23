@@ -33,6 +33,8 @@ import {
   bondInvest,
   bondMature,
   roiStart,
+  taxFreePart,
+  taxablePart,
 } from "../localization/stringConstants";
 import {
   DatedThing,
@@ -56,6 +58,7 @@ import {
   DBPGeneratorDetails,
   BondGeneratorDetails,
   DCGeneratorDetails,
+  DCPWithdrawalDetails,
 } from "../types/interfaces";
 import {
   DateFormatType,
@@ -91,6 +94,7 @@ import {
 import dateFormat from "dateformat";
 import { getAnnualPlanningSurplusData } from "./planningData";
 import { inspect } from 'util';
+import { makeModelFromJSON } from "./modelFromJSON";
 inspect;
 
 function parseRecurrenceString(recurrence: string) {
@@ -6919,6 +6923,19 @@ function processBondGenerators(
   return '';
 }
 
+function dcpName(input: string)
+{
+  return pensionPrefix + input;
+}
+function dcpTaxFreeName(input: string)
+{
+  return taxFree + input;  
+}
+function dcpTaxableName(input: string, liablity: string)
+{
+  return crystallizedPension + liablity + dot + input;
+}
+
 // return '' for success
 // or an errorMessage
 function processDCPGenerators(
@@ -6932,10 +6949,9 @@ function processDCPGenerators(
 
     const details: DCGeneratorDetails = g.DETAILS;
 
-    const asset1Name = pensionPrefix + g.NAME;
-    const asset2Name = taxFree + g.NAME;
-    const asset3Name =
-    crystallizedPension + details.TAX_LIABILITY + dot + g.NAME;
+    const asset1Name = dcpName(g.NAME);
+    const asset2Name = dcpTaxFreeName(g.NAME);
+    const asset3Name = dcpTaxableName(g.NAME, details.TAX_LIABILITY);
 
     const parsedYNCPI = makeBooleanFromYesNo(details.GROWS_WITH_CPI);
     if (!parsedYNCPI.checksOK) {
@@ -7006,11 +7022,7 @@ function processDCPGenerators(
         return message;
       }
     }
-    const asset4Name =
-      crystallizedPension +
-      details.TRANSFER_TO +
-      dot +
-      g.NAME;
+    const asset4Name = dcpTaxableName(g.NAME, details.TRANSFER_TO);
 
     const asset4: Asset = {
       NAME: asset4Name,
@@ -7516,6 +7528,151 @@ function processDBPGenerators(
   return '';
 }
 
+// return '' for success
+// or an errorMessage
+function processDCPWithdrawalGenerators(
+  model: ModelData,  
+): string {
+  const gens = model.generators.filter((g) => {
+    return g.TYPE === 'DCPWithdrawal';
+  });
+  for(const g of gens) {
+    // console.log(`processing generator ${showObj(g.NAME)}`);
+    const details: DCPWithdrawalDetails = g.DETAILS;
+    const from = details.FROM;
+    const to = details.TO;
+    const date = details.DATE;
+    const value = details.VALUE;
+    const taxFreeProp = details.TAX_FREE_PROP;
+    const recurrence = details.RECURRENCE;
+    const stop = details.RECURRENCE_STOP;
+
+    // find the generator for the corresponding DCP pension generator
+    const dcpGen = model.generators.find((g) => {
+      return g.TYPE == "Defined Contributions" && g.NAME == from;
+    });
+
+    if(dcpGen == undefined) {
+      //return '';
+      return `no matching DCP generator for ${from}`;
+    }
+    if(!isNumberString(value)){
+      return `not a number string for value ${value} ${showObj(details)} ${showObj(g)}`;
+    }
+    let totalAmount = parseFloat(value);
+
+    if(!isNumberString(taxFreeProp)){
+      return `not a number string for tax free proportion ${taxFreeProp}`;
+    }
+
+    // we want to check the transactions against the generated model but
+    // not a generated model with these withdrawal generators in...
+    const copyModel = makeModelFromJSON(JSON.stringify(model));
+    copyModel.name = 'temporary copy';
+    const filteredGenerators = copyModel.generators.filter((g) => {
+      return g.TYPE !== "DCPWithdrawal"; 
+    });
+    copyModel.generators = filteredGenerators;
+    processGenerators(copyModel);
+
+    let taxFreePropAmount = parseFloat(taxFreeProp);
+
+    const taxFreeAmount = totalAmount * taxFreePropAmount;
+    const taxableAmount = totalAmount * (1.0 - taxFreePropAmount);
+
+    const taxFeeAssetName = dcpTaxFreeName(from);
+    const tTaxFree: Transaction = {
+      FROM: taxFeeAssetName,
+      FROM_ABSOLUTE: true,
+      FROM_VALUE: `${taxFreeAmount}`,
+      TO: to,
+      TO_ABSOLUTE: true,
+      TO_VALUE: `${taxFreeAmount}`,
+      DATE: date,
+      STOP_DATE: stop,
+      RECURRENCE: recurrence,
+      TYPE: autogen,
+      CATEGORY: "Pension",
+      NAME: g.NAME + taxFreePart,
+      ERA: 0
+    };
+    {
+      const message = checkTransaction(
+        tTaxFree,
+        copyModel,
+      );
+      if (message.length > 0) {
+        log(`bad transaction4 ${showObj(tTaxFree)} in model ${showObj(model)}`);
+        return message;
+      }
+    }
+
+    const firstTaxableAsset = dcpTaxableName(from, dcpGen.DETAILS.TAX_LIABILITY);
+    const tFirstTaxable: Transaction = {
+      FROM: firstTaxableAsset,
+      FROM_ABSOLUTE: true,
+      FROM_VALUE: `${taxableAmount}`,
+      TO: to,
+      TO_ABSOLUTE: true,
+      TO_VALUE: `${taxableAmount}`,
+      DATE: date,
+      STOP_DATE: stop,
+      RECURRENCE: recurrence,
+      TYPE: autogen,
+      CATEGORY: "Pension",
+      NAME: g.NAME + dcpGen.DETAILS.TAX_LIABILITY + taxablePart,
+      ERA: 0
+    };
+    {
+      const message = checkTransaction(
+        tFirstTaxable,
+        copyModel,
+      );
+      if (message.length > 0) {
+        log(`bad transaction5 ${showObj(tFirstTaxable)} in model ${showObj(model)}`);
+        return message;
+      }
+    }
+    
+    let tSecondTaxable: Transaction | undefined = undefined;
+    if (dcpGen.DETAILS.TRANSFER_TO !== '') {
+      const secondTaxableAsset = dcpTaxableName(from, dcpGen.DETAILS.TRANSFER_TO);
+      tSecondTaxable= {
+        FROM: secondTaxableAsset,
+        FROM_ABSOLUTE: true,
+        FROM_VALUE: `${taxableAmount}`,
+        TO: to,
+        TO_ABSOLUTE: true,
+        TO_VALUE: `${taxableAmount}`,
+        DATE: date,
+        STOP_DATE: stop,
+        RECURRENCE: recurrence,
+        TYPE: autogen,
+        CATEGORY: "Pension",
+        NAME: g.NAME + dcpGen.DETAILS.TRANSFER_TO + taxablePart,
+        ERA: 0
+      };
+      {
+        const message = checkTransaction(
+          tSecondTaxable,
+          copyModel,
+        );
+        if (message.length > 0) {
+          log(`bad transaction6 ${showObj(tSecondTaxable)} in model ${showObj(model)}`);
+          return message;
+        }
+      }
+    }
+    model.transactions.push(tTaxFree);
+    model.transactions.push(tFirstTaxable);
+    if (tSecondTaxable !== undefined) {
+      model.transactions.push(tSecondTaxable);
+    }
+  }
+
+  return '';
+}
+
 export function processGenerators(
   model: ModelData,  
 ) {
@@ -7533,6 +7690,10 @@ let message = processDBPGenerators(model);
     return message;
   }
   message = processBondGenerators(model);
+  if (message.length > 0) {
+    return message;
+  }
+  message = processDCPWithdrawalGenerators(model);
   if (message.length > 0) {
     return message;
   }

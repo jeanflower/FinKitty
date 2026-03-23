@@ -74,6 +74,16 @@ export interface BondGeneratorDetails {
   RECURRENCE_STOP: string;
 }
 
+export interface DCPWithdrawalDetails {
+  FROM: string;
+  TO: string;
+  DATE: string;
+  VALUE: string;
+  TAX_FREE_PROP: string;
+  RECURRENCE: string;
+  RECURRENCE_STOP: string;
+}
+
 export interface Asset extends ItemCategory {
   START: string;
   VALUE: string;

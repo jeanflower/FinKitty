@@ -2799,7 +2799,7 @@ describe("utils tests", () => {
       "modelBond2",
     );
     expect(diffResult.length).toBe(1);
-    expect(diffResult[0]).toEqual("MyFirstBond: changed details");
+    expect(diffResult[0]).toEqual("MyFirstBond: details updated (changed VALUE)");
 
     modelBond2.generators[0].DETAILS.VALUE = "100";
     diffResult = diffModels(

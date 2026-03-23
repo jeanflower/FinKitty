@@ -183,12 +183,31 @@ function diffSettings(it1: Item, it2: Item): string {
   return "";
 }
 
+function diffDetails(d1: Record<string, any>, d2: Record<string, any>): string[] {
+  const keys = new Set([...Object.keys(d1), ...Object.keys(d2)]);
+  const changes: string[] = [];
+
+  for (const key of keys) {
+    if (JSON.stringify(d1[key]) !== JSON.stringify(d2[key])) {
+      if (!(key in d1)) {
+        changes.push(`added ${key}`);
+      } else if (!(key in d2)) {
+        changes.push(`removed ${key}`);
+      } else {
+        changes.push(`changed ${key}`);
+      }
+    }
+  }
+
+  return changes;
+}
+
 function diffGenerators(it1: Item, it2: Item): string {
   const i1 = it1 as Generator;
   const i2 = it2 as Generator;
-  if (JSON.stringify(i1.DETAILS) != JSON.stringify(i2.DETAILS)) {
-    // log(`diff details ${inspect(JSON.stringify(i1.DETAILS))} ${inspect(JSON.stringify(i2.DETAILS))}`)
-    return `${it1.NAME}: changed details`;
+  if (JSON.stringify(i1.DETAILS) !== JSON.stringify(i2.DETAILS)) {
+    const changes = diffDetails(i1.DETAILS, i2.DETAILS);
+    return `${it1.NAME}: details updated (${changes.join(", ")})`;
   }
   if (i1.TYPE != i2.TYPE) {
     // log(`diff types ${inspect(it1)} ${inspect(it2)}`)

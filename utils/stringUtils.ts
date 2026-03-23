@@ -25,6 +25,8 @@ import {
   revalueSetting,
   bondInvest,
   bondMature,
+  taxablePart,
+  taxFreePart,
 } from "../localization/stringConstants";
 import { Setting, ModelData, Trigger } from "../types/interfaces";
 import {
@@ -1038,6 +1040,12 @@ export function getSpecialWord(name: string, model: ModelData): string {
   }
   if (name.endsWith(bondMature)) {
     return bondMature;
+  }
+  if (name.endsWith(taxablePart)) {
+    return taxablePart;
+  }
+    if (name.endsWith(taxFreePart)) {
+    return taxFreePart;
   }
   let durationEnding = "";
   if (name.endsWith("5y")) {

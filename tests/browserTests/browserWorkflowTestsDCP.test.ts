@@ -17,7 +17,8 @@ describe("BrowserWorkflowTests DCP", () => {
     //await gotoTabPage(driver, debtsTag);
     //await clickButton(driver, "chooseViewDetailTypeDetailed");
     await gotoTabPage(driver, incomesTag);
-    await clickButton(driver, "chooseViewDetailTypeDetailed");
+    // can't choose detaild view unless there are some incomes
+    // await clickButton(driver, "chooseViewDetailTypeDetailed");
     //await gotoTabPage(driver, expensesTag);
     //await clickButton(driver, "chooseViewDetailTypeDetailed");
 

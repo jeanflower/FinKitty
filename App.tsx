@@ -10,7 +10,7 @@ import {
 } from "./models/exampleModels";
 import { useAuth0 } from "./contexts/auth0-context";
 import { makeChartData } from "./models/charting";
-import { checkAsset, checkModel, checkTransaction, checkTrigger } from "./models/checks";
+import { checkAsset, checkGenerator, checkModel, checkTransaction, checkTrigger } from "./models/checks";
 import { AddDeleteTransactionForm } from "./views/reactComponents/AddDeleteTransactionForm";
 import { AddDeleteTriggerForm } from "./views/reactComponents/AddDeleteTriggerForm";
 import { makeButton } from "./views/reactComponents/Button";
@@ -77,7 +77,7 @@ import {
   Context,
   log,
   printDebug,
-  saveLogs,
+  saveLogsFromBrowser,
   showObj,
 } from "./utils/utils";
 import { loginPage, navbarContent } from "./views/loginPage";
@@ -89,6 +89,7 @@ import {
   reportDiv,
   optimizerDiv,
   calcOptimizer,
+  renderDCPWithdrawalGeneratorsTable,
 } from "./views/tablePages";
 import { overviewDiv } from "./views/overviewPage";
 import { makeBarData } from "./views/chartPages";
@@ -137,6 +138,7 @@ import {
   standardiseDates,
 } from "./models/modelUtils";
 import {
+  checkTriggerDate,
   dateAsString,
   getTriggerDate,
   lessThan,
@@ -2810,7 +2812,7 @@ class AppContent extends Component<AppProps, AppState> {
           {makeButton(
             "Save log data",
             () => {
-              saveLogs();
+              saveLogsFromBrowser();
             },
             `btn-saveLogs`,
             `btnsaveLogs`,
@@ -2984,6 +2986,10 @@ class AppContent extends Component<AppProps, AppState> {
       // log(`don't populate transactionsView`);
       return <></>;
     }
+    function checkDate(d: Date) {
+      throw new Error("Function not implemented.");
+    }
+
     // log(`do populate transactionsView`);
 
     return (
@@ -3005,6 +3011,24 @@ class AppContent extends Component<AppProps, AppState> {
           "autogenTransactions",
         )}
         <p />
+        {
+        this.state.modelDataProcessed.generators.find((g)=>{
+          return g.TYPE === "DCPWithdrawal";
+        }) !== undefined &&
+        collapsibleFragment(
+          renderDCPWithdrawalGeneratorsTable(
+            this.state.modelDataProcessed,
+            parentCallbacks.showAlert,
+            this.options.checkModelOnEdit,
+            parentCallbacks.submitGenerator,
+            parentCallbacks.deleteGenerator,
+            parentCallbacks.setEraGenerator,
+            parentCallbacks.attemptRename,
+            parentCallbacks.refreshData
+          ),
+          `Defined Contributions Pension withdrawal`,
+        )}
+
         <div className="addNewTransaction">
           <h4> Add a transaction </h4>
           <AddDeleteTransactionForm
@@ -3022,6 +3046,21 @@ class AppContent extends Component<AppProps, AppState> {
             submitTriggerFunction={submitTrigger}
             model={this.state.modelDataProcessed}
             showAlert={parentCallbacks.showAlert}
+
+            checkGeneratorFunction={
+              reactAppComponent.options.checkModelOnEdit
+                ? (g: Generator, model: ModelData) => 
+                  {
+                    return checkGenerator(g, model);
+                  }
+                : (generator: Generator, model: ModelData) => {
+                    return "";
+                  }
+            }
+            submitGeneratorFunction={(g) => {
+              return submitGenerator(g, this.state.modelDataRaw);
+            }}
+
             doCheckBeforeOverwritingExistingData={
               doCheckBeforeOverwritingExistingData
             }

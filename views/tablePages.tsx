@@ -34,6 +34,8 @@ import {
   monitorStart,
   valueFocusDate,
   roiStart,
+  cpPrefix,
+  penPrefix,
 } from "../localization/stringConstants";
 import {
   Asset,
@@ -59,6 +61,7 @@ import {
   ViewCallbacks,
   DeleteResult,
   Monitor,
+  DCPWithdrawalDetails,
 } from "../types/interfaces";
 import {
   checkExpense,
@@ -2037,18 +2040,52 @@ export function assetsDivWithHeadings(
   if (assetData.length === 0) {
     return;
   }
+  const nonAutoAssets = assetData.filter((r) => {
+    return !r.NAME.startsWith("Bond") 
+     && !r.NAME.startsWith(cpPrefix) 
+     && !r.NAME.startsWith(penPrefix);
+  });
+  const bondAssets = assetData.filter((r) => {
+    return r.NAME.startsWith("Bond");
+  });
+  const pensionAssets = assetData.filter((r) => {
+    return r.NAME.startsWith(cpPrefix) 
+     || r.NAME.startsWith(penPrefix);
+  });
   return (
     <>
       {collapsibleFragment(
         assetsOrDebtsTableDiv(
           model,
-          assetData,
+          nonAutoAssets,
           doChecks,
           false,
           parentCallbacks,
           `assets${tableIDEnding}`,
         ),
         `Asset definition table`,
+      )}
+      {bondAssets.length > 0 && collapsibleFragment(
+        assetsOrDebtsTableDiv(
+          model,
+          bondAssets,
+          doChecks,
+          false,
+          parentCallbacks,
+          `bondassets${tableIDEnding}`,
+        ),
+        `Bond assets`,
+      )}
+      {pensionAssets.length > 0 && collapsibleFragment(
+        assetsOrDebtsTableDiv(
+          model,
+          pensionAssets,
+          doChecks,
+          false,
+          parentCallbacks,
+          `pensionassets${tableIDEnding}`,
+        ),
+        `Pension assets`,
       )}
       {transactionFilteredTable(
         model,
@@ -4533,4 +4570,232 @@ export function renderDCPGeneratorsTable(
   /> 
 
   return dcptable;
+}
+
+function handleDCPWithdrawalGeneratorGridRowsUpdated(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  rows: any[],
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+  args: any,
+){
+  // log(`handleDCPWithdrawalGeneratorGridRowsUpdated ${JSON.stringify(args)}`);
+  const newTable = args[0];
+  const change = args[1];
+  const changedIndexes = change.indexes;
+  const changedColumn = change.column;
+
+  if (changedIndexes.length > 1) {
+    throw new Error(`don't handle multirow edits`);
+  }
+
+  const oldRow = rows.find((r) => {
+    return r.index === changedIndexes[0];
+  });
+  const oldVal = oldRow[changedColumn.key];
+
+  const newRow = newTable.find((r: any) => {
+    return r.index === changedIndexes[0];
+  });
+  const newVal = newRow[changedColumn.key];
+
+  if (oldVal === newVal) {
+    return;
+  }
+  
+  if (changedColumn.key === "TAX_FREE_PROP") {
+    showAlert("Changing tax-free proportion not supported");
+    return;
+  }
+
+  if (changedColumn.key === "NAME") {
+    if (doChecks) {
+      if (oldVal !== newVal) {
+        const clashCheck = checkForWordClashInModel(model, newVal, "already");
+        if (clashCheck !== "") {
+          showAlert(clashCheck);
+          return;
+        }
+      }
+    }
+    attemptRename(doChecks, oldVal, newVal, showAlert, refreshData);
+    return;
+  }
+
+  const matchedGenerator = model.generators.filter((g) => {
+    return g.NAME === oldRow.NAME;
+  });
+  if (matchedGenerator.length !== 1) {
+    log(`Error: generator ${oldRow.NAME} not found in model?`);
+    return;
+  }
+
+  newRow[changedColumn.key] = newVal;
+
+  const parsedValue = makeCashValueFromString(newRow.VALUE);
+
+  console.log(`in table change, newRow = ${inspect(newRow)}`)
+
+  if (doChecks) {
+    // TODO
+  } 
+  // log(`parsedValue = ${showObj(parsedValue)}`);
+  const valueForSubmission = parsedValue.checksOK
+    ? `${parsedValue.value}`
+    : newRow.VALUE;
+  // log(`valueForSubmission = ${valueForSubmission}`);
+
+  const generatorForSubmission: Generator = {
+    TYPE: "DCPWithdrawal",
+    NAME: newRow.NAME,
+    ERA: newRow.ERA,
+    DETAILS: {
+      FROM: newRow.FROM,
+      TO: newRow.TO,
+      DATE: newRow.DATE,
+      VALUE: valueForSubmission,
+      TAX_FREE_PROP: newRow.TAX_FREE_PROP,
+      RECURRENCE: newRow.RECURRENCE,
+      RECURRENCE_STOP: newRow.RECURRENCE_STOP,
+    }
+  };
+
+  console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
+  submitGenerator(generatorForSubmission, model);
+}
+
+export function renderDCPWithdrawalGeneratorsTable(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  submitGenerator: (
+    generator: Generator,
+  ) => Promise<void>,
+  deleteGenerator: (name: string) => Promise<DeleteResult>,
+  setEraGenerator: (name: string, value: number) => Promise<boolean>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+){
+  const generators: Generator[] = model.generators.filter((g) => {
+    return g.TYPE === "DCPWithdrawal";
+  });
+  const rowData = addIndices(generators.map((g) => {
+    const details: DCPWithdrawalDetails = g.DETAILS;
+    return {
+      NAME: g.NAME,
+      ERA: g.ERA,
+      FROM: details.FROM,
+      TO: details.TO,
+      DATE: details.DATE,
+      VALUE: details.VALUE,
+      TAX_FREE_PROP: details.TAX_FREE_PROP,
+      RECURRENCE: details.RECURRENCE,
+      RECURRENCE_STOP: details.RECURRENCE_STOP,
+    }
+  }));
+
+  const genTable =  <DataGridFinKitty
+    tableID='DCPWithdrawalGeneratorTable'
+    rows={rowData}
+    columns={[
+      /*
+      {
+        ...defaultColumn,
+        key: 'index',
+        name: 'index',
+      },
+      */
+      faveColumn(
+        deleteGenerator,
+        setEraGenerator,
+        "DCPWithdrawalGeneratorTable",
+      ),
+      {
+        ...defaultColumn,
+        key: "NAME",
+        name: "name",
+      },
+      {
+        ...defaultColumn,
+        key: "FROM",
+        name: `from`,
+      },
+      {
+        ...defaultColumn,
+        key: "TO",
+        name: `to`,
+      },
+      {
+        ...defaultColumn,
+        key: "VALUE",
+        name: `value`,
+      },
+      {
+        ...defaultColumn,
+        key: "TAX_FREE_PROP",
+        name: `tax-free proportion`,
+      },
+      {
+        ...triggerDateColumn(model),
+        key: "DATE",
+        name: `date`,
+      },
+      {
+        ...defaultColumn,
+        key: "RECURRENCE",
+        name: `recurrence`,
+      },
+      {
+        ...triggerDateColumn(model),
+        key: "RECURRENCE_STOP",
+        name: `recurrence stop`,
+      },
+    ]}
+    model={model}
+    handleGridRowsUpdated={function (...args: any[]) {
+      return handleDCPWithdrawalGeneratorGridRowsUpdated(
+        model,
+        showAlert,
+        doChecks,
+        rowData,
+        submitGenerator,
+        attemptRename,
+        refreshData,
+        args,
+      );
+    }}
+  /> 
+
+  return genTable;
 }
