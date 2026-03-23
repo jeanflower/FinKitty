@@ -4,7 +4,7 @@ import { viewFrequency, annually, viewType, chartDeltas, chartViewType, revalueS
 import { makeChartDataFromEvaluations } from "../../models/charting";
 import { makeModelFromJSON, makeModelFromJSONString } from "../../models/modelFromJSON";
 import { setSetting } from "../../models/modelUtils";
-import { log, printAllLogs, printDebug, saveLogs } from "../../utils/utils";
+import { log, printAllLogs, printDebug } from "../../utils/utils";
 import {
   defaultTestViewSettings,
   expectChartData,

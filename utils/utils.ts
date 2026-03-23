@@ -1,7 +1,8 @@
 import FileSaver from "file-saver";
 import moment from "moment";
+// import fs from 'fs';
 
-const doLogToFile = false;
+const doLogToFile = true;
 let doLogIncremental = true;
 
 let logText = "";
@@ -19,11 +20,25 @@ export function log(obj: string | Map<any, any> | boolean) {
 }
 
 /* istanbul ignore next */
-export function saveLogs() {
+export function saveLogsFromBrowser() {
   /* istanbul ignore next */
   const blob = new Blob([logText], { type: "text/plain;charset=utf-8" });
   /* istanbul ignore next */
+  log(`saving logs to file, length ${logText.length}`);
   FileSaver.saveAs(blob, `logs.txt`);
+}
+
+export function saveLogsUsingFs() {
+  console.log(`COMMENTED OUT!! saving logs to file, length ${logText.length}`);
+/*
+  fs.writeFile('logs.txt', logText, (err) => { 
+      if (err) 
+        console.log(err); 
+      else { 
+        console.log("File written successfully\n"); 
+      } 
+    });
+*/
 }
 
 export function printAllLogs() {
@@ -72,6 +87,7 @@ export enum Context {
   Trigger,
   Setting,
   Monitor,
+  Generator
 }
 
 export enum DateFormatType {
