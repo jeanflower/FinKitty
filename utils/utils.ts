@@ -1,6 +1,5 @@
 import FileSaver from "file-saver";
 import moment from "moment";
-// import fs from 'fs';
 
 const doLogToFile = true;
 let doLogIncremental = true;
@@ -29,16 +28,19 @@ export function saveLogsFromBrowser() {
 }
 
 export function saveLogsUsingFs() {
-  console.log(`COMMENTED OUT!! saving logs to file, length ${logText.length}`);
-/*
-  fs.writeFile('logs.txt', logText, (err) => { 
-      if (err) 
-        console.log(err); 
-      else { 
-        console.log("File written successfully\n"); 
-      } 
-    });
-*/
+  // Node only (browser has no fs; Jest uses jsdom so `window` exists — use `process.versions.node`).
+  if (typeof process === "undefined" || !process.versions?.node) {
+    return;
+  }
+  const fs = require("fs") as typeof import("fs");
+  console.log(`saving logs to file, length ${logText.length}`);
+  fs.writeFile("logs.txt", logText, (err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("File written successfully\n");
+    }
+  });
 }
 
 export function printAllLogs() {
