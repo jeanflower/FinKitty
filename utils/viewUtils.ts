@@ -97,6 +97,7 @@ export class ViewSettings {
     [Context.Trigger]: new Map<string, boolean>(),
     [Context.Setting]: new Map<string, boolean>(),
     [Context.Monitor]: new Map<string, boolean>(),
+    [Context.Generator]: new Map<string, boolean>(),
   };
   private dependents = {
     [Context.Asset]: new Map<string, string[]>(),
@@ -107,6 +108,7 @@ export class ViewSettings {
     [Context.Trigger]: new Map<string, string[]>(),
     [Context.Setting]: new Map<string, string[]>(),
     [Context.Monitor]: new Map<string, string[]>(),
+    [Context.Generator]: new Map<string, string[]>(),
   };
   private supercategories = {
     [Context.Asset]: new Map<string, string[]>(),
@@ -117,6 +119,7 @@ export class ViewSettings {
     [Context.Trigger]: new Map<string, string[]>(),
     [Context.Setting]: new Map<string, string[]>(),
     [Context.Monitor]: new Map<string, string[]>(),
+    [Context.Generator]: new Map<string, string[]>(),
   };
   /*
 e.g.
@@ -189,6 +192,7 @@ e.g.
       [Context.Trigger]: Map<string, string[]>;
       [Context.Setting]: Map<string, string[]>;
       [Context.Monitor]: Map<string, string[]>;
+      [Context.Generator]: Map<string, string[]>;
     } = {
       [Context.Asset]: new Map<string, string[]>(),
       [Context.Debt]: new Map<string, string[]>(),
@@ -198,6 +202,7 @@ e.g.
       [Context.Trigger]: new Map<string, string[]>(),
       [Context.Setting]: new Map<string, string[]>(),
       [Context.Monitor]: new Map<string, string[]>(),
+      [Context.Generator]: new Map<string, string[]>(),
     };
     result[Context.Asset].set(allItems, []);
     result[Context.Debt].set(allItems, []);
@@ -215,6 +220,7 @@ e.g.
       [Context.Trigger]: Map<string, string[]>;
       [Context.Setting]: Map<string, string[]>;
       [Context.Monitor]: Map<string, string[]>;
+      [Context.Generator]: Map<string, string[]>;
     } = {
       [Context.Asset]: new Map<string, string[]>(),
       [Context.Debt]: new Map<string, string[]>(),
@@ -224,6 +230,7 @@ e.g.
       [Context.Trigger]: new Map<string, string[]>(),
       [Context.Setting]: new Map<string, string[]>(),
       [Context.Monitor]: new Map<string, string[]>(),
+      [Context.Generator]: new Map<string, string[]>(),
     };
     return result;
   }
