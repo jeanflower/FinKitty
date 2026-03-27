@@ -2175,7 +2175,7 @@ describe(" chart data tests", () => {
     expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
     expectChartData(chartPts, 2, 'Fri Apr 01 2022', 5700, -1);
     expectChartData(chartPts, 3, 'Sat Apr 01 2023', 5700, -1);
-    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 7650, -1);
+    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 5700, -1);
     }
     
     expect(result.assetData[1].item.NAME).toBe('ScottishWidows');
@@ -2186,7 +2186,7 @@ describe(" chart data tests", () => {
     expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
     expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1300, -1);
     expectChartData(chartPts, 3, 'Sat Apr 01 2023', 1300, -1);
-    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 325, -1);
+    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1300, -1);
     }
     
     expect(result.assetData[2].item.NAME).toBe('NorwichUnion');
@@ -2197,7 +2197,7 @@ describe(" chart data tests", () => {
     expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
     expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1300, -1);
     expectChartData(chartPts, 3, 'Sat Apr 01 2023', 1300, -1);
-    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 325, -1);
+    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1300, -1);
     }
     
     expect(result.debtData.length).toBe(0);
@@ -2210,7 +2210,7 @@ describe(" chart data tests", () => {
     expectChartData(chartPts, 1, 'Thu Apr 01 2021', 250, -1);
     expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2975, -1);
     expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2475, -1);
-    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1950, -1);
+    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
     }
   });
 
@@ -2385,7 +2385,7 @@ describe(" chart data tests", () => {
       expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
       expectChartData(chartPts, 2, 'Fri Apr 01 2022', 5700, -1);
       expectChartData(chartPts, 3, 'Sat Apr 01 2023', 5700, -1);
-      expectChartData(chartPts, 4, 'Mon Apr 01 2024', 7650, -1);
+      expectChartData(chartPts, 4, 'Mon Apr 01 2024', 5700, -1);
       }
       
       expect(result.assetData[1].item.NAME).toBe('pension');
@@ -2396,7 +2396,7 @@ describe(" chart data tests", () => {
       expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
       expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2600, -1);
       expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2600, -1);
-      expectChartData(chartPts, 4, 'Mon Apr 01 2024', 650, -1);
+      expectChartData(chartPts, 4, 'Mon Apr 01 2024', 2600, -1);
       }
       
       expect(result.debtData.length).toBe(0);
@@ -2409,7 +2409,7 @@ describe(" chart data tests", () => {
       expectChartData(chartPts, 1, 'Thu Apr 01 2021', 250, -1);
       expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2975, -1);
       expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2475, -1);
-      expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1950, -1);
+      expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
       }
   });
 });

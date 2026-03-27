@@ -623,6 +623,8 @@ function getBaseForCPI(isAnnual: boolean) {
   return baseForCPI;
 }
 
+const showTaxLogs = false;
+
 function traceEvaluation(
   value: number | string,
   values: ValuesContainer,
@@ -630,14 +632,14 @@ function traceEvaluation(
   source: string,
 ): number | undefined {
   /* istanbul ignore if  */ //debug
-  if (printDebug()) {
+  /**/if (showTaxLogs || printDebug()) {
     log(
       `in traceEvaluation, for ${source} get value of ${value} ` +
         `using ${Array.from(values.keys()).map((k) => {
           return `[${k}, ${values.get(k)}]`;
         })}`,
     );
-  }
+  /**/}
   let result: number | undefined = 0.0;
   if (typeof value !== "string") {
     result = value;
@@ -1447,11 +1449,14 @@ export function calculateIncrementalIncomeTaxPayable(
   startYearOfTaxYear: number,
   values: ValuesContainer,
 ) {
-  // log(`in calculateIncomeTaxPayable`);
+  if(showTaxLogs) {
+    log(`in calculateIncomeTaxPayable`);
+  }
   const income = paidUpIncome + incrementalIncome;
   const bands = getTaxBands(income, startYearOfTaxYear, values);
-  // log(`tax bands are ${showObj(bands)}`);
-
+  if(showTaxLogs) {
+    log(`tax bands are ${showObj(bands)}`);
+  }
   const sizeOfLowTaxBand = bands.lowTaxBand - bands.noTaxBand;
   const sizeOfHighTaxBand = bands.highTaxBand - bands.lowTaxBand;
 
@@ -1536,7 +1541,9 @@ export function calculateIncrementalIncomeTaxPayable(
     },
   ];
 
-  // log(`taxPayable from income ${income} is ${showObj(taxPayable)}`);
+  if(showTaxLogs) {
+    log(`taxPayable from income ${income} is ${showObj(taxPayable)}`);
+  }
   return taxPayable;
 }
 
@@ -1798,15 +1805,18 @@ function payIncomeTax(
   model: ModelData,
   source: string, // e.g. IncomeTaxJoe
 ) {
-  // log(`pay income tax on ${income} for date ${startOfTaxYear}`);
+  if(showTaxLogs) {
+    log(`pay income tax on ${income} for date ${startOfTaxYear}`);
+  }
   // calculate tax liability
   const taxDue: {
     amountLiable: number;
     rate: number;
   }[] = calculateIncomeTaxPayable(income, startOfTaxYear.getFullYear(), values);
   const totalTaxDue = sumTaxDue(taxDue);
-  // log(`taxDue for ${source} on ${startOfTaxYear} = ${showObj(taxDue)}, totalTaxDue = ${totalTaxDue}, alreadyPaid = ${alreadyPaid}`);
-
+  if(showTaxLogs) {
+    log(`taxDue for ${source} on ${startOfTaxYear} = ${showObj(taxDue)}, totalTaxDue = ${totalTaxDue}, alreadyPaid = ${alreadyPaid}`);
+  }
   const taxDueForFixed: {
     amountLiable: number;
     rate: number;
@@ -1815,22 +1825,27 @@ function payIncomeTax(
     startOfTaxYear.getFullYear(),
     values,
   );
-  // log(`totalTaxDue for ${source}, ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDue)}`);
+  if(showTaxLogs) {
+    log(`totalTaxDue for ${source}, ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDue)}`);
+  }
   const totalTaxDueForFixed = sumTaxDue(taxDueForFixed);
 
   const totalTaxDueFromCash = totalTaxDue - alreadyPaid;
   const totalTaxDueFromFixed = totalTaxDueForFixed - alreadyPaidForFixed;
-
-  //console.log(
-  //  `income tax ${totalTaxDueForFixed} would have been paid on ` +
-  //    `incomeFixed ${incomeFixed}, already paid ${alreadyPaidForFixed} ` +
-  //    `so  totalTaxDueFromFixed = ${totalTaxDueFromFixed}`,
-  //);
+  if(showTaxLogs) {
+    console.log(
+    `income tax ${totalTaxDueForFixed} would have been paid on ` +
+      `incomeFixed ${incomeFixed}, already paid ${alreadyPaidForFixed} ` +
+      `so  totalTaxDueFromFixed = ${totalTaxDueFromFixed}`,
+    );
+  }
 
   // log(`totalTaxDueFromCash for ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDueFromCash)}, already paid ${makeTwoDP(alreadyPaid)}`);
   const endOfTaxYear = new Date(startOfTaxYear.getFullYear() + 1, 3, 5);
   if (totalTaxDue !== 0) {
-    // log(`in payIncomeTax for ${dateAsString(DateFormatType.Debug,startOfTaxYear)}, adjustCash by ${totalTaxDueFromCash}`);
+    if(showTaxLogs) {
+      log(`in payIncomeTax for ${dateAsString(DateFormatType.Debug,startOfTaxYear)}, adjustCash by ${totalTaxDueFromCash}`);
+    }
     adjustCash(
       -totalTaxDueFromCash,
       endOfTaxYear,
@@ -1958,7 +1973,7 @@ function payCGT(
   return CGTDue;
 }
 
-const doOptimizeForIncomeTax = true;
+const doOptimizeForIncomeTax = false;
 
 // we track different types of income liability for different individuals
 // the outer map has a key for "cgt", "incomeTax" and "NI".
