@@ -1368,4 +1368,54 @@ describe("checks tests", () => {
     });
     expect(processGenerators(model)).toBe("");
   });
+
+  it("DCP withdrawal generator rejects multiplied setting syntax in VALUE", () => {
+    const model = getMinimalModelCopy();
+    model.settings.push({
+      NAME: "Apple",
+      VALUE: "10",
+      HINT: "",
+      TYPE: "adjustable",
+      ERA: 0,
+    });
+    const dcDetails = {
+      VALUE: "1",
+      GROWS_WITH_CPI: "n",
+      GROWTH: "0",
+      TAX_LIABILITY: "Joe(incomeTax)",
+      CATEGORY: "",
+      START: "01 Jan 2025",
+      STOP: "",
+      CRYSTALLIZE: "01 Jan 2030",
+      SS: "n",
+      INCOME_SOURCE: "",
+      CONTRIBUTION_AMOUNT: "",
+      EMP_CONTRIBUTION_AMOUNT: "",
+      TRANSFER_TO: "",
+      TRANSFER_DATE: "",
+    };
+    model.generators.push({
+      NAME: "Pension1",
+      TYPE: "Defined Contributions",
+      ERA: 0,
+      DETAILS: dcDetails,
+    });
+    const withdrawalGen: Generator = {
+      NAME: "pull",
+      TYPE: "DCPWithdrawal",
+      ERA: 0,
+      DETAILS: {
+        FROM: "Pension1",
+        TO: CASH_ASSET_NAME,
+        DATE: "01 Jan 2026",
+        VALUE: "2Apple",
+        TAX_FREE_PROP: "0.25",
+        RECURRENCE: "",
+        RECURRENCE_STOP: "",
+      },
+    };
+    expect(checkGenerator(withdrawalGen, model)).toContain(
+      "should not include a leading multiplier",
+    );
+  });
 });

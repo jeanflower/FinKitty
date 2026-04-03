@@ -7587,10 +7587,6 @@ function processDCPWithdrawalGenerators(
         `that resolves to a number (${showObj(details)} ${showObj(g)})`
       );
     }
-    const totalAmount = resolveNumericSettingValue(value, model);
-    if (totalAmount === undefined) {
-      return `withdrawal VALUE '${value}' could not be resolved to a number`;
-    }
 
     if (!isResolvableNumericSettingValue(taxFreeProp, model)) {
       return (
@@ -7616,17 +7612,41 @@ function processDCPWithdrawalGenerators(
       );
     }
 
-    const taxFreeAmount = totalAmount * taxFreePropAmount;
-    const taxableAmount = totalAmount * (1.0 - taxFreePropAmount);
+    // If VALUE is a literal number, we can use the traditional fixed amounts.
+    // If VALUE references a setting/word, preserve it so recurring withdrawals can
+    // follow setting changes over time (via revalueSetting), using "<number><word>".
+    const valueParts = getNumberAndWordParts(value);
+    const baseMultiplier =
+      valueParts.numberPart !== undefined ? valueParts.numberPart : 1.0;
+    const valueWord = valueParts.wordPart;
+
+    let taxFreeValueExpr: string;
+    let taxableValueExpr: string;
+
+    if (valueWord.length === 0) {
+      const totalAmount = resolveNumericSettingValue(value, model);
+      if (totalAmount === undefined) {
+        return `withdrawal VALUE '${value}' could not be resolved to a number`;
+      }
+      const taxFreeAmount = totalAmount * taxFreePropAmount;
+      const taxableAmount = totalAmount * (1.0 - taxFreePropAmount);
+      taxFreeValueExpr = `${taxFreeAmount}`;
+      taxableValueExpr = `${taxableAmount}`;
+    } else {
+      const tfMultiplier = taxFreePropAmount * baseMultiplier;
+      const taxableMultiplier = (1.0 - taxFreePropAmount) * baseMultiplier;
+      taxFreeValueExpr = `${tfMultiplier}${valueWord}`;
+      taxableValueExpr = `${taxableMultiplier}${valueWord}`;
+    }
 
     const taxFeeAssetName = dcpTaxFreeName(from);
     const tTaxFree: Transaction = {
       FROM: taxFeeAssetName,
       FROM_ABSOLUTE: true,
-      FROM_VALUE: `${taxFreeAmount}`,
+      FROM_VALUE: taxFreeValueExpr,
       TO: to,
-      TO_ABSOLUTE: true,
-      TO_VALUE: `${taxFreeAmount}`,
+      TO_ABSOLUTE: valueWord.length === 0,
+      TO_VALUE: valueWord.length === 0 ? taxFreeValueExpr : `1.0`,
       DATE: date,
       STOP_DATE: stop,
       RECURRENCE: recurrence,
@@ -7650,10 +7670,10 @@ function processDCPWithdrawalGenerators(
     const tFirstTaxable: Transaction = {
       FROM: firstTaxableAsset,
       FROM_ABSOLUTE: true,
-      FROM_VALUE: `${taxableAmount}`,
+      FROM_VALUE: taxableValueExpr,
       TO: to,
-      TO_ABSOLUTE: true,
-      TO_VALUE: `${taxableAmount}`,
+      TO_ABSOLUTE: valueWord.length === 0,
+      TO_VALUE: valueWord.length === 0 ? taxableValueExpr : `1.0`,
       DATE: date,
       STOP_DATE: stop,
       RECURRENCE: recurrence,
@@ -7679,10 +7699,10 @@ function processDCPWithdrawalGenerators(
       tSecondTaxable= {
         FROM: secondTaxableAsset,
         FROM_ABSOLUTE: true,
-        FROM_VALUE: `${taxableAmount}`,
+        FROM_VALUE: taxableValueExpr,
         TO: to,
-        TO_ABSOLUTE: true,
-        TO_VALUE: `${taxableAmount}`,
+        TO_ABSOLUTE: valueWord.length === 0,
+        TO_VALUE: valueWord.length === 0 ? taxableValueExpr : `1.0`,
         DATE: date,
         STOP_DATE: stop,
         RECURRENCE: recurrence,

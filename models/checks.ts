@@ -593,6 +593,17 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
     // will evaluate to a number without further checks
     return "";
   }
+
+  // Also accept "<number><settingName>" (multiplied setting), e.g. "0.25mySetting".
+  const parts = getNumberAndWordParts(word);
+  if (
+    parts.numberPart !== undefined &&
+    parts.wordPart.length > 0 &&
+    settings.find((s) => s.NAME === parts.wordPart) !== undefined
+  ) {
+    return "";
+  }
+
   return `'from' value must be numbers or a setting, not '${word}'`;
 }
 
@@ -1764,6 +1775,17 @@ function checkDCPWithdrawalGeneratorDetails(
     return (
       `generator '${g.NAME}' has no matching Defined Contributions generator ` +
       `named '${details.FROM}'`
+    );
+  }
+
+  // Disallow inputs like "2SomeSetting" for VALUE. The withdrawal generator's
+  // VALUE should be a plain number or a plain setting name; we later combine it
+  // with tax-free proportions and need unambiguous evaluation.
+  const valueParts = getNumberAndWordParts(details.VALUE);
+  if (valueParts.numberPart !== undefined && valueParts.wordPart.length > 0) {
+    return (
+      `generator '${g.NAME}' withdrawal VALUE '${details.VALUE}' ` +
+      `should not include a leading multiplier (use a setting or a number)`
     );
   }
 

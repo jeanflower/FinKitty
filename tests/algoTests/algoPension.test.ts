@@ -26,6 +26,7 @@ import {
   viewType,
 } from "../../localization/stringConstants";
 import { makeChartDataFromEvaluations } from "../../models/charting";
+import { processGenerators } from "../../models/evaluations";
 import {
   emptyModel,
   simpleIncome,
@@ -7529,6 +7530,22 @@ it('handle PDC generator withdrawal (withdrawal VALUE from setting)', () => {
   }
   `;
   const model = makeModelFromJSONString(modelString);
+
+  // Ensure the generated transactions preserve the setting name (not a resolved literal).
+  {
+    const processedModel = makeModelFromJSONString(JSON.stringify(model));
+    processedModel.name = 'ready to be processed';
+    expect(processGenerators(processedModel)).toBe('');
+    const generated = processedModel.transactions.filter((t) => {
+      return t.TYPE === autogen && t.NAME.startsWith('swWithdrawal');
+    });
+    expect(generated.length).toBeGreaterThan(0);
+    for (const t of generated) {
+      expect(t.FROM_VALUE).toContain('withdrawalMonthlyAmount');
+      // TO_VALUE is a multiplier (proportional transfer) for the TO side
+      expect(t.TO_VALUE).toBe('1.0');
+    }
+  }
 
   setSetting(
     model.settings,
