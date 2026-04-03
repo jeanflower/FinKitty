@@ -44,6 +44,7 @@ import {
   bondMature,
   taxFreePart,
   taxablePart,
+  adjustableType,
 } from "../localization/stringConstants";
 
 import {
@@ -1165,6 +1166,70 @@ function checkSettingAbsent(settings: Setting[], name: string) {
   return "";
 }
 
+/**
+ * Values like "2mySetting" or plain "mySetting" are evaluated as numeric
+ * expressions (see traceEvaluation). If a referenced setting is missing,
+ * the model should fail checks — e.g. deleting "mySetting" must not leave
+ * another setting still pointing at it.
+ */
+function isScaledNumericSettingReference(value: string): boolean {
+  const parts = getNumberAndWordParts(value);
+  return (
+    parts.numberPart !== undefined &&
+    parts.wordPart.length > 0 &&
+    !parts.wordPart.includes(" ")
+  );
+}
+
+function isPlainIdentifierNumericReference(value: string): boolean {
+  if (value.length === 0 || isNumberString(value)) {
+    return false;
+  }
+  const parts = getNumberAndWordParts(value);
+  return (
+    parts.numberPart === undefined &&
+    parts.wordPart === value &&
+    /^[A-Za-z][A-Za-z0-9]*$/.test(value)
+  );
+}
+
+function checkAdjustableSettingNumericReferences(
+  model: ModelData,
+): CheckResult | undefined {
+  const skipPlainIdentifier = new Set([monitorStart, monitorEnd]);
+
+  for (const s of model.settings) {
+    if (isScaledNumericSettingReference(s.VALUE)) {
+      if (!isResolvableNumericSettingValue(s.VALUE, model)) {
+        return {
+          type: undefined,
+          itemName: undefined,
+          message:
+            `Setting '${s.NAME}' has value '${s.VALUE}' that does not ` +
+            `resolve to a number (missing or non-numeric setting reference)`,
+        };
+      }
+      continue;
+    }
+    if (
+      s.TYPE === adjustableType &&
+      !skipPlainIdentifier.has(s.NAME) &&
+      isPlainIdentifierNumericReference(s.VALUE)
+    ) {
+      if (!isResolvableNumericSettingValue(s.VALUE, model)) {
+        return {
+          type: undefined,
+          itemName: undefined,
+          message:
+            `Setting '${s.NAME}' has value '${s.VALUE}' that does not ` +
+            `resolve to a number (missing or non-numeric setting reference)`,
+        };
+      }
+    }
+  }
+  return undefined;
+}
+
 export function checkSettings(model: ModelData): CheckResult | undefined {
   const absentSettings = [
     viewFrequency, 
@@ -1229,6 +1294,11 @@ export function checkSettings(model: ModelData): CheckResult | undefined {
       itemName: 'Monitor range',
       message: message,
     };
+  }
+
+  const numericRef = checkAdjustableSettingNumericReferences(model);
+  if (numericRef !== undefined) {
+    return numericRef;
   }
 
   return undefined;

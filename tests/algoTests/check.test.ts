@@ -1256,6 +1256,31 @@ describe("checks tests", () => {
         }
   });
 
+  it("checkSettings rejects setting values that reference missing settings (numeric expression)", () => {
+    const model = getMinimalModelCopy();
+    model.settings.push({
+      ...simpleSetting,
+      NAME: "s2",
+      VALUE: "2apple",
+      TYPE: adjustableType,
+      ERA: 0,
+    });
+    const checkResponse = checkSettings(model);
+    expect(checkResponse?.message).toEqual(
+      `Setting 's2' has value '2apple' that does not ` +
+        `resolve to a number (missing or non-numeric setting reference)`,
+    );
+
+    model.settings.push({
+      ...simpleSetting,
+      NAME: "apple",
+      VALUE: "3",
+      TYPE: adjustableType,
+      ERA: 0,
+    });
+    expect(checkSettings(model)).toBeUndefined();
+  });
+
   it("DCP withdrawal generator accepts setting names for VALUE and tax-free prop", () => {
     const model = getMinimalModelCopy();
     model.settings.push({
