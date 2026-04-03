@@ -170,6 +170,13 @@ export const revalueAsset = "revalueAsset";
 export const revalueDebt = "revalueDebt";
 //  Revalue settings
 export const revalueSetting = "revalueSetting";
+
+// Generator TYPE values (on `Generator.TYPE`; e.g. "Defined Contributions",
+// "DCPWithdrawal"). Revalues every sub-asset of a Defined Contributions
+// pension in one step, preserving dynamic value ratios at the revaluation
+// date.
+export const generatorTypeDCPRevalue = "DCPRevalue";
+
 //  Liquidate assets to keep cash afloat
 // (Conditional sell to cash)
 export const liquidateAsset = "liquidateAsset";

@@ -84,6 +84,31 @@ export interface DCPWithdrawalDetails {
   RECURRENCE_STOP: string;
 }
 
+/**
+ * `Generator.TYPE` must be
+ * {@link import("../localization/stringConstants").generatorTypeDCPRevalue}.
+ *
+ * Identifies which Defined Contributions pension to revalue via `FROM` (the
+ * DC generator's `NAME`). Each row is one dated revaluation; many rows may
+ * share the same `FROM` at different `DATE`s. At evaluation time, sub-asset
+ * values are read from the running simulation so ratios reflect balances
+ * immediately before this revalue (not the initial model snapshot).
+ *
+ * `NAME` on the parent {@link Generator} is the unique row id (like
+ * `DCPWithdrawal` generators).
+ */
+export interface DCPRevalueDetails {
+  /** Matches `NAME` of a `TYPE === "Defined Contributions"` generator. */
+  FROM: string;
+  DATE: string;
+  /**
+   * New total value for the whole pension (sum of sub-assets after revalue).
+   * Absolute only — not a percentage or proportional factor; expanded
+   * `revalueAsset` rows use `TO_ABSOLUTE: true`.
+   */
+  VALUE: string;
+}
+
 export interface Asset extends ItemCategory {
   START: string;
   VALUE: string;
