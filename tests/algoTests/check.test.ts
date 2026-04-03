@@ -32,7 +32,10 @@ import {
   checkTrigger,
   checkSettings,
   checkTransaction,
+  checkGenerator,
+  resolveNumericSettingValue,
 } from "../../models/checks";
+import { processGenerators } from "../../models/evaluations";
 import {
   emptyModel,
   simpleAsset,
@@ -41,7 +44,7 @@ import {
   simpleExpense,
   simpleTransaction,
 } from "../../models/exampleModels";
-import { ModelData } from "../../types/interfaces";
+import { Generator, ModelData } from "../../types/interfaces";
 import { log, suppressLogs, unSuppressLogs } from "../../utils/utils";
 
 log;
@@ -1251,6 +1254,118 @@ describe("checks tests", () => {
         }, model);
         expect(message).toEqual("Transaction 'cpi 99' revalues to something beginning with whitespace");
         }
-  
+  });
+
+  it("DCP withdrawal generator accepts setting names for VALUE and tax-free prop", () => {
+    const model = getMinimalModelCopy();
+    model.settings.push({
+      NAME: "wAmount",
+      VALUE: "5000",
+      HINT: "",
+      TYPE: "adjustable",
+      ERA: 0,
+    });
+    model.settings.push({
+      NAME: "tfProp",
+      VALUE: "0.25",
+      HINT: "",
+      TYPE: "adjustable",
+      ERA: 0,
+    });
+    const dcDetails = {
+      VALUE: "1",
+      GROWS_WITH_CPI: "n",
+      GROWTH: "0",
+      TAX_LIABILITY: "Joe(incomeTax)",
+      CATEGORY: "",
+      START: "01 Jan 2025",
+      STOP: "",
+      CRYSTALLIZE: "01 Jan 2030",
+      SS: "n",
+      INCOME_SOURCE: "",
+      CONTRIBUTION_AMOUNT: "",
+      EMP_CONTRIBUTION_AMOUNT: "",
+      TRANSFER_TO: "",
+      TRANSFER_DATE: "",
+    };
+    model.generators.push({
+      NAME: "Pension1",
+      TYPE: "Defined Contributions",
+      ERA: 0,
+      DETAILS: dcDetails,
+    });
+    const withdrawalGen: Generator = {
+      NAME: "pull",
+      TYPE: "DCPWithdrawal",
+      ERA: 0,
+      DETAILS: {
+        FROM: "Pension1",
+        TO: CASH_ASSET_NAME,
+        DATE: "01 Jan 2026",
+        VALUE: "wAmount",
+        TAX_FREE_PROP: "tfProp",
+        RECURRENCE: "",
+        RECURRENCE_STOP: "",
+      },
+    };
+    expect(checkGenerator(withdrawalGen, model)).toBe("");
+    expect(resolveNumericSettingValue("wAmount", model)).toBe(5000);
+    expect(resolveNumericSettingValue("tfProp", model)).toBe(0.25);
+  });
+
+  it("processGenerators resolves DCP withdrawal VALUE and tax-free prop from settings", () => {
+    const model = getMinimalModelCopy();
+    model.name = "temporary copy";
+    model.settings.push({
+      NAME: "wAmount",
+      VALUE: "5000",
+      HINT: "",
+      TYPE: "adjustable",
+      ERA: 0,
+    });
+    model.settings.push({
+      NAME: "tfProp",
+      VALUE: "0.25",
+      HINT: "",
+      TYPE: "adjustable",
+      ERA: 0,
+    });
+    const dcDetails = {
+      VALUE: "1",
+      GROWS_WITH_CPI: "n",
+      GROWTH: "0",
+      TAX_LIABILITY: "Joe(incomeTax)",
+      CATEGORY: "",
+      START: "01 Jan 2025",
+      STOP: "",
+      CRYSTALLIZE: "01 Jan 2030",
+      SS: "n",
+      INCOME_SOURCE: "",
+      CONTRIBUTION_AMOUNT: "",
+      EMP_CONTRIBUTION_AMOUNT: "",
+      TRANSFER_TO: "",
+      TRANSFER_DATE: "",
+    };
+    model.generators.push({
+      NAME: "Pension1",
+      TYPE: "Defined Contributions",
+      ERA: 0,
+      DETAILS: dcDetails,
+    });
+    model.generators.push({
+      NAME: "pull",
+      TYPE: "DCPWithdrawal",
+      ERA: 0,
+      DETAILS: {
+        FROM: "Pension1",
+        TO: CASH_ASSET_NAME,
+        DATE: "01 Jan 2026",
+        VALUE: "wAmount",
+        TAX_FREE_PROP: "tfProp",
+        RECURRENCE: "",
+        RECURRENCE_STOP: "",
+      },
+    });
+    expect(processGenerators(model)).toBe("");
   });
 });

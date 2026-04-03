@@ -1829,15 +1829,13 @@ function makeTransactionCols(
       },
     ]);
   }
-  if (type !== autogen) {
-    cols = cols.concat([
-      {
-        ...defaultColumn,
-        key: "RECURRENCE",
-        name: "recurrence",
-      },
-    ]);
-  }
+  cols = cols.concat([
+    {
+      ...defaultColumn,
+      key: "RECURRENCE",
+      name: "recurrence",
+    },
+  ]);
   if (type !== payOffDebt) {
     cols = cols.concat([
       {

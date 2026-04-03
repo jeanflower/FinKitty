@@ -239,6 +239,93 @@ export function isValidValueInternal(
 export function isValidValue(value: string, model: ModelData): boolean {
   return isValidValueInternal(value, model, 1);
 }
+
+/**
+ * True if the string is numeric or names a setting (recursively) that resolves
+ * to a numeric literal. Does not accept asset names (unlike isValidValue).
+ */
+function isResolvableNumericSettingValueInternal(
+  value: string,
+  model: ModelData,
+  iterationDepth: number,
+): boolean {
+  if (value.length === 0) {
+    return false;
+  }
+  if (isNumberString(value)) {
+    return true;
+  }
+  if (iterationDepth > 10) {
+    /* istanbul ignore next */
+    return false;
+  }
+  const parsed = getNumberAndWordParts(value);
+  if (parsed.wordPart.length === 0) {
+    return false;
+  }
+  const settingVal = getSettings(
+    model.settings,
+    parsed.wordPart,
+    "missing",
+    false,
+  );
+  if (settingVal === "missing") {
+    return false;
+  }
+  return isResolvableNumericSettingValueInternal(
+    settingVal,
+    model,
+    iterationDepth + 1,
+  );
+}
+
+export function isResolvableNumericSettingValue(
+  value: string,
+  model: ModelData,
+): boolean {
+  return isResolvableNumericSettingValueInternal(value, model, 1);
+}
+
+/**
+ * Resolves a numeric literal or setting chain to a number (including an optional
+ * leading numeric multiplier, same rules as isValidValue / traceEvaluation).
+ */
+export function resolveNumericSettingValue(
+  value: string,
+  model: ModelData,
+  iterationDepth = 1,
+): number | undefined {
+  if (value.length === 0) {
+    return undefined;
+  }
+  if (isNumberString(value)) {
+    return parseFloat(value);
+  }
+  if (iterationDepth > 10) {
+    /* istanbul ignore next */
+    return undefined;
+  }
+  const parsed = getNumberAndWordParts(value);
+  if (parsed.wordPart.length === 0) {
+    return undefined;
+  }
+  const settingVal = getSettings(
+    model.settings,
+    parsed.wordPart,
+    "missing",
+    false,
+  );
+  if (settingVal === "missing") {
+    return undefined;
+  }
+  const inner = resolveNumericSettingValue(settingVal, model, iterationDepth + 1);
+  if (inner === undefined) {
+    return undefined;
+  }
+  const mult = parsed.numberPart !== undefined ? parsed.numberPart : 1;
+  return mult * inner;
+}
+
 export function checkAsset(a: Asset, model: ModelData): string {
   // log(`checkAsset ${showObj(a)}`);
   if (a.NAME.length === 0) {
@@ -1653,6 +1740,8 @@ export interface CheckResult {
   message: string;
 }
 
+// VALUE / TAX_FREE_PROP may be setting names: tests in tests/algoTests/check.test.ts
+// ("DCP withdrawal generator accepts…", "processGenerators resolves…").
 function checkDCPWithdrawalGeneratorDetails(
   g: Generator,
   model: ModelData,
@@ -1678,16 +1767,16 @@ function checkDCPWithdrawalGeneratorDetails(
     );
   }
 
-  if (!isNumberString(details.VALUE)) {
+  if (!isResolvableNumericSettingValue(details.VALUE, model)) {
     return (
       `generator '${g.NAME}' withdrawal VALUE '${details.VALUE}' ` +
-      `should be a numerical value`
+      `should be a number or a setting that resolves to a number`
     );
   }
-  if (!isNumberString(details.TAX_FREE_PROP)) {
+  if (!isResolvableNumericSettingValue(details.TAX_FREE_PROP, model)) {
     return (
       `generator '${g.NAME}' tax-free proportion '${details.TAX_FREE_PROP}' ` +
-      `should be a numerical value`
+      `should be a number or a setting that resolves to a number`
     );
   }
 

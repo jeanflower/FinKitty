@@ -7419,6 +7419,211 @@ it('handle PDC generator withdrawal', () => {
   }
 });
 
+// Partner to `handle PDC generator withdrawal`: same model except DCPWithdrawal
+// VALUE is setting `withdrawalMonthlyAmount` (= 10), not the literal "10".
+it('handle PDC generator withdrawal (withdrawal VALUE from setting)', () => {
+  const viewSettings = defaultTestViewSettings();
+  viewSettings.setViewSetting(viewFrequency, annually);
+
+  const modelString = `
+  {
+    "name":"PDCModel",
+    "expenses":[],
+    "incomes":[
+      {"NAME":"javaJob1",
+      "ERA":0,
+      "VALUE":"250",
+      "VALUE_SET":"02 April 2020",
+      "START":"02 April 2020",
+      "END":"02 April 2022",
+      "CPI_IMMUNE":true,
+      "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+      "RECURRENCE":"1m",
+      "CATEGORY":"programming"
+    }
+    ],
+    "assets":[
+      {
+        "NAME":"Cash",
+        "CATEGORY":"",
+        "START":"01 Jan 2017",
+        "VALUE":"0.0",
+        "QUANTITY":"",
+        "GROWTH":"0.0",
+        "CPI_IMMUNE":true,
+        "CAN_BE_NEGATIVE":true,
+        "IS_A_DEBT":false,
+        "LIABILITY":"",
+        "PURCHASE_PRICE":"0.0",
+        "ERA":0
+      }
+    ],
+    "transactions":[],
+    "settings":[
+      {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+      {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+
+      {"NAME":"Today's value focus date","VALUE":"","HINT":"Date to use for 'today's value' tables (defaults to '' meaning today)","TYPE":"view","ERA":0},
+
+      {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+      {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+
+      {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+      {"NAME":"Date of birth","VALUE":"","HINT":"Date used for representing dates as ages","TYPE":"view","ERA":0},
+      {"NAME":"cpi","VALUE":"2.5","HINT":"Annual rate of inflation","TYPE":"const","ERA":0},
+      {"NAME":"withdrawalMonthlyAmount","VALUE":"10","HINT":"","TYPE":"adjustable","ERA":0}
+    ],
+    "monitors":[],
+    "triggers":[],
+    "generators":[
+      {
+        "NAME":"ScottishWidows",
+        "ERA":0,
+        "TYPE":"Defined Contributions",
+        "DETAILS":{
+          "GROWS_WITH_CPI": "N",
+          "GROWTH": "0",
+          "VALUE": "1000",
+          "TAX_LIABILITY": "Joe",
+          "CATEGORY": "pension",
+          "START": "2 April 2021",
+          "STOP": "2 April 2022",
+          "CRYSTALLIZE": "2 April 2023",
+          "SS": "n",
+          "INCOME_SOURCE": "javaJob1",
+          "CONTRIBUTION_AMOUNT": "0.05",
+          "EMP_CONTRIBUTION_AMOUNT": "0.05",
+          "TRANSFER_TO": "Jack",
+          "TRANSFER_DATE": "2 April 2024"
+        }
+      },
+      {
+        "NAME": "swWithdrawal",
+        "ERA": "0",
+        "TYPE": "DCPWithdrawal",
+        "DETAILS": {
+          "FROM": "ScottishWidows",
+          "TO": "Cash",
+          "DATE": "2 June 2023",
+          "VALUE": "withdrawalMonthlyAmount",
+          "TAX_FREE_PROP": "0.25",
+          "RECURRENCE": "1m",
+          "RECURRENCE_STOP": "2 June 2024"
+        }
+      }
+    ],
+    "version":13
+  }
+  `;
+  const model = makeModelFromJSONString(modelString);
+
+  setSetting(
+    model.settings,
+    `Beginning of view range`,
+    "April 1 2020",
+    viewType,
+  );
+  setSetting(
+    model.settings,
+    `End of view range`,
+    "April 1 2027",
+    viewType,
+  );
+
+  const evalsAndValues = getTestEvaluations(
+    model,
+  );
+
+  const result = makeChartDataFromEvaluations(
+    model,
+    viewSettings,
+    evalsAndValues,
+  );
+
+  expect(result.expensesData.length).toBe(0);
+  expect(result.incomesData.length).toBe(1);
+  expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+  {
+  const chartPts = result.incomesData[0].chartDataPoints;
+  expect(chartPts.length).toBe(7);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 3000, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  expectChartData(chartPts, 5, 'Tue Apr 01 2025', 0, -1);
+  expectChartData(chartPts, 6, 'Wed Apr 01 2026', 0, -1);
+  }
+  
+  expect(result.assetData.length).toBe(2);
+  expect(result.assetData[0].item.NAME).toBe('Cash');
+  {
+  const chartPts = result.assetData[0].chartDataPoints;
+  expect(chartPts.length).toBe(7);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 5850, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 5850, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 5950, -1);
+  expectChartData(chartPts, 5, 'Tue Apr 01 2025', 5970, -1);
+  expectChartData(chartPts, 6, 'Wed Apr 01 2026', 5970, -1);
+  }
+  
+  expect(result.assetData[1].item.NAME).toBe('ScottishWidows');
+  {
+  const chartPts = result.assetData[1].chartDataPoints;
+  expect(chartPts.length).toBe(7);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1300, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 1300, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1200, -1);
+  expectChartData(chartPts, 5, 'Tue Apr 01 2025', 1180, -1);
+  expectChartData(chartPts, 6, 'Wed Apr 01 2026', 1180, -1);
+  }
+  
+  expect(result.debtData.length).toBe(0);
+  expect(result.taxData.length).toBe(2);
+  expect(result.taxData[0].item.NAME).toBe('Jack income (net)');
+  {
+  const chartPts = result.taxData[0].chartDataPoints;
+  expect(chartPts.length).toBe(7);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  expectChartData(chartPts, 5, 'Tue Apr 01 2025', 7.50, 2);
+  expectChartData(chartPts, 6, 'Wed Apr 01 2026', 7.50, 2);
+  }
+  
+  expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+  {
+  const chartPts = result.taxData[1].chartDataPoints;
+  expect(chartPts.length).toBe(7);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 250, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2987.50, 2);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2612.50, 2);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  expectChartData(chartPts, 5, 'Tue Apr 01 2025', 75, -1);
+  expectChartData(chartPts, 6, 'Wed Apr 01 2026', 0, -1);
+  }
+});
+
 it('handle PDC generator withdrawal tax income no cpi', () => {
   const viewSettings = defaultTestViewSettings();
   viewSettings.setViewSetting(viewFrequency, annually);

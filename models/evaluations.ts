@@ -1,4 +1,12 @@
-import { checkAsset, checkModel, checkIncome, checkIncomeLiability, checkTransaction } from "./checks";
+import {
+  checkAsset,
+  checkModel,
+  checkIncome,
+  checkIncomeLiability,
+  checkTransaction,
+  isResolvableNumericSettingValue,
+  resolveNumericSettingValue,
+} from "./checks";
 import {
   annually,
   CASH_ASSET_NAME,
@@ -7545,6 +7553,8 @@ function processDBPGenerators(
 
 // return '' for success
 // or an errorMessage
+// Resolves VALUE / TAX_FREE_PROP from settings: tests/algoTests/check.test.ts
+// ("processGenerators resolves DCP withdrawal VALUE and tax-free prop from settings").
 function processDCPWithdrawalGenerators(
   model: ModelData,  
 ): string {
@@ -7571,13 +7581,22 @@ function processDCPWithdrawalGenerators(
       //return '';
       return `no matching DCP generator for ${from}`;
     }
-    if(!isNumberString(value)){
-      return `not a number string for value ${value} ${showObj(details)} ${showObj(g)}`;
+    if (!isResolvableNumericSettingValue(value, model)) {
+      return (
+        `withdrawal VALUE '${value}' should be a number or a setting ` +
+        `that resolves to a number (${showObj(details)} ${showObj(g)})`
+      );
     }
-    let totalAmount = parseFloat(value);
+    const totalAmount = resolveNumericSettingValue(value, model);
+    if (totalAmount === undefined) {
+      return `withdrawal VALUE '${value}' could not be resolved to a number`;
+    }
 
-    if(!isNumberString(taxFreeProp)){
-      return `not a number string for tax free proportion ${taxFreeProp}`;
+    if (!isResolvableNumericSettingValue(taxFreeProp, model)) {
+      return (
+        `tax free proportion '${taxFreeProp}' should be a number or a setting ` +
+        `that resolves to a number`
+      );
     }
 
     // we want to check the transactions against the generated model but
@@ -7590,7 +7609,12 @@ function processDCPWithdrawalGenerators(
     copyModel.generators = filteredGenerators;
     processGenerators(copyModel);
 
-    let taxFreePropAmount = parseFloat(taxFreeProp);
+    const taxFreePropAmount = resolveNumericSettingValue(taxFreeProp, model);
+    if (taxFreePropAmount === undefined) {
+      return (
+        `tax free proportion '${taxFreeProp}' could not be resolved to a number`
+      );
+    }
 
     const taxFreeAmount = totalAmount * taxFreePropAmount;
     const taxableAmount = totalAmount * (1.0 - taxFreePropAmount);
