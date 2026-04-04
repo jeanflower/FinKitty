@@ -182,6 +182,9 @@ export const generatorTypeDCPRevalue = "DCPRevalue";
 // them as one atomic scale.
 export const dcpRevalueBatchCategoryPrefix = "DCPRevalueBatch ";
 
+// Suffix on synthetic `Item.NAME` in the revalue-asset picker for a whole DCP pot.
+export const dcpRevalueAssetOptionSuffix = " (DCP)";
+
 //  Liquidate assets to keep cash afloat
 // (Conditional sell to cash)
 export const liquidateAsset = "liquidateAsset";

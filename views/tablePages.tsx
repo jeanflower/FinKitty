@@ -36,7 +36,14 @@ import {
   roiStart,
   cpPrefix,
   penPrefix,
+  dcpRevalueBatchCategoryPrefix,
+  generatorTypeDCPRevalue,
 } from "../localization/stringConstants";
+import {
+  expandDCPRevalueGeneratorToTransactions,
+  getDCPPensionNameForBatchTransaction,
+  isDCPRevalueBatchTransaction,
+} from "../models/dcpRevalueExpand";
 import {
   Asset,
   BondGeneratorDetails,
@@ -61,10 +68,12 @@ import {
   ViewCallbacks,
   DeleteResult,
   Monitor,
+  DCPRevalueDetails,
   DCPWithdrawalDetails,
 } from "../types/interfaces";
 import {
   checkExpense,
+  checkGenerator,
   checkIncome,
   checkTransaction,
   checkTrigger,
@@ -919,6 +928,7 @@ function handleTransactionGridRowsUpdated(
     transactionInput: Transaction,
     modelData: ModelData,
   ) => Promise<void>,
+  submitGenerator: (generatorInput: Generator) => Promise<void>,
   attemptRename: (
     doChecks: boolean,
     old: string,
@@ -958,6 +968,90 @@ function handleTransactionGridRowsUpdated(
   const newVal = newRow[changedColumn.key];
 
   if (oldVal === newVal) {
+    return;
+  }
+
+  if (oldRow._dcpRevalueGeneratorName) {
+    const genName = oldRow._dcpRevalueGeneratorName as string;
+    if (changedColumn.key === "NAME") {
+      const newName = `${newRow.NAME}`.trim();
+      if (newName === "") {
+        showAlert("Name cannot be empty");
+        return;
+      }
+      if (newName === genName) {
+        return;
+      }
+      if (doChecks) {
+        const parsed = getNumberAndWordParts(newName);
+        if (parsed.numberPart !== undefined) {
+          showAlert(`Don't name a transaction beginning with a number`);
+          return;
+        }
+        const clashCheck = checkForWordClashInModel(model, newName, "already");
+        if (clashCheck !== "") {
+          showAlert(clashCheck);
+          return;
+        }
+      }
+      void attemptRename(doChecks, genName, newName, showAlert, refreshData);
+      return;
+    }
+    if (changedColumn.key === "TO") {
+      showAlert(
+        "The pension for a DCP revalue is fixed; change the generator or delete this revalue and add a new one.",
+      );
+      return;
+    }
+    if (
+      changedColumn.key === "FROM" ||
+      changedColumn.key === "FROM_VALUE" ||
+      changedColumn.key === "STOP_DATE" ||
+      changedColumn.key === "RECURRENCE"
+    ) {
+      showAlert(
+        "DCP pension revalues only store date, target total, and era on the " +
+          "generator; edit those columns or use the Defined Contributions " +
+          "generators table.",
+      );
+      return;
+    }
+    if (newRow.FROM_VALUE === undefined) {
+      newRow.FROM_VALUE = 0.0;
+    }
+    const parseTo = makeValueAbsPropFromString(newRow.TO_VALUE);
+    if (doChecks && newRow.TYPE !== revalueSetting && !parseTo.checksOK) {
+      showAlert(
+        `To value ${newRow.TO_VALUE} should be a number or a number` +
+          ` with % symbol`,
+      );
+      return;
+    }
+    const gen = model.generators.find((g) => {
+      return g.NAME === genName && g.TYPE === generatorTypeDCPRevalue;
+    });
+    if (gen === undefined) {
+      showAlert(`No DCP revalue generator named ${genName}`);
+      return;
+    }
+    const details = gen.DETAILS as DCPRevalueDetails;
+    const updated: Generator = {
+      ...gen,
+      ERA: newRow.ERA,
+      DETAILS: {
+        ...details,
+        DATE: newRow.DATE,
+        VALUE: parseTo.value,
+      },
+    };
+    if (doChecks) {
+      const gMsg = checkGenerator(updated, model);
+      if (gMsg !== "") {
+        showAlert(gMsg);
+        return;
+      }
+    }
+    void submitGenerator(updated);
     return;
   }
 
@@ -1364,6 +1458,81 @@ export function faveColumn(
   };
 }
 
+function faveColumnRevalueAssetTransactions(
+  parentCallbacks: ViewCallbacks,
+) {
+  return {
+    ...defaultColumn,
+    key: "FAVE",
+    name: "",
+    suppressSizeToFit: true,
+    width: 120,
+    renderCell(props: any) {
+      const row = props.row;
+      const dcpGenName = row._dcpRevalueGeneratorName as string | undefined;
+      const isDcpRevalueBatch = dcpGenName !== undefined && dcpGenName !== "";
+      return (
+        <>
+          <Button
+            key={`deltransactionDefTable${row.NAME}${row.index}`}
+            onClick={async () => {
+              if (isDcpRevalueBatch) {
+                const result = await parentCallbacks.deleteGenerator(dcpGenName);
+                await parentCallbacks.refreshData(true, true, 0);
+                if (result.message) {
+                  alert(result.message);
+                } else if (result.itemsDeleted) {
+                  alert(`deleted ${result.itemsDeleted}`);
+                }
+              } else {
+                const result = await parentCallbacks.deleteTransaction(
+                  getTransactionName(row.NAME, revalueAsset),
+                );
+                if (result.message) {
+                  alert(result.message);
+                } else if (result.itemsDeleted) {
+                  alert(`deleted ${result.itemsDeleted}`);
+                } else {
+                  alert(`not sure what has happened with this delete attempt!`);
+                }
+              }
+            }}
+            variant={`outline-secondary`}
+          >
+            del
+          </Button>
+          <Button
+            key={`eratransactionDefTable${row.NAME}${row.index}`}
+            disabled={false}
+            onClick={async () => {
+              const oldVal = row["ERA"];
+              let newVal = 0;
+              if (oldVal === -1) {
+                newVal = 0;
+              } else if (oldVal === 0) {
+                newVal = 1;
+              } else if (oldVal === 1) {
+                newVal = -1;
+              }
+              if (isDcpRevalueBatch) {
+                await parentCallbacks.setEraGenerator(dcpGenName, newVal);
+              } else {
+                await parentCallbacks.setEraTransaction(
+                  getTransactionName(row.NAME, revalueAsset),
+                  newVal,
+                );
+              }
+            }}
+            variant={`outline-secondary`}
+          >
+            {row.ERA}
+          </Button>
+        </>
+      );
+    },
+  };
+}
+
 function getAssetOrDebtCols(
   model: ModelData,
   isDebt: boolean,
@@ -1590,70 +1759,120 @@ export function assetsOrDebtsTableDiv(
   );
 }
 
+function transactionModelToGridRow(
+  model: ModelData,
+  type: string,
+  obj: Transaction,
+): Item & Record<string, unknown> {
+  let fromValueEntry = makeStringFromValueAbsProp(
+    obj.FROM_VALUE,
+    obj.FROM_ABSOLUTE,
+    obj.FROM,
+    model,
+    obj.NAME,
+  );
+  if (
+    obj.FROM === "" &&
+    (fromValueEntry === "0" || fromValueEntry === "0.0")
+  ) {
+    fromValueEntry = "";
+  }
+  let toNumber = obj.TO_VALUE;
+  if (type === revalueDebt) {
+    toNumber = `${-parseFloat(toNumber)}`;
+  }
+  let toValueEntry = makeStringFromValueAbsProp(
+    toNumber,
+    obj.TO_ABSOLUTE,
+    obj.TO,
+    model,
+    obj.NAME,
+  );
+  if (obj.TO === "" && (toValueEntry === "0" || toValueEntry === "0.0")) {
+    toValueEntry = "";
+  }
+  return {
+    DATE: obj.DATE,
+    FROM: obj.FROM,
+    FROM_VALUE: fromValueEntry,
+    NAME: getDisplayName(obj.NAME, type),
+    ERA: obj.ERA,
+    TO: obj.TO,
+    TO_VALUE: toValueEntry,
+    STOP_DATE: obj.STOP_DATE,
+    RECURRENCE: obj.RECURRENCE,
+    TYPE: obj.TYPE,
+    CATEGORY: obj.CATEGORY,
+  };
+}
+
+function dcpRevalueBatchToGridRow(
+  model: ModelData,
+  type: string,
+  members: Transaction[],
+  dcpRevalueGeneratorName: string,
+): Item & Record<string, unknown> {
+  const canonical = members[0];
+  const g = model.generators.find((x) => {
+    return x.NAME === dcpRevalueGeneratorName;
+  });
+  const dcName =
+    g !== undefined
+      ? (g.DETAILS as DCPRevalueDetails).FROM
+      : getDCPPensionNameForBatchTransaction(model, canonical) ??
+        canonical.CATEGORY.slice(dcpRevalueBatchCategoryPrefix.length);
+  const row = transactionModelToGridRow(model, type, canonical);
+  // Generator NAME is the user-editable label (default e.g. "Pension1 1" from add form).
+  row.NAME = g !== undefined ? g.NAME : `${dcName} (${canonical.DATE})`;
+  row.TO = dcName;
+  row._dcpRevalueGeneratorName = dcpRevalueGeneratorName;
+  return row;
+}
+
 export function transactionsForTable(
   model: ModelData,
   type: string,
   parentCallbacks: ViewCallbacks,
 ) {
-  const unindexedRows = model.transactions
-    .filter((t) => {
-      if (t.TYPE === type) {
-        return true;
-      }
-      return false;
-    })
-    .filter((obj: Item) => {
-      return (
-        parentCallbacks.filterForEra(obj) &&
-        parentCallbacks.filterForSearch(obj)
-      );
-    })
+  const pool = model.transactions.filter((t) => {
+    return t.TYPE === type;
+  });
+  const eraPool = pool.filter((obj: Item) => {
+    return parentCallbacks.filterForEra(obj);
+  });
 
-    .map((obj: Transaction) => {
-      // log(`obj.FROM_ABSOLUTE = ${obj.FROM_ABSOLUTE}`)
-      let fromValueEntry = makeStringFromValueAbsProp(
-        obj.FROM_VALUE,
-        obj.FROM_ABSOLUTE,
-        obj.FROM,
-        model,
-        obj.NAME,
-      );
-      // log(`obj.FROM = ${obj.FROM}, fromValueEntry = ${fromValueEntry}`);
-      if (
-        obj.FROM === "" &&
-        (fromValueEntry === "0" || fromValueEntry === "0.0")
-      ) {
-        fromValueEntry = "";
-      }
-      let toNumber = obj.TO_VALUE;
-      if (type === revalueDebt) {
-        toNumber = `${-parseFloat(toNumber)}`;
-      }
-      let toValueEntry = makeStringFromValueAbsProp(
-        toNumber,
-        obj.TO_ABSOLUTE,
-        obj.TO,
-        model,
-        obj.NAME,
-      );
-      if (obj.TO === "" && (toValueEntry === "0" || toValueEntry === "0.0")) {
-        toValueEntry = "";
-      }
-      const mapResult = {
-        DATE: obj.DATE,
-        FROM: obj.FROM,
-        FROM_VALUE: fromValueEntry,
-        NAME: getDisplayName(obj.NAME, type),
-        ERA: obj.ERA,
-        TO: obj.TO,
-        TO_VALUE: toValueEntry,
-        STOP_DATE: obj.STOP_DATE,
-        RECURRENCE: obj.RECURRENCE,
-        TYPE: obj.TYPE,
-        CATEGORY: obj.CATEGORY,
-      };
-      return mapResult;
+  let unindexedRows: Item[];
+
+  if (type === revalueAsset) {
+    const dcpRevGens = model.generators.filter((g) => {
+      return g.TYPE === generatorTypeDCPRevalue;
     });
+    const collapsedRows = dcpRevGens
+      .map((g) => {
+        const members = expandDCPRevalueGeneratorToTransactions(g, model);
+        if (members.length === 0) {
+          return undefined;
+        }
+        if (!members.some((m) => parentCallbacks.filterForEra(m))) {
+          return undefined;
+        }
+        if (!members.some((m) => parentCallbacks.filterForSearch(m as Item))) {
+          return undefined;
+        }
+        return dcpRevalueBatchToGridRow(model, type, members, g.NAME);
+      })
+      .filter((row) => row !== undefined) as Item[];
+    const nonDcp = eraPool.filter((t) => !isDCPRevalueBatchTransaction(t));
+    const normalRows = nonDcp
+      .filter((obj) => parentCallbacks.filterForSearch(obj))
+      .map((obj) => transactionModelToGridRow(model, type, obj));
+    unindexedRows = [...collapsedRows, ...normalRows];
+  } else {
+    unindexedRows = eraPool
+      .filter((obj) => parentCallbacks.filterForSearch(obj))
+      .map((obj) => transactionModelToGridRow(model, type, obj));
+  }
+
   unindexedRows.sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME));
   return addIndices(unindexedRows);
 }
@@ -1672,17 +1891,19 @@ function makeTransactionCols(
     },
     */
 
-    faveColumn(
-      (name: string) => {
-        const completeName = getTransactionName(name, type);
-        return parentCallbacks.deleteTransaction(completeName);
-      }, // needs getTransactionName see above
-      (name: string, value: number) => {
-        const completeName = getTransactionName(name, type);
-        return parentCallbacks.setEraTransaction(completeName, value);
-      }, // needs getTransactionName see above
-      "transactionDefTable",
-    ),
+    type === revalueAsset
+      ? faveColumnRevalueAssetTransactions(parentCallbacks)
+      : faveColumn(
+          (name: string) => {
+            const completeName = getTransactionName(name, type);
+            return parentCallbacks.deleteTransaction(completeName);
+          }, // needs getTransactionName see above
+          (name: string, value: number) => {
+            const completeName = getTransactionName(name, type);
+            return parentCallbacks.setEraTransaction(completeName, value);
+          }, // needs getTransactionName see above
+          "transactionDefTable",
+        ),
     {
       ...defaultColumn,
       key: "NAME",
@@ -1939,6 +2160,7 @@ export function transactionsTableDiv(
             doChecks,
             contents,
             parentCallbacks.submitTransaction,
+            parentCallbacks.submitGenerator,
             parentCallbacks.attemptRename,
             parentCallbacks.refreshData,
             args,

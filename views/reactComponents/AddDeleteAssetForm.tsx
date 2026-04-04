@@ -1,9 +1,15 @@
 import React, { Component, FormEvent } from "react";
 import { Col, Row } from "react-bootstrap";
 
-import { checkAssetLiability, checkRecurrence, isValidValue } from "../../models/checks";
+import {
+  checkAssetLiability,
+  checkGenerator,
+  checkRecurrence,
+  isValidValue,
+} from "../../models/checks";
 import {
   Asset,
+  Item,
   ModelData,
   Transaction,
   Trigger,
@@ -12,6 +18,7 @@ import {
   Generator,
   DCGeneratorDetails,
   BondGeneratorDetails,
+  DCPRevalueDetails,
 } from "../../types/interfaces";
 import { log, printDebug, showObj } from "../../utils/utils";
 import { makeButton } from "./Button";
@@ -28,7 +35,10 @@ import {
   taxFree,
   transferCrystallizedPension,
   dot,
+  dcpRevalueAssetOptionSuffix,
+  generatorTypeDCPRevalue,
 } from "../../localization/stringConstants";
+import { getDCPPensionSubAssetNames } from "../../models/dcpRevalueExpand";
 import { incomeOptions } from "./AddDeleteIncomeForm";
 import { makeRevalueName } from "../../models/modelUtils";
 import {
@@ -508,14 +518,64 @@ export class AddDeleteAssetForm extends Component<
     );
   }
 
-  private getAssetOptions() {
-    return this.props.model.assets
+  private makeUniqueDCPRevalueGeneratorName(dcName: string): string {
+    let n = 1;
+    while (n < 10000) {
+      const candidate = `${dcName} ${n}`;
+      if (
+        !this.props.model.generators.some((g: Generator) => g.NAME === candidate)
+      ) {
+        return candidate;
+      }
+      n += 1;
+    }
+    let k = 1;
+    while (k < 100000) {
+      const candidate = `${dcName}Rv${k}`;
+      if (
+        !this.props.model.generators.some((g: Generator) => g.NAME === candidate)
+      ) {
+        return candidate;
+      }
+      k += 1;
+    }
+    throw new Error("could not allocate DCP revalue generator name");
+  }
+
+  private getAssetOptions(): Item[] {
+    const baseAssets = this.props.model.assets
       .filter((a) => {
         return !a.IS_A_DEBT;
       })
       .sort((a: Asset, b: Asset) => {
         return lessThan(a.NAME, b.NAME);
       });
+
+    if (this.state.inputMode !== inputtingRevalue) {
+      return baseAssets;
+    }
+
+    const dcpSubAssetNames = new Set<string>();
+    for (const g of this.props.model.generators) {
+      if (g.TYPE === "Defined Contributions") {
+        for (const sub of getDCPPensionSubAssetNames(g)) {
+          dcpSubAssetNames.add(sub);
+        }
+      }
+    }
+    const withoutDcpSlices = baseAssets.filter(
+      (a) => !dcpSubAssetNames.has(a.NAME),
+    );
+
+    const dcpPensionChoices: Item[] = this.props.model.generators
+      .filter((g) => g.TYPE === "Defined Contributions")
+      .map((g) => ({
+        NAME: `${g.NAME}${dcpRevalueAssetOptionSuffix}`,
+        ERA: undefined,
+      }))
+      .sort((a, b) => lessThan(a.NAME, b.NAME));
+
+    return [...dcpPensionChoices, ...withoutDcpSlices];
   }
 
   private inputAssetName(
@@ -1134,6 +1194,40 @@ export class AddDeleteAssetForm extends Component<
     const isNotADate = date === undefined;
     if (isNotADate) {
       this.props.showAlert(`Value set date should be a date`);
+      return;
+    }
+
+    if (this.state.NAME.endsWith(dcpRevalueAssetOptionSuffix)) {
+      if (!parseVal.absolute) {
+        this.props.showAlert(
+          "DCP revalue needs an absolute target total for the whole pension " +
+            "(not a % scale).",
+        );
+        return;
+      }
+      const dcPensionName = this.state.NAME.slice(
+        0,
+        -dcpRevalueAssetOptionSuffix.length,
+      );
+      const gen: Generator = {
+        NAME: this.makeUniqueDCPRevalueGeneratorName(dcPensionName),
+        ERA: 0,
+        TYPE: generatorTypeDCPRevalue,
+        DETAILS: {
+          FROM: dcPensionName,
+          DATE: this.state.START,
+          VALUE: `${parseVal.value}`,
+        } as DCPRevalueDetails,
+      };
+      const gMsg = checkGenerator(gen, this.props.model);
+      if (gMsg.length > 0) {
+        this.props.showAlert(gMsg);
+        return;
+      }
+      await this.props.submitGeneratorFunction(gen);
+      this.props.showAlert("added new data");
+      this.setState(this.defaultState);
+      this.resetSelect(this.incomeSourceSelectID);
       return;
     }
 

@@ -62,6 +62,51 @@ export function expectedDCPRevalueTransactionNamePrefixFromCategory(
   return `${revalue}${genName} `;
 }
 
+export function isDCPRevalueBatchTransaction(t: Transaction): boolean {
+  return (
+    t.TYPE === revalueAsset &&
+    t.CATEGORY.startsWith(dcpRevalueBatchCategoryPrefix)
+  );
+}
+
+/** Defined Contributions generator `NAME` (`DETAILS.FROM`) for this batch, if known. */
+export function getDCPPensionNameForBatchTransaction(
+  model: ModelData,
+  t: Transaction,
+): string | undefined {
+  if (!isDCPRevalueBatchTransaction(t)) {
+    return undefined;
+  }
+  const revalueGenName = t.CATEGORY.slice(dcpRevalueBatchCategoryPrefix.length);
+  const revGen = model.generators.find(
+    (g) => g.NAME === revalueGenName && g.TYPE === generatorTypeDCPRevalue,
+  );
+  if (revGen === undefined) {
+    return undefined;
+  }
+  return (revGen.DETAILS as DCPRevalueDetails).FROM;
+}
+
+/** One array per batch (same CATEGORY + DATE). */
+export function groupDCPRevalueBatchMemberGroups(
+  transactions: Transaction[],
+): Transaction[][] {
+  const batchMembers = transactions.filter(isDCPRevalueBatchTransaction);
+  const byKey = new Map<string, Transaction[]>();
+  for (const tx of batchMembers) {
+    const key = `${tx.CATEGORY}\0${tx.DATE}`;
+    let g = byKey.get(key);
+    if (g === undefined) {
+      g = [];
+      byKey.set(key, g);
+    }
+    g.push(tx);
+  }
+  return [...byKey.values()].map((members) =>
+    [...members].sort((a, b) => a.NAME.localeCompare(b.NAME)),
+  );
+}
+
 export function getDCPPensionSubAssetNames(dcpGen: Generator): string[] {
   const details = dcpGen.DETAILS as DCGeneratorDetails;
   const from = dcpGen.NAME;

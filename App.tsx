@@ -10,6 +10,7 @@ import {
 } from "./models/exampleModels";
 import { useAuth0 } from "./contexts/auth0-context";
 import { makeChartData } from "./models/charting";
+import { isDCPRevalueBatchTransaction } from "./models/dcpRevalueExpand";
 import { checkAsset, checkGenerator, checkModel, checkTransaction, checkTrigger } from "./models/checks";
 import { AddDeleteTransactionForm } from "./views/reactComponents/AddDeleteTransactionForm";
 import { AddDeleteTriggerForm } from "./views/reactComponents/AddDeleteTriggerForm";
@@ -640,6 +641,11 @@ async function refreshDataInternal(
     modelRaw.transactions.sort((a: Transaction, b: Transaction) =>
       lessThan(b.NAME, a.NAME),
     );
+    // DCP revalue batches exist only on the processed model (from processGenerators).
+    // Drop any persisted copies so processGenerators does not duplicate them.
+    modelRaw.transactions = modelRaw.transactions.filter((t) => {
+      return !isDCPRevalueBatchTransaction(t);
+    });
     modelRaw.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
 
     modelProcessed = makeModelFromJSON(JSON.stringify(modelRaw));
