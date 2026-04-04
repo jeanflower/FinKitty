@@ -157,10 +157,14 @@ export function makeDateFromString(input: string, model?: ModelData) {
     if (input.match(regex) !== null) {
       return new Date(input);
     }
-    // process 'May 2021' format
-    regex = /^[a-zA-Z]* \d{4}$/;
+    // process 'May 2021' / 'Mar 2025' — WebKit/Safari often returns Invalid Date for new Date(monthYear)
+    regex = /^[a-zA-Z]+ \d{4}$/;
     if (input.match(regex) !== null) {
-      return new Date(input);
+      const parsed = moment(input, ["MMM YYYY", "MMMM YYYY"], true);
+      if (parsed.isValid()) {
+        return parsed.toDate();
+      }
+      return new Date("Invalid Date");
     }
     // process 'May 1, 2018 00:00:00'
     regex = /^[a-zA-Z]* \d{1,2}, \d{4} \d{2}:\d{2}:\d{2}$/;
