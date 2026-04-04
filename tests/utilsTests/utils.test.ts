@@ -167,6 +167,13 @@ describe("utils tests", () => {
         makeDateFromString("9 September 2021 8:00"),
       ),
     ).toBe("Thu Sep 09 2021");
+    // Month + year only: must parse without relying on Date(string) (Safari/WebKit)
+    expect(
+      dateAsString(DateFormatType.Test, makeDateFromString("Mar 2025")),
+    ).toBe("Sat Mar 01 2025");
+    expect(
+      dateAsString(DateFormatType.View, makeDateFromString("Mar 2025")),
+    ).toBe("01 Mar 2025");
   });
   it("makeDateFromString View", () => {
     expect(
