@@ -6,7 +6,30 @@ import { ModelData } from "../types/interfaces";
 const doLogToFile = true;
 let doLogIncremental = true;
 
-let logText = "";
+/** Cap in-memory log size so huge evaluations cannot hit RangeError (invalid string length). */
+const MAX_LOG_BUFFER_CHARS = 16 * 1024 * 1024;
+
+const logChunks: string[] = [];
+let logCharCount = 0;
+
+function getLogText(): string {
+  return logChunks.join("");
+}
+
+function appendLogLineForFile(line: string): void {
+  const safeLine =
+    line.length > MAX_LOG_BUFFER_CHARS
+      ? `${line.slice(0, MAX_LOG_BUFFER_CHARS)}\n...[truncated]\n`
+      : line;
+
+  logChunks.push(safeLine);
+  logCharCount += safeLine.length;
+
+  while (logCharCount > MAX_LOG_BUFFER_CHARS && logChunks.length > 0) {
+    const removed = logChunks.shift()!;
+    logCharCount -= removed.length;
+  }
+}
 
 export function log(obj: string | Map<any, any> | boolean) {
   if (doLogIncremental) {
@@ -16,16 +39,23 @@ export function log(obj: string | Map<any, any> | boolean) {
     /* eslint-enable no-console */
   }
   if (doLogToFile) {
-    logText = `${logText}${obj}\n`;
+    const line =
+      typeof obj === "string"
+        ? obj.length > MAX_LOG_BUFFER_CHARS
+          ? `${obj.slice(0, MAX_LOG_BUFFER_CHARS)}\n...[truncated]\n`
+          : `${obj}\n`
+        : `${obj as Map<any, any> | boolean}\n`;
+    appendLogLineForFile(line);
   }
 }
 
 /* istanbul ignore next */
 export function saveLogsFromBrowser() {
   /* istanbul ignore next */
-  const blob = new Blob([logText], { type: "text/plain;charset=utf-8" });
+  const text = getLogText();
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
   /* istanbul ignore next */
-  log(`saving logs to file, length ${logText.length}`);
+  log(`saving logs to file, length ${text.length}`);
   FileSaver.saveAs(blob, `logs.txt`);
 }
 
@@ -35,8 +65,9 @@ export function saveLogsUsingFs() {
     return;
   }
   const fs = require("fs") as typeof import("fs");
-  console.log(`saving logs to file, length ${logText.length}`);
-  fs.writeFile("logs.txt", logText, (err) => {
+  const text = getLogText();
+  console.log(`saving logs to file, length ${text.length}`);
+  fs.writeFile("logs.txt", text, (err) => {
     if (err) {
       console.log(err);
     } else {
@@ -46,7 +77,7 @@ export function saveLogsUsingFs() {
 }
 
 export function printAllLogs() {
-  console.log(logText);  
+  console.log(getLogText());
 }
 export function suppressLogs() {
   doLogIncremental = false;
