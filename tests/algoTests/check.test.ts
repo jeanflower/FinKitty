@@ -21,7 +21,10 @@ import {
   revalueInc,
   revalueSetting,
   viewFrequency,
+  generatorTypeDCPRevalue,
+  dcpRevalueBatchCategoryPrefix,
 } from "../../localization/stringConstants";
+import { expectedDCPRevalueTransactionNamePrefixFromCategory } from "../../models/dcpRevalueExpand";
 import {
   checkModel,
   isValidValue,
@@ -1442,5 +1445,85 @@ describe("checks tests", () => {
     expect(checkGenerator(withdrawalGen, model)).toContain(
       "should not include a leading multiplier",
     );
+  });
+
+  it("DCP revalue generator rejects missing Defined Contributions FROM", () => {
+    const model = getMinimalModelCopy();
+    const revGen: Generator = {
+      NAME: "rev1",
+      TYPE: generatorTypeDCPRevalue,
+      ERA: 0,
+      DETAILS: {
+        FROM: "MissingPension",
+        DATE: "01 Jan 2027",
+        VALUE: "30000",
+      },
+    };
+    expect(checkGenerator(revGen, model)).toContain(
+      "no matching Defined Contributions",
+    );
+  });
+
+  it("DCP batch transaction NAME prefix is derived from category for sibling matching", () => {
+    expect(
+      expectedDCPRevalueTransactionNamePrefixFromCategory(
+        `${dcpRevalueBatchCategoryPrefix}rev1`,
+      ),
+    ).toBe(`${revalue}rev1 `);
+    expect(
+      expectedDCPRevalueTransactionNamePrefixFromCategory("not a batch category"),
+    ).toBeUndefined();
+    expect(
+      expectedDCPRevalueTransactionNamePrefixFromCategory(
+        dcpRevalueBatchCategoryPrefix,
+      ),
+    ).toBeUndefined();
+  });
+
+  it("DCP revalue generator checks and expands via processGenerators", () => {
+    const model = getMinimalModelCopy();
+    model.name = "temporary copy";
+    const dcDetails = {
+      VALUE: "10000",
+      GROWS_WITH_CPI: "n",
+      GROWTH: "0",
+      TAX_LIABILITY: "Joe(incomeTax)",
+      CATEGORY: "",
+      START: "01 Jan 2025",
+      STOP: "",
+      CRYSTALLIZE: "01 Jan 2030",
+      SS: "n",
+      INCOME_SOURCE: "",
+      CONTRIBUTION_AMOUNT: "",
+      EMP_CONTRIBUTION_AMOUNT: "",
+      TRANSFER_TO: "",
+      TRANSFER_DATE: "",
+    };
+    model.generators.push({
+      NAME: "Pension1",
+      TYPE: "Defined Contributions",
+      ERA: 0,
+      DETAILS: dcDetails,
+    });
+    const revGen: Generator = {
+      NAME: "rev1",
+      TYPE: generatorTypeDCPRevalue,
+      ERA: 0,
+      DETAILS: {
+        FROM: "Pension1",
+        DATE: "01 Jan 2027",
+        VALUE: "30000",
+      },
+    };
+    expect(checkGenerator(revGen, model)).toBe("");
+    model.generators.push(revGen);
+    expect(processGenerators(model)).toBe("");
+    const revals = model.transactions.filter((t) => {
+      return (
+        t.TYPE === revalueAsset &&
+        t.CATEGORY.startsWith(dcpRevalueBatchCategoryPrefix)
+      );
+    });
+    expect(revals.length).toBe(3);
   });
 });

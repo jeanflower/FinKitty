@@ -43,6 +43,8 @@ import {
   roiStart,
   taxFreePart,
   taxablePart,
+  revalueAsset,
+  generatorTypeDCPRevalue,
 } from "../localization/stringConstants";
 import {
   DatedThing,
@@ -103,6 +105,11 @@ import dateFormat from "dateformat";
 import { getAnnualPlanningSurplusData } from "./planningData";
 import { inspect } from 'util';
 import { makeModelFromJSON } from "./modelFromJSON";
+import {
+  expandDCPRevalueGeneratorToTransactions,
+  expectedDCPRevalueBatchTransactionCount,
+  expectedDCPRevalueTransactionNamePrefixFromCategory,
+} from "./dcpRevalueExpand";
 inspect;
 
 function parseRecurrenceString(recurrence: string) {
@@ -3957,6 +3964,147 @@ function assetAllowedNegative(assetName: string, asset: Asset) {
   }
 }
 
+// DCP revalue: each sibling transaction carries the same TO_VALUE = target *total* for
+// the pension; this handler applies new_i = prev_i * T / sum(prev).
+function applyRevalueDCPBatch(
+  t: Transaction,
+  moment: Moment,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  evaluations: Evaluation[],
+  model: ModelData,
+): boolean {
+  const namePrefix = expectedDCPRevalueTransactionNamePrefixFromCategory(
+    t.CATEGORY,
+  );
+  if (namePrefix === undefined || !t.NAME.startsWith(namePrefix)) {
+    return false;
+  }
+  const siblings = model.transactions.filter((tx) => {
+    return (
+      tx.TYPE === revalueAsset &&
+      tx.CATEGORY === t.CATEGORY &&
+      tx.DATE === t.DATE &&
+      tx.NAME.startsWith(namePrefix)
+    );
+  });
+  const expectedBatchSize = expectedDCPRevalueBatchTransactionCount(
+    model,
+    t.CATEGORY,
+  );
+  if (expectedBatchSize === undefined) {
+    /* istanbul ignore next */
+    throw new Error(
+      `DCP revalue batch: cannot resolve expected batch size for category ${showObj(
+        t.CATEGORY,
+      )}`,
+    );
+  }
+  if (siblings.length !== expectedBatchSize) {
+    throw new Error(
+      `DCP revalue batch: expected ${expectedBatchSize} transactions (category ${showObj(
+        t.CATEGORY,
+      )}, DATE ${showObj(t.DATE)}), got ${siblings.length}`,
+    );
+  }
+  siblings.sort((a, b) => {
+    if (a.NAME < b.NAME) {
+      return -1;
+    }
+    if (a.NAME > b.NAME) {
+      return 1;
+    }
+    return 0;
+  });
+  const canonical = siblings[0];
+  if (t.NAME !== canonical.NAME) {
+    return true;
+  }
+  let tTotal: string | number | undefined = traceEvaluation(
+    canonical.TO_VALUE,
+    values,
+    growths,
+    canonical.TO_VALUE,
+  );
+  if (typeof tTotal === "string" && isNumberString(tTotal)) {
+    tTotal = parseFloat(tTotal);
+  }
+  if (typeof tTotal !== "number") {
+    /* istanbul ignore next */
+    throw new Error(
+      `DCP revalue batch needs numeric total, got ${showObj(tTotal)}`,
+    );
+  }
+  let totalDCPValue = 0;
+  const prevByWord: Map<string, number> = new Map();
+  for (const sib of siblings) {
+    const targetAsset = sib.TO;
+    const targetAssetValue = values.get(targetAsset);
+    let prevValue: number | undefined = undefined;
+    if (targetAssetValue === undefined) {
+      throw new Error(`DCP revalue batch: undefined value for ${targetAsset}`);
+    } else if (typeof targetAssetValue !== "string") {
+      prevValue = targetAssetValue;
+    } else if (isNumberString(targetAssetValue)) {
+      prevValue = parseFloat(targetAssetValue);
+    } else {
+      throw new Error(`DCP revalue batch: non-numeric value for ${targetAsset}`);
+    }
+    prevByWord.set(targetAsset, prevValue);
+    totalDCPValue += prevValue;
+  }
+  if (totalDCPValue <= 0) {
+    log(`WARNING: DCP revalue batch sum totalDCPValue <= 0`);
+    return true;
+  }
+  const ratio = tTotal / totalDCPValue;
+  for (const sib of siblings) {
+    const targetAsset = sib.TO;
+    const prevValue = prevByWord.get(targetAsset);
+    if (prevValue === undefined) {
+      continue;
+    }
+    let tToValue: number = prevValue * ratio;
+    // Unlike generic asset revalues, DCP pots are not taxed on paper gains here;
+    // tax is applied on withdrawal (see DCP withdrawal handling).
+    const gd = growthData(targetAsset, growths, values);
+    if (
+      canonical.TO_ABSOLUTE &&
+      typeof tToValue === "number" &&
+      gd.adjustForCPI
+    ) {
+      const baseVal = gd.baseVal;
+      tToValue = tToValue / baseVal;
+    }
+    if (typeof tToValue === "number") {
+      setValue(
+        values,
+        growths,
+        evaluations,
+        moment.date,
+        targetAsset,
+        tToValue,
+        model,
+        revalue,
+        "10",
+      );
+    } else {
+      setValue(
+        values,
+        growths,
+        evaluations,
+        moment.date,
+        targetAsset,
+        sib.TO_VALUE,
+        model,
+        revalue,
+        "11",
+      );
+    }
+  }
+  return true;
+}
+
 function revalueApplied(
   t: Transaction,
   moment: Moment,
@@ -3968,6 +4116,18 @@ function revalueApplied(
 ) {
   if (!t.NAME.startsWith(revalue)) {
     return false;
+  }
+  if (t.TYPE === revalueAsset) {
+    const batchPrefix = expectedDCPRevalueTransactionNamePrefixFromCategory(
+      t.CATEGORY,
+    );
+    if (
+      batchPrefix !== undefined &&
+      t.NAME.startsWith(batchPrefix) &&
+      applyRevalueDCPBatch(t, moment, values, growths, evaluations, model)
+    ) {
+      return true;
+    }
   }
   // log(`it's a revaluation`)
   /* istanbul ignore if */
@@ -7551,6 +7711,25 @@ function processDBPGenerators(
   return '';
 }
 
+function processDCPRevalueGenerators(model: ModelData): string {
+  const gens = model.generators.filter((g) => {
+    return g.TYPE === generatorTypeDCPRevalue;
+  });
+  for (const g of gens) {
+    const txs = expandDCPRevalueGeneratorToTransactions(g, model);
+    for (const tx of txs) {
+      const message = checkTransaction(tx, model);
+      if (message.length > 0) {
+        return message;
+      }
+    }
+    for (const tx of txs) {
+      model.transactions.push(tx);
+    }
+  }
+  return "";
+}
+
 // return '' for success
 // or an errorMessage
 // Resolves VALUE / TAX_FREE_PROP from settings: tests/algoTests/check.test.ts
@@ -7749,6 +7928,10 @@ let message = processDBPGenerators(model);
     return message;
   }
   message = processBondGenerators(model);
+  if (message.length > 0) {
+    return message;
+  }
+  message = processDCPRevalueGenerators(model);
   if (message.length > 0) {
     return message;
   }

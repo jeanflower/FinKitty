@@ -24,6 +24,8 @@ import {
   liquidateAsset,
   allItems,
   viewType,
+  generatorTypeDCPRevalue,
+  dot,
 } from "../../localization/stringConstants";
 import { makeChartDataFromEvaluations } from "../../models/charting";
 import { processGenerators } from "../../models/evaluations";
@@ -37,7 +39,8 @@ import {
   pensionExampleData,
 } from "../../models/exampleModels";
 import { setROI, setSetting } from "../../models/modelUtils";
-import { ModelData } from "../../types/interfaces";
+import { minimalModel } from "../../models/minimalModel";
+import { Generator, ModelData } from "../../types/interfaces";
 import {
   Context,
   printDebug,
@@ -4755,6 +4758,749 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
     expectChartData(chartPts, 15, 'Mon Mar 01 2021', 0, -1);
     expectChartData(chartPts, 16, 'Thu Apr 01 2021', 0, -1);
     expectChartData(chartPts, 17, 'Sat May 01 2021', 854.88, 2);
+    }
+  });
+
+  // DCP generator (no income) → revalue before crystal → crystal (25% TF) →
+  // revalue → withdrawal 500 at 50/50 TF/taxable → revalue. Expectations use
+  // exact proportional scaling: after crystal (275,825), revalue to 1300 gives
+  // 325+975 (not 315+985, which would break proportionality).
+  it("DCP revalue scales sub-assets through crystal, withdrawal, and ratios", () => {
+    const roi = {
+      start: "Dec 1, 2025",
+      end: "Sep 1, 2028",
+    };
+    const pen = "Pen";
+    const taxLab = "Joe";
+
+    const dcDetails = {
+      VALUE: "1000",
+      GROWS_WITH_CPI: "n",
+      GROWTH: "0",
+      TAX_LIABILITY: taxLab,
+      CATEGORY: "",
+      START: "01 Jan 2026",
+      STOP: "",
+      CRYSTALLIZE: "01 Jan 2027",
+      SS: "n",
+      INCOME_SOURCE: "",
+      CONTRIBUTION_AMOUNT: "",
+      EMP_CONTRIBUTION_AMOUNT: "",
+      TRANSFER_TO: "",
+      TRANSFER_DATE: "",
+    };
+
+    const dcpGen: Generator = {
+      NAME: pen,
+      TYPE: "Defined Contributions",
+      ERA: 0,
+      DETAILS: dcDetails,
+    };
+
+    const rev1: Generator = {
+      NAME: "rv1",
+      TYPE: generatorTypeDCPRevalue,
+      ERA: 0,
+      DETAILS: {
+        FROM: pen,
+        DATE: "01 Jun 2026",
+        VALUE: "1100",
+      },
+    };
+
+    const rev2: Generator = {
+      NAME: "rv2",
+      TYPE: generatorTypeDCPRevalue,
+      ERA: 0,
+      DETAILS: {
+        FROM: pen,
+        DATE: "01 Jun 2027",
+        VALUE: "1300",
+      },
+    };
+
+    const wdGen: Generator = {
+      NAME: "wd1",
+      TYPE: "DCPWithdrawal",
+      ERA: 0,
+      DETAILS: {
+        FROM: pen,
+        TO: CASH_ASSET_NAME,
+        DATE: "01 Jan 2028",
+        VALUE: "500",
+        TAX_FREE_PROP: "0.5",
+        RECURRENCE: "",
+        RECURRENCE_STOP: "",
+      },
+    };
+
+    const rev3: Generator = {
+      NAME: "rv3",
+      TYPE: generatorTypeDCPRevalue,
+      ERA: 0,
+      DETAILS: {
+        FROM: pen,
+        DATE: "01 Jun 2028",
+        VALUE: "1600",
+      },
+    };
+
+    const model: ModelData = {
+      ...minimalModel,
+      name: "dcpRevalueRatioDemo",
+      assets: [
+        {
+          ...minimalModel.assets[0],
+          START: "01 Dec 2025",
+        },
+      ],
+      generators: [dcpGen, rev1, rev2, wdGen, rev3],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(147);
+    // Milestone evaluations (indices from printTestCodeForEvals; ≤30 asserts).
+    expectEvals(evals, 0, "Cash", "Mon Dec 01 2025", 0, -1);
+    expectEvals(evals, 3, "-PEN Pen", "Thu Jan 01 2026", 1000, -1);
+    expectEvals(evals, 7, "-PEN Pen", "Sun Feb 01 2026", 1000, -1);
+    expectEvals(evals, 27, "-PEN Pen", "Mon Jun 01 2026", 1100, -1);
+    expectEvals(evals, 50, "-PEN Pen", "Tue Dec 01 2026", 1100, -1);
+    expectEvals(evals, 54, "-PEN Pen", "Fri Jan 01 2027", 1100, -1);
+    expectEvals(evals, 56, "-PEN Pen", "Fri Jan 01 2027", 825, -1);
+    expectEvals(evals, 57, "-CPTaxFree Pen", "Fri Jan 01 2027", 275, -1);
+    expectEvals(evals, 58, "-PEN Pen", "Fri Jan 01 2027", 0, -1);
+    expectEvals(evals, 59, "-CPTaxable Joe.Pen", "Fri Jan 01 2027", 825, -1);
+    expectEvals(evals, 63, "-CPTaxable Joe.Pen", "Mon Feb 01 2027", 825, -1);
+    expectEvals(evals, 80, "-CPTaxFree Pen", "Tue Jun 01 2027", 325, -1);
+    expectEvals(evals, 81, "-CPTaxable Joe.Pen", "Tue Jun 01 2027", 975, -1);
+    expectEvals(evals, 86, "-CPTaxable Joe.Pen", "Thu Jul 01 2027", 975, -1);
+    expectEvals(evals, 106, "-CPTaxable Joe.Pen", "Wed Dec 01 2027", 975, -1);
+    expectEvals(evals, 110, "-CPTaxable Joe.Pen", "Sat Jan 01 2028", 975, -1);
+    expectEvals(evals, 111, "-CPTaxable Joe.Pen", "Sat Jan 01 2028", 725, -1);
+    expectEvals(evals, 112, "Cash", "Sat Jan 01 2028", 250, -1);
+    expectEvals(evals, 113, "-CPTaxFree Pen", "Sat Jan 01 2028", 75, -1);
+    expectEvals(evals, 114, "Cash", "Sat Jan 01 2028", 500, -1);
+    expectEvals(evals, 118, "-CPTaxable Joe.Pen", "Tue Feb 01 2028", 725, -1);
+    expectEvals(evals, 127, "Joe income (net)", "Wed Apr 05 2028", 250, -1);
+    expectEvals(evals, 131, "-CPTaxable Joe.Pen", "Mon May 01 2028", 725, -1);
+    expectEvals(evals, 135, "-CPTaxable Joe.Pen", "Thu Jun 01 2028", 725, -1);
+    expectEvals(evals, 136, "-CPTaxFree Pen", "Thu Jun 01 2028", 150, -1);
+    expectEvals(evals, 137, "-CPTaxable Joe.Pen", "Thu Jun 01 2028", 1450, -1);
+    expectEvals(evals, 142, "-CPTaxable Joe.Pen", "Sat Jul 01 2028", 1450, -1);
+    expectEvals(evals, 146, "-CPTaxable Joe.Pen", "Tue Aug 01 2028", 1450, -1);
+
+    const viewSettings = defaultTestViewSettings();
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe("Cash");
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(33);
+      expectChartData(chartPts, 0, "Mon Dec 01 2025", 0, -1);
+      expectChartData(chartPts, 1, "Thu Jan 01 2026", 0, -1);
+      expectChartData(chartPts, 2, "Sun Feb 01 2026", 0, -1);
+      expectChartData(chartPts, 3, "Sun Mar 01 2026", 0, -1);
+      expectChartData(chartPts, 4, "Wed Apr 01 2026", 0, -1);
+      expectChartData(chartPts, 5, "Fri May 01 2026", 0, -1);
+      expectChartData(chartPts, 6, "Mon Jun 01 2026", 0, -1);
+      expectChartData(chartPts, 7, "Wed Jul 01 2026", 0, -1);
+      expectChartData(chartPts, 8, "Sat Aug 01 2026", 0, -1);
+      expectChartData(chartPts, 9, "Tue Sep 01 2026", 0, -1);
+      expectChartData(chartPts, 10, "Thu Oct 01 2026", 0, -1);
+      expectChartData(chartPts, 11, "Sun Nov 01 2026", 0, -1);
+      expectChartData(chartPts, 12, "Tue Dec 01 2026", 0, -1);
+      expectChartData(chartPts, 13, "Fri Jan 01 2027", 0, -1);
+      expectChartData(chartPts, 14, "Mon Feb 01 2027", 0, -1);
+      expectChartData(chartPts, 15, "Mon Mar 01 2027", 0, -1);
+      expectChartData(chartPts, 16, "Thu Apr 01 2027", 0, -1);
+      expectChartData(chartPts, 17, "Sat May 01 2027", 0, -1);
+      expectChartData(chartPts, 18, "Tue Jun 01 2027", 0, -1);
+      expectChartData(chartPts, 19, "Thu Jul 01 2027", 0, -1);
+      expectChartData(chartPts, 20, "Sun Aug 01 2027", 0, -1);
+      expectChartData(chartPts, 21, "Wed Sep 01 2027", 0, -1);
+      expectChartData(chartPts, 22, "Fri Oct 01 2027", 0, -1);
+      expectChartData(chartPts, 23, "Mon Nov 01 2027", 0, -1);
+      expectChartData(chartPts, 24, "Wed Dec 01 2027", 0, -1);
+      expectChartData(chartPts, 25, "Sat Jan 01 2028", 500, -1);
+      expectChartData(chartPts, 26, "Tue Feb 01 2028", 500, -1);
+      expectChartData(chartPts, 27, "Wed Mar 01 2028", 500, -1);
+      expectChartData(chartPts, 28, "Sat Apr 01 2028", 500, -1);
+      expectChartData(chartPts, 29, "Mon May 01 2028", 500, -1);
+      expectChartData(chartPts, 30, "Thu Jun 01 2028", 500, -1);
+      expectChartData(chartPts, 31, "Sat Jul 01 2028", 500, -1);
+      expectChartData(chartPts, 32, "Tue Aug 01 2028", 500, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe("Pen");
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(33);
+      expectChartData(chartPts, 0, "Mon Dec 01 2025", 0, -1);
+      expectChartData(chartPts, 1, "Thu Jan 01 2026", 1000, -1);
+      expectChartData(chartPts, 2, "Sun Feb 01 2026", 1000, -1);
+      expectChartData(chartPts, 3, "Sun Mar 01 2026", 1000, -1);
+      expectChartData(chartPts, 4, "Wed Apr 01 2026", 1000, -1);
+      expectChartData(chartPts, 5, "Fri May 01 2026", 1000, -1);
+      expectChartData(chartPts, 6, "Mon Jun 01 2026", 1100, -1);
+      expectChartData(chartPts, 7, "Wed Jul 01 2026", 1100, -1);
+      expectChartData(chartPts, 8, "Sat Aug 01 2026", 1100, -1);
+      expectChartData(chartPts, 9, "Tue Sep 01 2026", 1100, -1);
+      expectChartData(chartPts, 10, "Thu Oct 01 2026", 1100, -1);
+      expectChartData(chartPts, 11, "Sun Nov 01 2026", 1100, -1);
+      expectChartData(chartPts, 12, "Tue Dec 01 2026", 1100, -1);
+      expectChartData(chartPts, 13, "Fri Jan 01 2027", 1100, -1);
+      expectChartData(chartPts, 14, "Mon Feb 01 2027", 1100, -1);
+      expectChartData(chartPts, 15, "Mon Mar 01 2027", 1100, -1);
+      expectChartData(chartPts, 16, "Thu Apr 01 2027", 1100, -1);
+      expectChartData(chartPts, 17, "Sat May 01 2027", 1100, -1);
+      expectChartData(chartPts, 18, "Tue Jun 01 2027", 1300, -1);
+      expectChartData(chartPts, 19, "Thu Jul 01 2027", 1300, -1);
+      expectChartData(chartPts, 20, "Sun Aug 01 2027", 1300, -1);
+      expectChartData(chartPts, 21, "Wed Sep 01 2027", 1300, -1);
+      expectChartData(chartPts, 22, "Fri Oct 01 2027", 1300, -1);
+      expectChartData(chartPts, 23, "Mon Nov 01 2027", 1300, -1);
+      expectChartData(chartPts, 24, "Wed Dec 01 2027", 1300, -1);
+      expectChartData(chartPts, 25, "Sat Jan 01 2028", 800, -1);
+      expectChartData(chartPts, 26, "Tue Feb 01 2028", 800, -1);
+      expectChartData(chartPts, 27, "Wed Mar 01 2028", 800, -1);
+      expectChartData(chartPts, 28, "Sat Apr 01 2028", 800, -1);
+      expectChartData(chartPts, 29, "Mon May 01 2028", 800, -1);
+      expectChartData(chartPts, 30, "Thu Jun 01 2028", 1600, -1);
+      expectChartData(chartPts, 31, "Sat Jul 01 2028", 1600, -1);
+      expectChartData(chartPts, 32, "Tue Aug 01 2028", 1600, -1);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(1);
+    expect(result.taxData[0].item.NAME).toBe("Joe income (net)");
+    {
+      const chartPts = result.taxData[0].chartDataPoints;
+      expect(chartPts.length).toBe(33);
+      expectChartData(chartPts, 0, "Mon Dec 01 2025", 0, -1);
+      expectChartData(chartPts, 1, "Thu Jan 01 2026", 0, -1);
+      expectChartData(chartPts, 2, "Sun Feb 01 2026", 0, -1);
+      expectChartData(chartPts, 3, "Sun Mar 01 2026", 0, -1);
+      expectChartData(chartPts, 4, "Wed Apr 01 2026", 0, -1);
+      expectChartData(chartPts, 5, "Fri May 01 2026", 0, -1);
+      expectChartData(chartPts, 6, "Mon Jun 01 2026", 0, -1);
+      expectChartData(chartPts, 7, "Wed Jul 01 2026", 0, -1);
+      expectChartData(chartPts, 8, "Sat Aug 01 2026", 0, -1);
+      expectChartData(chartPts, 9, "Tue Sep 01 2026", 0, -1);
+      expectChartData(chartPts, 10, "Thu Oct 01 2026", 0, -1);
+      expectChartData(chartPts, 11, "Sun Nov 01 2026", 0, -1);
+      expectChartData(chartPts, 12, "Tue Dec 01 2026", 0, -1);
+      expectChartData(chartPts, 13, "Fri Jan 01 2027", 0, -1);
+      expectChartData(chartPts, 14, "Mon Feb 01 2027", 0, -1);
+      expectChartData(chartPts, 15, "Mon Mar 01 2027", 0, -1);
+      expectChartData(chartPts, 16, "Thu Apr 01 2027", 0, -1);
+      expectChartData(chartPts, 17, "Sat May 01 2027", 0, -1);
+      expectChartData(chartPts, 18, "Tue Jun 01 2027", 0, -1);
+      expectChartData(chartPts, 19, "Thu Jul 01 2027", 0, -1);
+      expectChartData(chartPts, 20, "Sun Aug 01 2027", 0, -1);
+      expectChartData(chartPts, 21, "Wed Sep 01 2027", 0, -1);
+      expectChartData(chartPts, 22, "Fri Oct 01 2027", 0, -1);
+      expectChartData(chartPts, 23, "Mon Nov 01 2027", 0, -1);
+      expectChartData(chartPts, 24, "Wed Dec 01 2027", 0, -1);
+      expectChartData(chartPts, 25, "Sat Jan 01 2028", 0, -1);
+      expectChartData(chartPts, 26, "Tue Feb 01 2028", 0, -1);
+      expectChartData(chartPts, 27, "Wed Mar 01 2028", 0, -1);
+      expectChartData(chartPts, 28, "Sat Apr 01 2028", 0, -1);
+      expectChartData(chartPts, 29, "Mon May 01 2028", 250, -1);
+      expectChartData(chartPts, 30, "Thu Jun 01 2028", 0, -1);
+      expectChartData(chartPts, 31, "Sat Jul 01 2028", 0, -1);
+      expectChartData(chartPts, 32, "Tue Aug 01 2028", 0, -1);
+    }
+  });
+
+  // A savings-style revalue on an asset with LIABILITY …(incomeTax) would accrue
+  // income tax on gains at tax-year moments. DCP revalues only move uncrystallised /
+  // crystallised pot values; tax is on withdrawal. This model jumps the pot to 500k
+  // shortly after crystallisation so the taxable slice is in the hundreds of thousands
+  // — large enough that any “tax on paper revalue gain” would show up as `(incomeTax)`
+  // or `Joe income (net)` evaluations if it were implemented. ROI spans two UK tax
+  // year boundaries after that revalue (6 Apr 2027, 6 Apr 2028).
+  it("DCP revalue to a huge value accrues no income tax through following tax years", () => {
+    const roi = {
+      start: "April 6, 2026",
+      end: "May 10, 2028",
+    };
+    const pen = "Pen";
+    const taxLab = "Joe";
+    const dcDetails = {
+      VALUE: "4000",
+      GROWS_WITH_CPI: "n",
+      GROWTH: "0",
+      TAX_LIABILITY: taxLab,
+      CATEGORY: "",
+      START: "01 Apr 2026",
+      STOP: "",
+      CRYSTALLIZE: "01 Jul 2026",
+      SS: "n",
+      INCOME_SOURCE: "",
+      CONTRIBUTION_AMOUNT: "",
+      EMP_CONTRIBUTION_AMOUNT: "",
+      TRANSFER_TO: "",
+      TRANSFER_DATE: "",
+    };
+    const dcpGen: Generator = {
+      NAME: pen,
+      TYPE: "Defined Contributions",
+      ERA: 0,
+      DETAILS: dcDetails,
+    };
+    const hugeRevalue: Generator = {
+      NAME: "rvHuge",
+      TYPE: generatorTypeDCPRevalue,
+      ERA: 0,
+      DETAILS: {
+        FROM: pen,
+        DATE: "15 Sep 2026",
+        VALUE: "500000",
+      },
+    };
+    const model: ModelData = {
+      ...minimalModel,
+      name: "dcpHugeRevalueNoIncomeTaxOnPaperGain",
+      assets: [
+        {
+          ...minimalModel.assets[0],
+          START: "01 Apr 2026",
+        },
+      ],
+      generators: [dcpGen, hugeRevalue],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+
+    const taxableCrystallizedName = crystallizedPension + taxLab + dot + pen;
+    const revalueMoment = new Date(2026, 8, 15);
+    const afterHugeRevalue = evals.filter(
+      (e) =>
+        e.name === taxableCrystallizedName && e.date >= revalueMoment,
+    );
+    expect(afterHugeRevalue.length).toBeGreaterThan(0);
+    const maxTaxable = Math.max(
+      ...afterHugeRevalue.map((e) => e.value as number),
+    );
+    expect(maxTaxable).toBeGreaterThan(350_000);
+
+    expect(evals.filter((e) => e.name === incomeTax)).toEqual([]);
+    expect(evals.filter((e) => e.name === "Joe income (net)")).toEqual([]);
+  });
+
+  // Crystallise, transfer 100% of crystallised taxable to transferee (Jack), then
+  // DCP revalue: batch must include Jack's pot so total scales to VALUE.
+  it("DCP pension transfer then revalue scales tax-free and transferee taxable", () => {
+    const roi = {
+      start: "Dec 1, 2025",
+      end: "Dec 1, 2027",
+    };
+    const pen = "Pen";
+    const taxLab = "Joe";
+    const transferTo = "Jack";
+
+    const dcDetails = {
+      VALUE: "1000",
+      GROWS_WITH_CPI: "n",
+      GROWTH: "0",
+      TAX_LIABILITY: taxLab,
+      CATEGORY: "",
+      START: "01 Jan 2026",
+      STOP: "",
+      CRYSTALLIZE: "01 Jan 2027",
+      SS: "n",
+      INCOME_SOURCE: "",
+      CONTRIBUTION_AMOUNT: "",
+      EMP_CONTRIBUTION_AMOUNT: "",
+      TRANSFER_TO: transferTo,
+      TRANSFER_DATE: "01 Feb 2027",
+    };
+
+    const dcpGen: Generator = {
+      NAME: pen,
+      TYPE: "Defined Contributions",
+      ERA: 0,
+      DETAILS: dcDetails,
+    };
+
+    const revAfterTransfer: Generator = {
+      NAME: "rvPostXfer",
+      TYPE: generatorTypeDCPRevalue,
+      ERA: 0,
+      DETAILS: {
+        FROM: pen,
+        DATE: "01 Jun 2027",
+        VALUE: "2000",
+      },
+    };
+
+    const model: ModelData = {
+      ...minimalModel,
+      name: "dcpTransferThenRevalue",
+      assets: [
+        {
+          ...minimalModel.assets[0],
+          START: "01 Dec 2025",
+        },
+      ],
+      generators: [dcpGen, revAfterTransfer],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(126);
+    expectEvals(evals, 0, "Cash", "Mon Dec 01 2025", 0, -1);
+    expectEvals(evals, 3, "-PEN Pen", "Thu Jan 01 2026", 1000, -1);
+    expectEvals(evals, 4, "-CPTaxable Jack.Pen", "Thu Jan 01 2026", 0, -1);
+    expectEvals(evals, 28, "-PEN Pen", "Mon Jun 01 2026", 1000, -1);
+    expectEvals(evals, 63, "-PEN Pen", "Fri Jan 01 2027", 1000, -1);
+    expectEvals(evals, 66, "-PEN Pen", "Fri Jan 01 2027", 750, -1);
+    expectEvals(evals, 67, "-CPTaxFree Pen", "Fri Jan 01 2027", 250, -1);
+    expectEvals(evals, 68, "-PEN Pen", "Fri Jan 01 2027", 0, -1);
+    expectEvals(evals, 69, "-CPTaxable Joe.Pen", "Fri Jan 01 2027", 750, -1);
+    expectEvals(evals, 74, "-CPTaxable Joe.Pen", "Mon Feb 01 2027", 750, -1);
+    expectEvals(evals, 75, "-CPTaxable Joe.Pen", "Mon Feb 01 2027", 0, -1);
+    expectEvals(evals, 76, "-CPTaxable Jack.Pen", "Mon Feb 01 2027", 750, -1);
+    expectEvals(evals, 80, "-CPTaxable Jack.Pen", "Mon Mar 01 2027", 750, -1);
+    expectEvals(evals, 91, "-CPTaxable Joe.Pen", "Sat May 01 2027", 0, -1);
+    expectEvals(evals, 95, "-CPTaxable Jack.Pen", "Tue Jun 01 2027", 750, -1);
+    expectEvals(evals, 97, "-CPTaxFree Pen", "Tue Jun 01 2027", 500, -1);
+    expectEvals(evals, 98, "-CPTaxable Jack.Pen", "Tue Jun 01 2027", 1500, -1);
+    expectEvals(evals, 99, "-CPTaxable Joe.Pen", "Tue Jun 01 2027", 0, -1);
+    expectEvals(evals, 100, "-PEN Pen", "Tue Jun 01 2027", 0, -1);
+    expectEvals(evals, 104, "-CPTaxable Jack.Pen", "Thu Jul 01 2027", 1500, -1);
+    expectEvals(evals, 124, "-CPTaxable Jack.Pen", "Mon Nov 01 2027", 1500, -1);
+    expectEvals(evals, 125, "-CPTaxable Joe.Pen", "Mon Nov 01 2027", 0, -1);
+
+    const viewSettings = defaultTestViewSettings();
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe("Pen");
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(24);
+      expectChartData(chartPts, 0, "Mon Dec 01 2025", 0, -1);
+      expectChartData(chartPts, 1, "Thu Jan 01 2026", 1000, -1);
+      expectChartData(chartPts, 2, "Sun Feb 01 2026", 1000, -1);
+      expectChartData(chartPts, 3, "Sun Mar 01 2026", 1000, -1);
+      expectChartData(chartPts, 4, "Wed Apr 01 2026", 1000, -1);
+      expectChartData(chartPts, 5, "Fri May 01 2026", 1000, -1);
+      expectChartData(chartPts, 6, "Mon Jun 01 2026", 1000, -1);
+      expectChartData(chartPts, 7, "Wed Jul 01 2026", 1000, -1);
+      expectChartData(chartPts, 8, "Sat Aug 01 2026", 1000, -1);
+      expectChartData(chartPts, 9, "Tue Sep 01 2026", 1000, -1);
+      expectChartData(chartPts, 10, "Thu Oct 01 2026", 1000, -1);
+      expectChartData(chartPts, 11, "Sun Nov 01 2026", 1000, -1);
+      expectChartData(chartPts, 12, "Tue Dec 01 2026", 1000, -1);
+      expectChartData(chartPts, 13, "Fri Jan 01 2027", 1000, -1);
+      expectChartData(chartPts, 14, "Mon Feb 01 2027", 1000, -1);
+      expectChartData(chartPts, 15, "Mon Mar 01 2027", 1000, -1);
+      expectChartData(chartPts, 16, "Thu Apr 01 2027", 1000, -1);
+      expectChartData(chartPts, 17, "Sat May 01 2027", 1000, -1);
+      expectChartData(chartPts, 18, "Tue Jun 01 2027", 2000, -1);
+      expectChartData(chartPts, 19, "Thu Jul 01 2027", 2000, -1);
+      expectChartData(chartPts, 20, "Sun Aug 01 2027", 2000, -1);
+      expectChartData(chartPts, 21, "Wed Sep 01 2027", 2000, -1);
+      expectChartData(chartPts, 22, "Fri Oct 01 2027", 2000, -1);
+      expectChartData(chartPts, 23, "Mon Nov 01 2027", 2000, -1);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+  });
+
+  // Joe DCP 1000 → crystallise → Joe withdraws 400 at 50% (200 TF + 200 from Joe taxable), leaving
+  // 50 TF and 550 Joe taxable. Transfer moves 550 Joe → Jack.
+  //
+  // Jack's withdrawal is 200 at 50%: 100 TF + 100 taxable in total. processDCPWithdrawalGenerators
+  // emits two taxable autogens (TAX_LIABILITY Joe and TRANSFER_TO Jack), each FROM_VALUE 100 — that
+  // is the taxable slice of *this* withdrawal, not a second 400 from Joe. Joe's leg is skipped (0);
+  // the TF leg is skipped (100 requested, 50 available); Jack's leg pays 100. Cash +100 not +200.
+  it("DCP Joe withdrawal then transfer to Jack then Jack withdrawal", () => {
+    const roi = {
+      start: "Dec 1, 2025",
+      end: "Jun 1, 2028",
+    };
+    const pen = "Pen";
+    const taxLab = "Joe";
+    const transferTo = "Jack";
+
+    const dcDetails = {
+      VALUE: "1000",
+      GROWS_WITH_CPI: "n",
+      GROWTH: "0",
+      TAX_LIABILITY: taxLab,
+      CATEGORY: "",
+      START: "01 Jan 2026",
+      STOP: "",
+      CRYSTALLIZE: "01 Jul 2026",
+      SS: "n",
+      INCOME_SOURCE: "",
+      CONTRIBUTION_AMOUNT: "",
+      EMP_CONTRIBUTION_AMOUNT: "",
+      TRANSFER_TO: transferTo,
+      TRANSFER_DATE: "01 Oct 2026",
+    };
+
+    const dcpGen: Generator = {
+      NAME: pen,
+      TYPE: "Defined Contributions",
+      ERA: 0,
+      DETAILS: dcDetails,
+    };
+
+    const wdJoe: Generator = {
+      NAME: "wdJoe",
+      TYPE: "DCPWithdrawal",
+      ERA: 0,
+      DETAILS: {
+        FROM: pen,
+        TO: CASH_ASSET_NAME,
+        DATE: "01 Aug 2026",
+        VALUE: "400",
+        TAX_FREE_PROP: "0.5",
+        RECURRENCE: "",
+        RECURRENCE_STOP: "",
+      },
+    };
+
+    const wdJack: Generator = {
+      NAME: "wdJack",
+      TYPE: "DCPWithdrawal",
+      ERA: 0,
+      DETAILS: {
+        FROM: pen,
+        TO: CASH_ASSET_NAME,
+        DATE: "01 Mar 2027",
+        VALUE: "200",
+        TAX_FREE_PROP: "0.5",
+        RECURRENCE: "",
+        RECURRENCE_STOP: "",
+      },
+    };
+
+    const model: ModelData = {
+      ...minimalModel,
+      name: "dcpJoeXferJackWd",
+      assets: [
+        {
+          ...minimalModel.assets[0],
+          START: "01 Dec 2025",
+        },
+      ],
+      generators: [dcpGen, wdJoe, wdJack],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model, false);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+    expect(evals.length).toBe(160);
+    expectEvals(evals, 3, "-PEN Pen", "Thu Jan 01 2026", 1000, -1);
+    expectEvals(evals, 36, "-PEN Pen", "Wed Jul 01 2026", 750, -1);
+    expectEvals(evals, 37, "-CPTaxFree Pen", "Wed Jul 01 2026", 250, -1);
+    expectEvals(evals, 38, "-PEN Pen", "Wed Jul 01 2026", 0, -1);
+    expectEvals(evals, 39, "-CPTaxable Joe.Pen", "Wed Jul 01 2026", 750, -1);
+    expectEvals(evals, 45, "-CPTaxable Joe.Pen", "Sat Aug 01 2026", 550, -1);
+    expectEvals(evals, 46, "Cash", "Sat Aug 01 2026", 200, -1);
+    expectEvals(evals, 47, "-CPTaxFree Pen", "Sat Aug 01 2026", 50, -1);
+    expectEvals(evals, 48, "Cash", "Sat Aug 01 2026", 400, -1);
+    expectEvals(evals, 59, "-CPTaxable Joe.Pen", "Thu Oct 01 2026", 0, -1);
+    expectEvals(evals, 60, "-CPTaxable Jack.Pen", "Thu Oct 01 2026", 550, -1);
+    expectEvals(evals, 64, "-CPTaxable Jack.Pen", "Sun Nov 01 2026", 550, -1);
+    expectEvals(evals, 74, "-CPTaxable Jack.Pen", "Fri Jan 01 2027", 550, -1);
+    expectEvals(evals, 82, "-CPTaxFree Pen", "Mon Mar 01 2027", 50, -1);
+    expectEvals(evals, 84, "-CPTaxable Jack.Pen", "Mon Mar 01 2027", 550, -1);
+    expectEvals(evals, 86, "-CPTaxable Jack.Pen", "Mon Mar 01 2027", 450, -1);
+    expectEvals(evals, 87, "Cash", "Mon Mar 01 2027", 500, -1);
+    expectEvals(evals, 93, "Jack income (net)", "Mon Apr 05 2027", 100, -1);
+    expectEvals(evals, 94, "Joe income (net)", "Mon Apr 05 2027", 200, -1);
+    expectEvals(evals, 103, "-CPTaxable Jack.Pen", "Tue Jun 01 2027", 450, -1);
+    expectEvals(evals, 131, "-CPTaxFree Pen", "Wed Dec 01 2027", 50, -1);
+    expectEvals(evals, 158, "-CPTaxable Jack.Pen", "Mon May 01 2028", 450, -1);
+    expectEvals(evals, 159, "-CPTaxable Joe.Pen", "Mon May 01 2028", 0, -1);
+
+    const viewSettings = defaultTestViewSettings();
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(2);
+    expect(result.assetData[0].item.NAME).toBe("Cash");
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(30);
+      expectChartData(chartPts, 0, "Mon Dec 01 2025", 0, -1);
+      expectChartData(chartPts, 1, "Thu Jan 01 2026", 0, -1);
+      expectChartData(chartPts, 2, "Sun Feb 01 2026", 0, -1);
+      expectChartData(chartPts, 3, "Sun Mar 01 2026", 0, -1);
+      expectChartData(chartPts, 4, "Wed Apr 01 2026", 0, -1);
+      expectChartData(chartPts, 5, "Fri May 01 2026", 0, -1);
+      expectChartData(chartPts, 6, "Mon Jun 01 2026", 0, -1);
+      expectChartData(chartPts, 7, "Wed Jul 01 2026", 0, -1);
+      expectChartData(chartPts, 8, "Sat Aug 01 2026", 400, -1);
+      expectChartData(chartPts, 9, "Tue Sep 01 2026", 400, -1);
+      expectChartData(chartPts, 10, "Thu Oct 01 2026", 400, -1);
+      expectChartData(chartPts, 11, "Sun Nov 01 2026", 400, -1);
+      expectChartData(chartPts, 12, "Tue Dec 01 2026", 400, -1);
+      expectChartData(chartPts, 13, "Fri Jan 01 2027", 400, -1);
+      expectChartData(chartPts, 14, "Mon Feb 01 2027", 400, -1);
+      expectChartData(chartPts, 15, "Mon Mar 01 2027", 500, -1);
+      expectChartData(chartPts, 16, "Thu Apr 01 2027", 500, -1);
+      expectChartData(chartPts, 17, "Sat May 01 2027", 500, -1);
+      expectChartData(chartPts, 18, "Tue Jun 01 2027", 500, -1);
+      expectChartData(chartPts, 19, "Thu Jul 01 2027", 500, -1);
+      expectChartData(chartPts, 20, "Sun Aug 01 2027", 500, -1);
+      expectChartData(chartPts, 21, "Wed Sep 01 2027", 500, -1);
+      expectChartData(chartPts, 22, "Fri Oct 01 2027", 500, -1);
+      expectChartData(chartPts, 23, "Mon Nov 01 2027", 500, -1);
+      expectChartData(chartPts, 24, "Wed Dec 01 2027", 500, -1);
+      expectChartData(chartPts, 25, "Sat Jan 01 2028", 500, -1);
+      expectChartData(chartPts, 26, "Tue Feb 01 2028", 500, -1);
+      expectChartData(chartPts, 27, "Wed Mar 01 2028", 500, -1);
+      expectChartData(chartPts, 28, "Sat Apr 01 2028", 500, -1);
+      expectChartData(chartPts, 29, "Mon May 01 2028", 500, -1);
+    }
+
+    expect(result.assetData[1].item.NAME).toBe("Pen");
+    {
+      const chartPts = result.assetData[1].chartDataPoints;
+      expect(chartPts.length).toBe(30);
+      expectChartData(chartPts, 0, "Mon Dec 01 2025", 0, -1);
+      expectChartData(chartPts, 1, "Thu Jan 01 2026", 1000, -1);
+      expectChartData(chartPts, 2, "Sun Feb 01 2026", 1000, -1);
+      expectChartData(chartPts, 3, "Sun Mar 01 2026", 1000, -1);
+      expectChartData(chartPts, 4, "Wed Apr 01 2026", 1000, -1);
+      expectChartData(chartPts, 5, "Fri May 01 2026", 1000, -1);
+      expectChartData(chartPts, 6, "Mon Jun 01 2026", 1000, -1);
+      expectChartData(chartPts, 7, "Wed Jul 01 2026", 1000, -1);
+      expectChartData(chartPts, 8, "Sat Aug 01 2026", 600, -1);
+      expectChartData(chartPts, 9, "Tue Sep 01 2026", 600, -1);
+      expectChartData(chartPts, 10, "Thu Oct 01 2026", 600, -1);
+      expectChartData(chartPts, 11, "Sun Nov 01 2026", 600, -1);
+      expectChartData(chartPts, 12, "Tue Dec 01 2026", 600, -1);
+      expectChartData(chartPts, 13, "Fri Jan 01 2027", 600, -1);
+      expectChartData(chartPts, 14, "Mon Feb 01 2027", 600, -1);
+      expectChartData(chartPts, 15, "Mon Mar 01 2027", 500, -1);
+      expectChartData(chartPts, 16, "Thu Apr 01 2027", 500, -1);
+      expectChartData(chartPts, 17, "Sat May 01 2027", 500, -1);
+      expectChartData(chartPts, 18, "Tue Jun 01 2027", 500, -1);
+      expectChartData(chartPts, 19, "Thu Jul 01 2027", 500, -1);
+      expectChartData(chartPts, 20, "Sun Aug 01 2027", 500, -1);
+      expectChartData(chartPts, 21, "Wed Sep 01 2027", 500, -1);
+      expectChartData(chartPts, 22, "Fri Oct 01 2027", 500, -1);
+      expectChartData(chartPts, 23, "Mon Nov 01 2027", 500, -1);
+      expectChartData(chartPts, 24, "Wed Dec 01 2027", 500, -1);
+      expectChartData(chartPts, 25, "Sat Jan 01 2028", 500, -1);
+      expectChartData(chartPts, 26, "Tue Feb 01 2028", 500, -1);
+      expectChartData(chartPts, 27, "Wed Mar 01 2028", 500, -1);
+      expectChartData(chartPts, 28, "Sat Apr 01 2028", 500, -1);
+      expectChartData(chartPts, 29, "Mon May 01 2028", 500, -1);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(2);
+    expect(result.taxData[0].item.NAME).toBe("Jack income (net)");
+    {
+      const chartPts = result.taxData[0].chartDataPoints;
+      expect(chartPts.length).toBe(30);
+      expectChartData(chartPts, 0, "Mon Dec 01 2025", 0, -1);
+      expectChartData(chartPts, 1, "Thu Jan 01 2026", 0, -1);
+      expectChartData(chartPts, 2, "Sun Feb 01 2026", 0, -1);
+      expectChartData(chartPts, 3, "Sun Mar 01 2026", 0, -1);
+      expectChartData(chartPts, 4, "Wed Apr 01 2026", 0, -1);
+      expectChartData(chartPts, 5, "Fri May 01 2026", 0, -1);
+      expectChartData(chartPts, 6, "Mon Jun 01 2026", 0, -1);
+      expectChartData(chartPts, 7, "Wed Jul 01 2026", 0, -1);
+      expectChartData(chartPts, 8, "Sat Aug 01 2026", 0, -1);
+      expectChartData(chartPts, 9, "Tue Sep 01 2026", 0, -1);
+      expectChartData(chartPts, 10, "Thu Oct 01 2026", 0, -1);
+      expectChartData(chartPts, 11, "Sun Nov 01 2026", 0, -1);
+      expectChartData(chartPts, 12, "Tue Dec 01 2026", 0, -1);
+      expectChartData(chartPts, 13, "Fri Jan 01 2027", 0, -1);
+      expectChartData(chartPts, 14, "Mon Feb 01 2027", 0, -1);
+      expectChartData(chartPts, 15, "Mon Mar 01 2027", 0, -1);
+      expectChartData(chartPts, 16, "Thu Apr 01 2027", 0, -1);
+      expectChartData(chartPts, 17, "Sat May 01 2027", 100, -1);
+      expectChartData(chartPts, 18, "Tue Jun 01 2027", 0, -1);
+      expectChartData(chartPts, 19, "Thu Jul 01 2027", 0, -1);
+      expectChartData(chartPts, 20, "Sun Aug 01 2027", 0, -1);
+      expectChartData(chartPts, 21, "Wed Sep 01 2027", 0, -1);
+      expectChartData(chartPts, 22, "Fri Oct 01 2027", 0, -1);
+      expectChartData(chartPts, 23, "Mon Nov 01 2027", 0, -1);
+      expectChartData(chartPts, 24, "Wed Dec 01 2027", 0, -1);
+      expectChartData(chartPts, 25, "Sat Jan 01 2028", 0, -1);
+      expectChartData(chartPts, 26, "Tue Feb 01 2028", 0, -1);
+      expectChartData(chartPts, 27, "Wed Mar 01 2028", 0, -1);
+      expectChartData(chartPts, 28, "Sat Apr 01 2028", 0, -1);
+      expectChartData(chartPts, 29, "Mon May 01 2028", 0, -1);
+    }
+
+    expect(result.taxData[1].item.NAME).toBe("Joe income (net)");
+    {
+      const chartPts = result.taxData[1].chartDataPoints;
+      expect(chartPts.length).toBe(30);
+      expectChartData(chartPts, 0, "Mon Dec 01 2025", 0, -1);
+      expectChartData(chartPts, 1, "Thu Jan 01 2026", 0, -1);
+      expectChartData(chartPts, 2, "Sun Feb 01 2026", 0, -1);
+      expectChartData(chartPts, 3, "Sun Mar 01 2026", 0, -1);
+      expectChartData(chartPts, 4, "Wed Apr 01 2026", 0, -1);
+      expectChartData(chartPts, 5, "Fri May 01 2026", 0, -1);
+      expectChartData(chartPts, 6, "Mon Jun 01 2026", 0, -1);
+      expectChartData(chartPts, 7, "Wed Jul 01 2026", 0, -1);
+      expectChartData(chartPts, 8, "Sat Aug 01 2026", 0, -1);
+      expectChartData(chartPts, 9, "Tue Sep 01 2026", 0, -1);
+      expectChartData(chartPts, 10, "Thu Oct 01 2026", 0, -1);
+      expectChartData(chartPts, 11, "Sun Nov 01 2026", 0, -1);
+      expectChartData(chartPts, 12, "Tue Dec 01 2026", 0, -1);
+      expectChartData(chartPts, 13, "Fri Jan 01 2027", 0, -1);
+      expectChartData(chartPts, 14, "Mon Feb 01 2027", 0, -1);
+      expectChartData(chartPts, 15, "Mon Mar 01 2027", 0, -1);
+      expectChartData(chartPts, 16, "Thu Apr 01 2027", 0, -1);
+      expectChartData(chartPts, 17, "Sat May 01 2027", 200, -1);
+      expectChartData(chartPts, 18, "Tue Jun 01 2027", 0, -1);
+      expectChartData(chartPts, 19, "Thu Jul 01 2027", 0, -1);
+      expectChartData(chartPts, 20, "Sun Aug 01 2027", 0, -1);
+      expectChartData(chartPts, 21, "Wed Sep 01 2027", 0, -1);
+      expectChartData(chartPts, 22, "Fri Oct 01 2027", 0, -1);
+      expectChartData(chartPts, 23, "Mon Nov 01 2027", 0, -1);
+      expectChartData(chartPts, 24, "Wed Dec 01 2027", 0, -1);
+      expectChartData(chartPts, 25, "Sat Jan 01 2028", 0, -1);
+      expectChartData(chartPts, 26, "Tue Feb 01 2028", 0, -1);
+      expectChartData(chartPts, 27, "Wed Mar 01 2028", 0, -1);
+      expectChartData(chartPts, 28, "Sat Apr 01 2028", 0, -1);
+      expectChartData(chartPts, 29, "Mon May 01 2028", 0, -1);
     }
   });
 

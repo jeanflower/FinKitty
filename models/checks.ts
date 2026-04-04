@@ -45,6 +45,8 @@ import {
   taxFreePart,
   taxablePart,
   adjustableType,
+  dcpRevalueBatchCategoryPrefix,
+  generatorTypeDCPRevalue,
 } from "../localization/stringConstants";
 
 import {
@@ -78,6 +80,7 @@ import {
   Evaluation,
   Expense,
   DCPWithdrawalDetails,
+  DCPRevalueDetails,
   Generator,
   Income,
   ModelData,
@@ -88,6 +91,7 @@ import {
 } from "../types/interfaces";
 import { makeModelFromJSON } from "./modelFromJSON";
 import { processGenerators } from "./evaluations";
+import { expandDCPRevalueGeneratorToTransactions } from "./dcpRevalueExpand";
 
 export const evaluationType = {
   expense: "Expense",
@@ -1062,7 +1066,8 @@ function isRevalueAssetType(t: Transaction, model: ModelData) {
   if (
     t.NAME.startsWith(revalue) &&
     isAnAssetOrAssets(t.TO, model) &&
-    t.CATEGORY === ""
+    (t.CATEGORY === "" ||
+      t.CATEGORY.startsWith(dcpRevalueBatchCategoryPrefix))
   ) {
     // log(`for ${t.NAME} is a revalueAsset`);
     recognised = true;
@@ -1900,6 +1905,56 @@ function checkDCPWithdrawalGeneratorDetails(
   return "";
 }
 
+function checkDCPRevalueGeneratorDetails(
+  g: Generator,
+  model: ModelData,
+): string {
+  const details = g.DETAILS as DCPRevalueDetails;
+  if (details.FROM === "") {
+    return (
+      `generator '${g.NAME}' DCP revalue needs a FROM ` +
+      `(Defined Contributions generator name)`
+    );
+  }
+  const dcpGen = model.generators.find((gen) => {
+    return gen.TYPE === "Defined Contributions" && gen.NAME === details.FROM;
+  });
+  if (dcpGen === undefined) {
+    return (
+      `generator '${g.NAME}' has no matching Defined Contributions generator ` +
+      `named '${details.FROM}'`
+    );
+  }
+  const triggers = model.triggers;
+  const v = getVarVal(model.settings);
+  let d = checkTriggerDate(details.DATE, triggers, v);
+  if (d === undefined || !checkDate(d)) {
+    return `generator '${g.NAME}' has bad revalue date : ${showObj(
+      details.DATE,
+    )}`;
+  }
+  if (!isResolvableNumericSettingValue(details.VALUE, model)) {
+    return (
+      `generator '${g.NAME}' VALUE '${details.VALUE}' ` +
+      `should be a number or a setting that resolves to a number`
+    );
+  }
+  const copyModel = makeModelFromJSON(JSON.stringify(model));
+  copyModel.name = "temporary copy";
+  copyModel.generators = copyModel.generators.filter((gen) => {
+    return gen.TYPE !== generatorTypeDCPRevalue;
+  });
+  processGenerators(copyModel);
+  const txs = expandDCPRevalueGeneratorToTransactions(g, copyModel);
+  for (const t of txs) {
+    const message = checkTransaction(t, copyModel);
+    if (message.length > 0) {
+      return message;
+    }
+  }
+  return "";
+}
+
 export function checkGenerator(g: Generator, model: ModelData): string {
   if (g.NAME.length === 0) {
     return "Generator name needs some characters";
@@ -1908,12 +1963,16 @@ export function checkGenerator(g: Generator, model: ModelData): string {
     g.TYPE !== "DCPWithdrawal" &&
     g.TYPE !== "Bonds" &&
     g.TYPE !== "Defined Contributions" &&
-    g.TYPE !== "Defined Benefits"
+    g.TYPE !== "Defined Benefits" &&
+    g.TYPE !== generatorTypeDCPRevalue
   ) {
     return `unrecognised generator type ${g.TYPE}`;
   }
   if (g.TYPE === "DCPWithdrawal") {
     return checkDCPWithdrawalGeneratorDetails(g, model);
+  }
+  if (g.TYPE === generatorTypeDCPRevalue) {
+    return checkDCPRevalueGeneratorDetails(g, model);
   }
   return "";
 }

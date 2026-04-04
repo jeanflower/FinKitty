@@ -177,6 +177,11 @@ export const revalueSetting = "revalueSetting";
 // date.
 export const generatorTypeDCPRevalue = "DCPRevalue";
 
+// `revalueAsset` transactions from a DCP revalue generator share this CATEGORY prefix
+// (trailing space, then the generator name), like `pensionPrefix`; evaluation applies
+// them as one atomic scale.
+export const dcpRevalueBatchCategoryPrefix = "DCPRevalueBatch ";
+
 //  Liquidate assets to keep cash afloat
 // (Conditional sell to cash)
 export const liquidateAsset = "liquidateAsset";
