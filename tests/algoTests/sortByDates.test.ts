@@ -3,7 +3,10 @@ import {
   momentType,
   sortByDate,
 } from "../../models/evaluations";
-import { CASH_ASSET_NAME } from "../../localization/stringConstants";
+import {
+  CASH_ASSET_NAME,
+  conditional,
+} from "../../localization/stringConstants";
 import { DatedThing } from "../../types/interfaces";
 import { makeDateFromString } from "../../utils/utils";
 
@@ -388,6 +391,50 @@ describe("sortByDate", () => {
     expect(arr2.length).toBe(2);
     expect(arr2[0]).toBe(x2);
     expect(arr2[1]).toBe(x1);
+  });
+
+  it("conditional transactions sort before same-date non-transaction moments (run later via pop)", () => {
+    const d = makeDateFromString("May 2, 2018 00:00:00");
+    const expense: DatedThing = {
+      date: d,
+      name: "Rent",
+      type: momentType.expense,
+    };
+    const condTxn: DatedThing = {
+      date: d,
+      name: `${conditional} top up cash`,
+      type: momentType.transaction,
+    };
+    const arr1 = [expense, condTxn];
+    sortByDate(arr1);
+    const arr2 = [condTxn, expense];
+    sortByDate(arr2);
+    expect(arr1[0]).toBe(condTxn);
+    expect(arr1[1]).toBe(expense);
+    expect(arr2[0]).toBe(condTxn);
+    expect(arr2[1]).toBe(expense);
+  });
+
+  it("two conditional transactions at same instant: alphabetical execution order (smaller name first via pop)", () => {
+    const d = makeDateFromString("May 2, 2018 00:00:00");
+    const condB: DatedThing = {
+      date: d,
+      name: `${conditional}B`,
+      type: momentType.transaction,
+    };
+    const condA: DatedThing = {
+      date: d,
+      name: `${conditional}A`,
+      type: momentType.transaction,
+    };
+    const arr1 = [condA, condB];
+    sortByDate(arr1);
+    const arr2 = [condB, condA];
+    sortByDate(arr2);
+    expect(arr1[0]).toBe(condB);
+    expect(arr1[1]).toBe(condA);
+    expect(arr2[0]).toBe(condB);
+    expect(arr2[1]).toBe(condA);
   });
 });
 

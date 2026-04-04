@@ -234,6 +234,10 @@ export const momentType = {
   inflation: "Inflation",
 };
 
+function isConditionalTransactionMoment(d: DatedThing): boolean {
+  return d.type === momentType.transaction && d.name.startsWith(conditional);
+}
+
 export function sortByDate(arrayOfDatedThings: DatedThing[]) {
   /* istanbul ignore if  */ //debug
   if (printDebug()) {
@@ -255,6 +259,19 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
       result = 1;
     } else if (bd_after_ad_ms < 0) {
       result = -1;
+    }
+    if (result === 0) {
+      // Conditional transactions are evaluated last at a given instant (pop()
+      // walks from the end of the array, so they are sorted toward the front).
+      // Among conditionals only, later tie-breakers use name order (alphabetical
+      // execution: smaller name first).
+      const aCond = isConditionalTransactionMoment(a);
+      const bCond = isConditionalTransactionMoment(b);
+      if (aCond && !bCond) {
+        result = -1;
+      } else if (!aCond && bCond) {
+        result = 1;
+      }
     }
     if (result === 0) {
       // dates are equal or both undefined
