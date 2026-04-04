@@ -136,7 +136,9 @@ export enum DateFormatType {
 /** When `model` is set, "tomorrow" is one day after the same anchor as getTodaysDate (value focus date or real clock). */
 function dateAnchorForTomorrow(model: ModelData | undefined): Date {
   if (model === undefined) {
-    return new Date();
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
   let today = new Date();
   const named = model.settings.filter((s) => s.NAME === valueFocusDate);
@@ -147,6 +149,8 @@ function dateAnchorForTomorrow(model: ModelData | undefined): Date {
   }
   if (named.length === 1 && named[0].VALUE !== "") {
     today = new Date(named[0].VALUE);
+  } else {
+    today.setHours(0, 0, 0, 0);
   }
   return today;
 }

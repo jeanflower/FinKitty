@@ -106,6 +106,8 @@ export function getTodaysDate(model: ModelData) {
   const todaysDate = getSettings(model.settings, valueFocusDate, "", false);
   if (todaysDate !== "") {
     today = new Date(todaysDate);
+  } else {
+    today.setHours(0, 0, 0, 0);
   }
   return today;
 }
