@@ -741,6 +741,8 @@ DB_TRANSFERRED_STOP
       this.state.VALUE_SET,
       this.props.model.triggers,
       getVarVal(this.props.model.settings),
+      undefined,
+      this.props.model,
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
@@ -818,6 +820,8 @@ DB_TRANSFERRED_STOP
       this.state.VALUE_SET,
       this.props.model.triggers,
       getVarVal(this.props.model.settings),
+      undefined,
+      this.props.model,
     );
     let isNotADate = date === undefined;
     if (isNotADate) {
@@ -1152,6 +1156,8 @@ DB_TRANSFERRED_STOP
       this.state.START,
       this.props.model.triggers,
       getVarVal(this.props.model.settings),
+      undefined,
+      this.props.model,
     );
     isNotADate = date === undefined;
     if (isNotADate) {
@@ -1162,6 +1168,8 @@ DB_TRANSFERRED_STOP
       this.state.END,
       this.props.model.triggers,
       getVarVal(this.props.model.settings),
+      undefined,
+      this.props.model,
     );
     isNotADate = date === undefined;
     if (isNotADate) {

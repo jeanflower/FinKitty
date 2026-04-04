@@ -133,11 +133,13 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
             aVal,
             this.props.model.triggers,
             v,
+            this.props.model,
           ).getTime();
           const bTimeVal = getTriggerDate(
             bVal,
             this.props.model.triggers,
             v,
+            this.props.model,
           ).getTime();
           // this puts triggers seperate from dates
           // const aTimeVal = new Date(aVal).getTime();

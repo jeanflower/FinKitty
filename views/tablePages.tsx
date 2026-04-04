@@ -2852,12 +2852,12 @@ function expenseMonitoringForTable(
     .filter((e: Expense) => {
       let hasStarted = true;
       let hasEnded = false;
-      const startDate = checkTriggerDate(e.START, model.triggers, v);
+      const startDate = checkTriggerDate(e.START, model.triggers, v, undefined, model);
       if (startDate !== undefined && startDate > endMonitorDate) {
         // log(`expense ${e.NAME} started ${startDate} after monitoring ended`);
         hasStarted = false;
       }
-      const endDate = checkTriggerDate(e.END, model.triggers, v);
+      const endDate = checkTriggerDate(e.END, model.triggers, v, undefined, model);
       if (endDate !== undefined && endDate < startMonitorDate) {
         // log(`expense ${e.NAME} ended ${endDate} before monitoring started`);
         hasEnded = true;

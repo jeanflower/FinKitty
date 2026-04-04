@@ -335,6 +335,8 @@ export class AddDeleteExpenseForm extends Component<
       this.state.VALUE_SET,
       this.props.model.triggers,
       getVarVal(this.props.model.settings),
+      undefined,
+      this.props.model,
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
@@ -409,6 +411,8 @@ export class AddDeleteExpenseForm extends Component<
       this.state.START,
       this.props.model.triggers,
       getVarVal(this.props.model.settings),
+      undefined,
+      this.props.model,
     );
     let isNotADate = date === undefined;
     if (isNotADate) {
@@ -419,6 +423,8 @@ export class AddDeleteExpenseForm extends Component<
       this.state.END,
       this.props.model.triggers,
       getVarVal(this.props.model.settings),
+      undefined,
+      this.props.model,
     );
     isNotADate = date === undefined;
     if (isNotADate) {
@@ -429,6 +435,8 @@ export class AddDeleteExpenseForm extends Component<
       this.state.VALUE_SET,
       this.props.model.triggers,
       getVarVal(this.props.model.settings),
+      undefined,
+      this.props.model,
     );
     isNotADate = date === undefined;
     if (isNotADate) {

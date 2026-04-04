@@ -33,6 +33,7 @@ function makeDateTooltipForRow(props: DateSelectionProps) {
     props.inputValue,
     props.triggers,
     getVarVal(props.model.settings),
+    props.model,
   );
 }
 export class DateSelectionRow extends Component<DateSelectionProps> {

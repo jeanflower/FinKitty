@@ -147,8 +147,13 @@ function totalChartDataPoints(
   return result;
 }
 
-function makeAgeString(date: Date, birthDateSetting: string) {
-  const diff = date.getTime() - makeDateFromString(birthDateSetting).getTime();
+function makeAgeString(
+  date: Date,
+  birthDateSetting: string,
+  model?: ModelData,
+) {
+  const diff =
+    date.getTime() - makeDateFromString(birthDateSetting, model).getTime();
   const age = Math.floor(diff / 31557600000); // Divide by 1000*60*60*24*365.25
   // log(`age from birthDate '${birthDateSetting}' = ${age}`);
   return `${age}`;
@@ -161,6 +166,7 @@ function makeChartDataPoints(
   settings: Setting[],
   negateValues: boolean,
   totalValues: boolean,
+  model?: ModelData,
 ): ItemChartData[] {
   let dateNameValueMap = dateNameValueMapIncoming;
   let items = itemsIncoming;
@@ -217,7 +223,7 @@ function makeChartDataPoints(
         const twoDPstring = makeTwoDP(value);
         let dataLabel = dateString;
         if (birthDateSetting !== "") {
-          dataLabel = makeAgeString(date, birthDateSetting);
+          dataLabel = makeAgeString(date, birthDateSetting, model);
         } else {
           // log(`no birthDate given, dataLabel = ${dataLabel}`);
         }
@@ -920,6 +926,7 @@ export function makeChartData(
             matchingIncome.START,
             model.triggers,
             getVarVal(model.settings),
+            model,
           )
         ) {
           // we tracked this evaluation just to adjust accrued benefit
@@ -1367,6 +1374,7 @@ export function makeChartData(
       model.settings,
       false, // don't negate
       assetDetail === totalDetail,
+      model,
     );
 
     result.debtData = makeChartDataPoints(
@@ -1376,6 +1384,7 @@ export function makeChartData(
       model.settings,
       true, // negate values
       assetDetail === totalDetail, // TODO debt?
+      model,
     );
 
     result.totalTaxPaid = taxTotal;
@@ -1392,6 +1401,7 @@ export function makeChartData(
       model.settings,
       false, // don't negate
       taxDetail === totalDetail,
+      model,
     );
   }
 
@@ -1408,6 +1418,7 @@ export function makeChartData(
       model.settings,
       false, // don't negate
       expenseDetail === totalDetail,
+      model,
     );
   }
   const incomeDateNameValueMap = typeDateNameValueMap.get(
@@ -1421,6 +1432,7 @@ export function makeChartData(
       model.settings,
       false, // don't negate
       incomeDetail === totalDetail,
+      model,
     );
   }
 
@@ -1428,7 +1440,7 @@ export function makeChartData(
   const birthDateSetting = getSettings(model.settings, birthDate, "");
   result.labels = allDates.map((d) => {
     if (birthDateSetting !== "") {
-      return makeAgeString(d, birthDateSetting);
+      return makeAgeString(d, birthDateSetting, model);
     } else {
       return dateAsString(DateFormatType.Test, d);
     }

@@ -115,8 +115,8 @@ export function getROI(model: ModelData): Interval {
   const end = getSettings(model.settings, roiEnd, "noneFound");
   const v = getVarVal(model.settings);
 
-  const startDate = checkTriggerDate(start, model.triggers, v);
-  const endDate = checkTriggerDate(end, model.triggers, v);
+  const startDate = checkTriggerDate(start, model.triggers, v, undefined, model);
+  const endDate = checkTriggerDate(end, model.triggers, v, undefined, model);
   return {
     start: startDate !== undefined ? startDate : new Date("1999"),
     end: endDate !== undefined ? endDate : new Date("2099"),
@@ -384,8 +384,8 @@ export function attemptRenameLong(
   return attemptRenameLongInternal(model, doChecks, checkModel, old, replacement);
 }
 
-function standardiseDate(dateString: string): string {
-  const dateObj = makeDateFromString(dateString);
+function standardiseDate(dateString: string, model: ModelData): string {
+  const dateObj = makeDateFromString(dateString, model);
   if (isNaN(dateObj.getTime())) {
     return dateString;
   }
@@ -401,24 +401,24 @@ export function standardiseDates(model: ModelData): string {
   markForUndo(model);
   // log(`making changes to nodel... `);
   model.triggers.forEach((obj) => {
-    obj.DATE = standardiseDate(obj.DATE);
+    obj.DATE = standardiseDate(obj.DATE, model);
   });
   model.assets.forEach((obj) => {
-    obj.START = standardiseDate(obj.START);
+    obj.START = standardiseDate(obj.START, model);
   });
   model.incomes.forEach((obj) => {
-    obj.VALUE_SET = standardiseDate(obj.VALUE_SET);
-    obj.START = standardiseDate(obj.START);
-    obj.END = standardiseDate(obj.END);
+    obj.VALUE_SET = standardiseDate(obj.VALUE_SET, model);
+    obj.START = standardiseDate(obj.START, model);
+    obj.END = standardiseDate(obj.END, model);
   });
   model.expenses.forEach((obj) => {
-    obj.VALUE_SET = standardiseDate(obj.VALUE_SET);
-    obj.START = standardiseDate(obj.START);
-    obj.END = standardiseDate(obj.END);
+    obj.VALUE_SET = standardiseDate(obj.VALUE_SET, model);
+    obj.START = standardiseDate(obj.START, model);
+    obj.END = standardiseDate(obj.END, model);
   });
   model.transactions.forEach((obj) => {
-    obj.DATE = standardiseDate(obj.DATE);
-    obj.STOP_DATE = standardiseDate(obj.STOP_DATE);
+    obj.DATE = standardiseDate(obj.DATE, model);
+    obj.STOP_DATE = standardiseDate(obj.STOP_DATE, model);
   });
   const outcome = checkModel(model);
   /* istanbul ignore if */
@@ -512,7 +512,7 @@ export function isHistorical(obj: Item, model: ModelData) {
     const v = getVarVal(model.settings);
     if (determineIfIsIncome(obj)) {
       const i = obj as Income;
-      const hasFinished = getTriggerDate(i.END, model.triggers, v) < date;
+      const hasFinished = getTriggerDate(i.END, model.triggers, v, model) < date;
       if (hasFinished) {
         return true;
       } else {
@@ -521,7 +521,7 @@ export function isHistorical(obj: Item, model: ModelData) {
     } else {
       if (determineIfIsExpense(obj)) {
         const e = obj as Expense;
-        const hasFinished = getTriggerDate(e.END, model.triggers, v) < date;
+        const hasFinished = getTriggerDate(e.END, model.triggers, v, model) < date;
         if (hasFinished) {
           return true;
         } else {
@@ -546,7 +546,7 @@ export function isHistorical(obj: Item, model: ModelData) {
               return true;
             }
 
-            const tDate = getTriggerDate(t.DATE, model.triggers, v);
+            const tDate = getTriggerDate(t.DATE, model.triggers, v, model);
             if (tDate < date) {
               // this feels old - is this the latest revalue of this asset?
               const laterOldRevalue = model.transactions.find((lor) => {
@@ -559,7 +559,7 @@ export function isHistorical(obj: Item, model: ModelData) {
                 if (lor.TO !== itemName) {
                   return false;
                 }
-                const lorDate = getTriggerDate(lor.DATE, model.triggers, v);
+                const lorDate = getTriggerDate(lor.DATE, model.triggers, v, model);
                 if (lorDate > date) {
                   return false;
                 }
@@ -575,7 +575,7 @@ export function isHistorical(obj: Item, model: ModelData) {
               }
             }
           } else if (t.RECURRENCE === "") {
-            const tDate = getTriggerDate(t.DATE, model.triggers, v);
+            const tDate = getTriggerDate(t.DATE, model.triggers, v, model);
             if (tDate < date) {
               return true;
             }

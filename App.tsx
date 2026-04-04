@@ -1199,8 +1199,18 @@ function getNumYears(modelData: ModelData) {
   if (roiStartSetting !== undefined && roiEndSetting !== undefined) {
     const v = getVarVal(modelData.settings);
 
-    const startD = getTriggerDate(roiStartSetting.VALUE, modelData.triggers, v);
-    const endD = getTriggerDate(roiEndSetting.VALUE, modelData.triggers, v);
+    const startD = getTriggerDate(
+      roiStartSetting.VALUE,
+      modelData.triggers,
+      v,
+      modelData,
+    );
+    const endD = getTriggerDate(
+      roiEndSetting.VALUE,
+      modelData.triggers,
+      v,
+      modelData,
+    );
     const numYears =
       (endD.getTime() - startD.getTime()) / 1000 / 60 / 60 / 24 / 365;
     // log(`numYears = ${numYears}`);

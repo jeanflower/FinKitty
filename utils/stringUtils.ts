@@ -490,6 +490,7 @@ function parseDateStringForOperator(
   varValue: number,
   recursionLevel: number,
   cleanedUp: { cleaned: string } | undefined,
+  model: ModelData | undefined,
 ) {
   if (opSymbol === "?") {
     const parts = triggerName.split(opSymbol);
@@ -515,6 +516,7 @@ function parseDateStringForOperator(
           varValue,
           recursionLevel + 1,
           cleaned1,
+          model,
         );
         const date2: Date | undefined = findMatchedTriggerDate(
           partsLessThan[1],
@@ -522,6 +524,7 @@ function parseDateStringForOperator(
           varValue,
           recursionLevel + 1,
           cleaned2,
+          model,
         );
         const date3: Date | undefined = findMatchedTriggerDate(
           partsElse[0],
@@ -529,6 +532,7 @@ function parseDateStringForOperator(
           varValue,
           recursionLevel + 1,
           cleaned3,
+          model,
         );
         const date4: Date | undefined = findMatchedTriggerDate(
           partsElse[1],
@@ -536,6 +540,7 @@ function parseDateStringForOperator(
           varValue,
           recursionLevel + 1,
           cleaned4,
+          model,
         );
         if (cleanedUp !== undefined) {
           cleanedUp.cleaned = `${cleaned1.cleaned}<${cleaned2.cleaned}?${cleaned3.cleaned}:${cleaned4.cleaned}`;
@@ -586,6 +591,7 @@ function parseDateStringForOperator(
         varValue,
         recursionLevel + 1,
         cleanedUp,
+        model,
       );
       if (cleanedUp) {
         cleanedUp.cleaned = `${cleanedUp.cleaned}${opSymbol}`;
@@ -673,6 +679,7 @@ export function findMatchedTriggerDate(
   varValue: number,
   recursionLevel: number,
   cleanedUp: { cleaned: string } | undefined,
+  model: ModelData | undefined,
 ): Date | undefined {
   // log(`findMatchedTriggerDate recursionLevel = ${recursionLevel}, triggerName = ${triggerName}`)
   if (recursionLevel > 10) {
@@ -686,6 +693,7 @@ export function findMatchedTriggerDate(
     varValue,
     recursionLevel,
     cleanedUp,
+    model,
   );
   if (conditionalOp !== undefined) {
     return conditionalOp;
@@ -697,6 +705,7 @@ export function findMatchedTriggerDate(
     varValue,
     recursionLevel,
     cleanedUp,
+    model,
   );
   if (minusOp !== undefined) {
     return minusOp;
@@ -708,6 +717,7 @@ export function findMatchedTriggerDate(
     varValue,
     recursionLevel,
     cleanedUp,
+    model,
   );
   if (plusOp !== undefined) {
     return plusOp;
@@ -723,6 +733,7 @@ export function findMatchedTriggerDate(
       varValue,
       recursionLevel + 1,
       undefined,
+      model,
     );
     if (cleanedUp !== undefined) {
       cleanedUp.cleaned = dateString;
@@ -731,7 +742,7 @@ export function findMatchedTriggerDate(
   }
 
   if (result === undefined) {
-    const parsedDate = makeDateFromString(dateString);
+    const parsedDate = makeDateFromString(dateString, model);
     if (parsedDate.getTime()) {
       result = parsedDate;
       if (cleanedUp) {
@@ -781,6 +792,7 @@ function checkTriggerDateRecursive(
   varValue: number,
   recursionLevel: number,
   cleanedUp: { cleaned: string } | undefined,
+  model: ModelData | undefined,
 ) {
   // log(`checkTriggerDateRecursive recursionLevel = ${recursionLevel}, input = ${input}`);
   // log('first look for '+input+'in '+showObj(triggers));
@@ -791,6 +803,7 @@ function checkTriggerDateRecursive(
     varValue,
     recursionLevel,
     cleanedUp,
+    model,
   );
   /* eslint-enable no-use-before-define*/
 
@@ -804,6 +817,7 @@ export function checkTriggerDate(
   triggers: Trigger[],
   varValue: number,
   cleanedUp: { cleaned: string } | undefined = undefined,
+  model?: ModelData,
 ) {
   // log(`checking input ${input}`);
   const result = checkTriggerDateRecursive(
@@ -812,6 +826,7 @@ export function checkTriggerDate(
     varValue,
     0,
     cleanedUp,
+    model,
   );
   // log(`checking input ${input} got result = ${result}`);
   return result;
@@ -822,9 +837,16 @@ export function getTriggerDate(
   triggerName: string,
   triggers: Trigger[],
   varValue: number,
+  model?: ModelData,
 ): Date {
   // log(`triggers length is ${triggers.length}`);
-  const outcomeDate = checkTriggerDate(triggerName, triggers, varValue);
+  const outcomeDate = checkTriggerDate(
+    triggerName,
+    triggers,
+    varValue,
+    undefined,
+    model,
+  );
   if (outcomeDate !== undefined) {
     return outcomeDate;
   }
@@ -843,11 +865,18 @@ export function makeDateTooltip(
   input: string,
   triggers: Trigger[],
   varValue: number,
+  model?: ModelData,
 ) {
   // log(`triggers.length = ${triggers.length}`);
   let result = `${input}`;
   if (input !== "") {
-    const date = checkTriggerDate(input, triggers, varValue);
+    const date = checkTriggerDate(
+      input,
+      triggers,
+      varValue,
+      undefined,
+      model,
+    );
     if (date !== undefined) {
       const dateString = dateAsString(DateFormatType.View, date);
       if(dateString !== input) {

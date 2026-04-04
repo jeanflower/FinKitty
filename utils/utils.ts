@@ -1,5 +1,7 @@
 import FileSaver from "file-saver";
 import moment from "moment";
+import { valueFocusDate } from "../localization/stringConstants";
+import { ModelData } from "../types/interfaces";
 
 const doLogToFile = true;
 let doLogIncremental = true;
@@ -63,7 +65,7 @@ export function showObj(obj: any) {
 }
 
 export function endOfTime() {
-  return makeDateFromString("1 Jan 2100");
+  return makeDateFromString("1 Jan 2100", undefined);
 }
 
 // Something like 12 as input (for 12%pa)
@@ -100,9 +102,28 @@ export enum DateFormatType {
   Unknown,
 }
 
-export function makeDateFromString(input: string) {
+/** When `model` is set, "tomorrow" is one day after the same anchor as getTodaysDate (value focus date or real clock). */
+function dateAnchorForTomorrow(model: ModelData | undefined): Date {
+  if (model === undefined) {
+    return new Date();
+  }
+  let today = new Date();
+  const named = model.settings.filter((s) => s.NAME === valueFocusDate);
+  if (named.length > 1) {
+    throw new Error(
+      `BUG!!! multiple '${valueFocusDate}' values found in settings list`,
+    );
+  }
+  if (named.length === 1 && named[0].VALUE !== "") {
+    today = new Date(named[0].VALUE);
+  }
+  return today;
+}
+
+export function makeDateFromString(input: string, model?: ModelData) {
   if (input === "tomorrow") {
-    const tomorrow = new Date();
+    const base = dateAnchorForTomorrow(model);
+    const tomorrow = new Date(base);
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow;
   }

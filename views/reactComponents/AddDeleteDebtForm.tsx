@@ -243,6 +243,8 @@ export class AddDeleteDebtForm extends Component<
       this.state.START,
       this.props.model.triggers,
       getVarVal(this.props.model.settings),
+      undefined,
+      this.props.model,
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
@@ -407,6 +409,8 @@ export class AddDeleteDebtForm extends Component<
       this.state.START,
       this.props.model.triggers,
       getVarVal(this.props.model.settings),
+      undefined,
+      this.props.model,
     );
     const isNotADate = date === undefined;
     if (isNotADate) {
