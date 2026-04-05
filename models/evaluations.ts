@@ -7975,8 +7975,6 @@ export function getEvaluations(
   todaysSettingValues: Map<Setting, SettingVal>;
   reportData: ReportDatum[];
 } {
-  // log(`Entered getEvaluations for model ${model.name}`);
-
   // log(`Entered getEvaluations for model ${showObj(model)}`);
   //console.log(`Entered getEvaluations, incomes = ${model.incomes.map((i) => {
   //  return `\n${showObj(i)}`;
