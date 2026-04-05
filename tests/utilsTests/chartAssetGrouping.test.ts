@@ -1,20 +1,37 @@
-import { generatedRecurrence } from "../../localization/stringConstants";
+import {
+  crystallizedPension,
+  dot,
+  generatedRecurrence,
+  pensionPrefix,
+  taxFree,
+} from "../../localization/stringConstants";
 import { getNameForChart } from "../../utils/viewUtils";
-import { stripRecurrentBondInstanceSuffix } from "../../utils/chartAssetGrouping";
+import {
+  chartAssetNameFromAssetName,
+  recurrentBondAssetNameToChartAssetName,
+} from "../../utils/chartAssetGrouping";
 import { ModelData } from "../../types/interfaces";
 
 describe("chartAssetGrouping", () => {
-  it("stripRecurrentBondInstanceSuffix removes evaluation-time bond instance tail", () => {
-    expect(stripRecurrentBondInstanceSuffix(`MyBondApr24${generatedRecurrence}2025`)).toBe(
-      "MyBond",
-    );
-    expect(stripRecurrentBondInstanceSuffix("PlainBond")).toBe("PlainBond");
-    expect(stripRecurrentBondInstanceSuffix(`NoDateSuffix${generatedRecurrence}2025`)).toBe(
-      `NoDateSuffix${generatedRecurrence}2025`,
-    );
+  it("recurrentBondAssetNameToChartAssetName removes evaluation-time bond instance tail", () => {
+    expect(
+      recurrentBondAssetNameToChartAssetName(`MyBondApr24${generatedRecurrence}2025`),
+    ).toBe("MyBond");
+    expect(recurrentBondAssetNameToChartAssetName("PlainBond")).toBe("PlainBond");
+    expect(
+      recurrentBondAssetNameToChartAssetName(`NoDateSuffix${generatedRecurrence}2025`),
+    ).toBe(`NoDateSuffix${generatedRecurrence}2025`);
   });
 
-  it("getNameForChart maps recurrent bond instances to generator name", () => {
+  it("chartAssetNameFromAssetName maps DCP family assets to chartAsset name", () => {
+    expect(chartAssetNameFromAssetName(`${pensionPrefix}WorkDC`)).toBe("WorkDC");
+    expect(chartAssetNameFromAssetName(`${taxFree}WorkDC`)).toBe("WorkDC");
+    expect(
+      chartAssetNameFromAssetName(`${crystallizedPension}IncomeTaxJoe${dot}WorkDC`),
+    ).toBe("WorkDC");
+  });
+
+  it("getNameForChart maps recurrent bond instances to chartAsset name", () => {
     const model: ModelData = {
       assets: [
         {

@@ -30,19 +30,12 @@ import {
   planningView,
   monitoringView,
   coarseDetail,
-  pensionPrefix,
-  cpPrefix,
-  crystallizedPension,
-  dot,
-  taxFree,
-  pensionTransfer,
-  moveTaxFreePart,
-  transferCrystallizedPension,
 } from "../localization/stringConstants";
 import { allViews } from "./allViews";
-import { stripRecurrentBondInstanceSuffix } from "./chartAssetGrouping";
+import { chartAssetNameFromAssetName } from "./chartAssetGrouping";
 import { Context, log, printDebug } from "./utils";
 
+/** Model asset name → chartAsset name (see {@link chartAssetNameFromAssetName}) when the name exists on the model; otherwise unchanged. */
 export function getNameForChart(rawName: string, model: ModelData): string {
   if(model.assets.find(a => a.NAME === rawName) === undefined)
   {
@@ -50,41 +43,7 @@ export function getNameForChart(rawName: string, model: ModelData): string {
   }
 
   // log(`getNameForChart for rawName ${rawName}`);
-  let assetName = stripRecurrentBondInstanceSuffix(rawName);
-  let splitAtDot = false;
-  if(rawName.startsWith(pensionPrefix)) {
-    assetName = rawName.substring(pensionPrefix.length);
-  } else if(rawName.startsWith(crystallizedPension)) {
-    assetName = rawName.substring(crystallizedPension.length);    
-    splitAtDot = true
-  } else if(rawName.startsWith(taxFree)) {
-    assetName = rawName.substring(taxFree.length);
-    splitAtDot = true
-  } else if(rawName.startsWith(pensionTransfer)) {
-    assetName = rawName.substring(pensionTransfer.length);
-    splitAtDot = true
-  } else if(rawName.startsWith(moveTaxFreePart)) {
-    assetName = rawName.substring(moveTaxFreePart.length);
-    splitAtDot = true
-  } else if(rawName.startsWith(transferCrystallizedPension)) {
-    assetName = rawName.substring(transferCrystallizedPension.length);
-    splitAtDot = true
-  }
-  if(splitAtDot)
-  {
-    let parts = assetName.split(dot);
-    //log(`parts = ${parts}`);
-    if(parts.length == 1)
-    {
-      assetName = parts[0];
-    } else if(parts.length == 2) {
-      assetName = parts[1];
-    } else {
-      throw new Error(`unexpected taxFree asset name ${rawName} is not of form penName or personName.penName`);
-    }  
-    // log(`returning ${assetName}`);
-  }
-  return assetName;
+  return chartAssetNameFromAssetName(rawName);
 }
 
 export class ViewSettings {
