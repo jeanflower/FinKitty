@@ -40,6 +40,7 @@ import {
   transferCrystallizedPension,
 } from "../localization/stringConstants";
 import { allViews } from "./allViews";
+import { stripRecurrentBondInstanceSuffix } from "./chartAssetGrouping";
 import { Context, log, printDebug } from "./utils";
 
 export function getNameForChart(rawName: string, model: ModelData): string {
@@ -49,7 +50,7 @@ export function getNameForChart(rawName: string, model: ModelData): string {
   }
 
   // log(`getNameForChart for rawName ${rawName}`);
-  let assetName = rawName;
+  let assetName = stripRecurrentBondInstanceSuffix(rawName);
   let splitAtDot = false;
   if(rawName.startsWith(pensionPrefix)) {
     assetName = rawName.substring(pensionPrefix.length);
