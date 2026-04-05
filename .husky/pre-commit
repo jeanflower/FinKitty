@@ -1,5 +1,16 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+# Prefer clean rebases/cherry-picks over bumping on every replayed commit.
+[ -n "$SKIP_VERSION_HOOK" ] && exit 0
+
+git_dir=$(git rev-parse --git-dir 2>/dev/null) || true
+if [ -n "$git_dir" ]; then
+  if [ -d "$git_dir/rebase-merge" ] || [ -d "$git_dir/rebase-apply" ] || \
+     [ -f "$git_dir/REBASE_HEAD" ] || [ -f "$git_dir/CHERRY_PICK_HEAD" ]; then
+    exit 0
+  fi
+fi
+
 echo 'pre-commit actions here : bump version'
 npm --no-git-tag-version version patch
