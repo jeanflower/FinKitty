@@ -27,6 +27,18 @@ and then adding link to (raw)
 https://github.com/jeanflower/FinKitty/raw/master/src/views/cat.png
 in Auth0 Tenant Settings page.
 
+## Model data principles (app state)
+
+These rules keep persistence, the processed model, and expensive simulation in a clear order. They matter when optimizing refreshes (for example after editing monitoring tables).
+
+- **`modelDataRaw` is the single source of truth** and is what gets persisted. Table edits update raw data and save it.
+- **`modelDataProcessed` is always produced from `modelDataRaw`** (clone + generator expansion via `processGenerators`, etc.). We do not patch processed fields in isolation or infer raw from processed.
+- **We never reverse-engineer `modelDataRaw` from `modelDataProcessed`.**
+- **Evaluations and chart aggregates may lag** after some edits if we skip a full refresh for performance. In-memory views may show new raw/processed model data while charts still reflect the last full evaluation run.
+- **After a successful save, a full page reload** reloads from storage and runs the complete pipeline (including `getEvaluations` and chart building), so tables and charts match persisted data.
+
+Monitoring-only saves use a light refresh: rebuild processed from the in-memory raw model and update React state **without** reloading the model from storage, **without** `getEvaluations`, and **without** rebuilding chart data. See `refreshAfterMonitorEdit` in `App.tsx`.
+
 ## Getting started for developers
 
 ### One-off setup steps
