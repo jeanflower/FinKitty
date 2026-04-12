@@ -11,12 +11,22 @@
  *   FINKITTY_PERF_VIEW_FREQUENCY  (default monthly)
  *   FINKITTY_PERF_REPORTER     monitoring | tax | optimizer  (default monitoring)
  *   FINKITTY_PERF_RESULTS_FILE  if set, append one JSON line (jsonl)
+ *
+ * Speed (also see perf:across-commits.sh): lower ITERATIONS/WARMUP, or
+ * FINKITTY_PERF_FAST=1 / perf:across-commits:fast, or FINKITTY_PERF_COMMIT_STEP=2|3
+ * to sample every Nth commit.
+ *
+ * FINKITTY_PERF_SKIP_FILE_APPEND=1 — only print __PERF_RESULT__; perf-across-commits.sh
+ * appends jsonl lines from the tee log (avoids flaky writes from inside Jest).
  */
 
 import { execSync } from "child_process";
 import * as fs from "fs";
-import { defaultReportSize, monthly } from "../../localization/stringConstants";
-import { isDCPRevalueBatchTransaction } from "../../models/dcpRevalueExpand";
+import {
+  defaultReportSize,
+  monthly,
+  revalueAsset,
+} from "../../localization/stringConstants";
 import { makeModelFromJSON } from "../../models/modelFromJSON";
 import {
   EvaluationHelper,
@@ -34,6 +44,17 @@ import type {
   Trigger,
 } from "../../types/interfaces";
 import { lessThan } from "../../utils/stringUtils";
+
+/** Mirrors isDCPRevalueBatchTransaction in dcpRevalueExpand.ts (inlined for older commits that lack that export). */
+const dcpRevalueBatchCategoryPrefix = "DCPRevalueBatch ";
+
+function isDcpRevalueBatchTransactionLocal(t: Transaction): boolean {
+  return (
+    t.TYPE === revalueAsset &&
+    typeof t.CATEGORY === "string" &&
+    t.CATEGORY.startsWith(dcpRevalueBatchCategoryPrefix)
+  );
+}
 
 function gitMeta(): { commit: string | null; commit_date: string | null } {
   try {
@@ -118,7 +139,7 @@ function prepareProcessedModel(jsonText: string): ModelData {
     lessThan(b.NAME, a.NAME),
   );
   modelRaw.transactions = modelRaw.transactions.filter((t) => {
-    return !isDCPRevalueBatchTransaction(t);
+    return !isDcpRevalueBatchTransactionLocal(t);
   });
   modelRaw.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
 
@@ -170,6 +191,17 @@ const runSuite = !!modelPath;
         getEvaluations(modelProcessed, helper);
       }
 
+      const sanity = getEvaluations(modelProcessed, helper);
+      if (sanity.evaluations.length === 0) {
+        const hint =
+          sanity.reportData[0]?.source ??
+          JSON.stringify(sanity.reportData.slice(0, 2));
+        throw new Error(
+          "perf harness: getEvaluations returned 0 evaluations (not comparable timing). " +
+            `First reportData hint: ${hint}`,
+        );
+      }
+
       const samples: number[] = [];
       let lastEvalCount = 0;
       for (let i = 0; i < iterations; i += 1) {
@@ -177,9 +209,7 @@ const runSuite = !!modelPath;
         const out = getEvaluations(modelProcessed, helper);
         samples.push(performance.now() - t0);
         lastEvalCount = out.evaluations.length;
-        expect(out.evaluations.length + out.reportData.length).toBeGreaterThan(
-          0,
-        );
+        expect(out.evaluations.length).toBeGreaterThan(0);
       }
 
       const min_ms = Math.min(...samples);
@@ -210,7 +240,9 @@ const runSuite = !!modelPath;
       console.log(line);
 
       const outFile = process.env.FINKITTY_PERF_RESULTS_FILE;
-      if (outFile) {
+      const skipFileAppend =
+        process.env.FINKITTY_PERF_SKIP_FILE_APPEND === "1";
+      if (outFile && !skipFileAppend) {
         fs.appendFileSync(outFile, `${JSON.stringify(row)}\n`, "utf8");
       }
 

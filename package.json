@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://github.com/jeanflower/FinKitty",
-  "version": "2.0.151",
+  "version": "2.0.152",
   "engines": {
     "node": "20.x"
   },
@@ -16,7 +16,10 @@
     "test": "jest --watch",
     "test:ci": "jest --ci",
     "perf:eval": "node -e \"if(!process.env.FINKITTY_PERF_MODEL_PATH){console.error('Set FINKITTY_PERF_MODEL_PATH to the absolute path of your JSON export.');process.exit(1)}\" && jest tests/perf/getEvaluations.perf.test.ts --runInBand --ci --testTimeout=600000",
+    "perf:eval:fast": "node -e \"if(!process.env.FINKITTY_PERF_MODEL_PATH){console.error('Set FINKITTY_PERF_MODEL_PATH to the absolute path of your JSON export.');process.exit(1)}\" && FINKITTY_PERF_ITERATIONS=10 FINKITTY_PERF_WARMUP=1 jest tests/perf/getEvaluations.perf.test.ts --runInBand --ci --testTimeout=600000",
     "perf:across-commits": "bash scripts/perf-across-commits.sh",
+    "perf:across-commits:fast": "env FINKITTY_PERF_FAST=1 bash scripts/perf-across-commits.sh",
+    "perf:profile": "bash scripts/perf-profile-getEvaluations.sh",
     "lint": "eslint './**/*.{ts,tsx,js,jsx}'",
     "predeploy": "npm run build",
     "deploy": "git push -g heroku main",
