@@ -35,15 +35,47 @@ import { allViews } from "./allViews";
 import { chartAssetNameFromAssetName } from "./chartAssetGrouping";
 import { Context, log, printDebug } from "./utils";
 
+type GetNameForChartCache = {
+  assetsRef: ModelData["assets"];
+  assetLen: number;
+  assetNames: Set<string>;
+  chartByRaw: Map<string, string>;
+};
+
+const getNameForChartCache = new WeakMap<ModelData, GetNameForChartCache>();
+
+function getNameForChartCacheEntry(model: ModelData): GetNameForChartCache {
+  const assets = model.assets;
+  let c = getNameForChartCache.get(model);
+  if (
+    c === undefined ||
+    c.assetsRef !== assets ||
+    c.assetLen !== assets.length
+  ) {
+    c = {
+      assetsRef: assets,
+      assetLen: assets.length,
+      assetNames: new Set(assets.map((a) => a.NAME)),
+      chartByRaw: new Map(),
+    };
+    getNameForChartCache.set(model, c);
+  }
+  return c;
+}
+
 /** Model asset name → chartAsset name (see {@link chartAssetNameFromAssetName}) when the name exists on the model; otherwise unchanged. */
 export function getNameForChart(rawName: string, model: ModelData): string {
-  if(model.assets.find(a => a.NAME === rawName) === undefined)
-  {
+  const c = getNameForChartCacheEntry(model);
+  if (!c.assetNames.has(rawName)) {
     return rawName;
   }
-
-  // log(`getNameForChart for rawName ${rawName}`);
-  return chartAssetNameFromAssetName(rawName);
+  const memo = c.chartByRaw.get(rawName);
+  if (memo !== undefined) {
+    return memo;
+  }
+  const out = chartAssetNameFromAssetName(rawName);
+  c.chartByRaw.set(rawName, out);
+  return out;
 }
 
 export class ViewSettings {

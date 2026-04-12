@@ -72,4 +72,45 @@ describe("chartAssetGrouping", () => {
       "RollBond",
     );
   });
+
+  it("getNameForChart invalidates when model.assets gains entries (same array ref)", () => {
+    const newAsset = {
+      NAME: `NewBondMar25${generatedRecurrence}2027`,
+      ERA: 0,
+      START: "",
+      VALUE: "0",
+      QUANTITY: "",
+      GROWTH: "",
+      CPI_IMMUNE: true,
+      CAN_BE_NEGATIVE: false,
+      IS_A_DEBT: false,
+      LIABILITY: "",
+      PURCHASE_PRICE: "0",
+      CATEGORY: "c",
+    };
+    const model: ModelData = {
+      assets: [
+        {
+          NAME: `RollBondJan25${generatedRecurrence}2025`,
+          ERA: 0,
+          START: "",
+          VALUE: "0",
+          QUANTITY: "",
+          GROWTH: "",
+          CPI_IMMUNE: true,
+          CAN_BE_NEGATIVE: false,
+          IS_A_DEBT: false,
+          LIABILITY: "",
+          PURCHASE_PRICE: "0",
+          CATEGORY: "c",
+        },
+      ],
+    } as unknown as ModelData;
+
+    expect(getNameForChart(`RollBondJan25${generatedRecurrence}2025`, model)).toBe(
+      "RollBond",
+    );
+    model.assets.push(newAsset);
+    expect(getNameForChart(newAsset.NAME, model)).toBe("NewBond");
+  });
 });
