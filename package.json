@@ -15,6 +15,8 @@
     "start": "next start",
     "test": "jest --watch",
     "test:ci": "jest --ci",
+    "perf:eval": "node -e \"if(!process.env.FINKITTY_PERF_MODEL_PATH){console.error('Set FINKITTY_PERF_MODEL_PATH to the absolute path of your JSON export.');process.exit(1)}\" && jest tests/perf/getEvaluations.perf.test.ts --runInBand --ci --testTimeout=600000",
+    "perf:across-commits": "bash scripts/perf-across-commits.sh",
     "lint": "eslint './**/*.{ts,tsx,js,jsx}'",
     "predeploy": "npm run build",
     "deploy": "git push -g heroku main",
