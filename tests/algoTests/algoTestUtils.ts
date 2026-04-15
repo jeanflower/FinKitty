@@ -91,7 +91,7 @@ export function expectEvals(
   numDigits: number,
 ) {
   expect(evals[i].name).toBe(name);
-  expect(dateAsString(DateFormatType.Test, evals[i].date)).toBe(dateString);
+  expect(evals[i].date.getTestDescription()).toBe(dateString);
   if (numDigits < 0) {
     expect(evals[i].value).toBe(value);
   } else {

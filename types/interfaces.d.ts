@@ -182,13 +182,13 @@ export interface Transaction extends ItemCategory {
 }
 
 export interface DatedThing {
-  date: Date;
+  date: FinKittyDate;
   name: string;
   type: string;
 }
 export interface Interval {
-  start: Date;
-  end: Date;
+  start: FinKittyDate;
+  end: FinKittyDate;
 }
 export interface ChartDataPoint {
   label: string;
@@ -218,7 +218,7 @@ export interface ReportMatcher {
 export type ReportValueChecker = (
   name: string, // name of thing which has a value
   val: number | string, // value of the thing
-  date: Date,
+  date: FinKittyDate,
   source: string,
 ) => boolean;
 export interface ReportDatum {
@@ -251,7 +251,7 @@ export interface DataForView {
 
 export interface Evaluation {
   name: string; // what's being evaluated (e.g. Cash)
-  date: Date;
+  date: FinKittyDate;
   oldValue: number; // as CPI can shift things over time, don't rely on a previous eval
   value: number;
   source: string; // the source of the change for this evaluation

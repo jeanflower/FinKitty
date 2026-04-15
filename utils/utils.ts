@@ -2,6 +2,88 @@ import FileSaver from "file-saver";
 import moment from "moment";
 import { valueFocusDate } from "../localization/stringConstants";
 import { ModelData } from "../types/interfaces";
+import { dateAsString } from "./stringUtils";
+
+export class FinKittyDate {
+  static getTaxYearDate(y: number): FinKittyDate
+  {
+    return new FinKittyDate(new Date(y, 3, 5))
+  }
+  public constructor(d: Date)
+  {
+    this.d = d;
+  }
+  public d: Date;
+  private finKittyTime: number | undefined;
+  private description: string | undefined;
+  private debugDescription: string | undefined;
+  private testDescription: string | undefined;
+  private viewDescription: string | undefined;
+  private dateString: string | undefined;
+  public getDescription(): string
+  {
+    if (this.description)
+    {
+      return this.description;
+    }
+    this.description = dateAsString(DateFormatType.Test, this.d);
+    return this.description;
+  }
+  public getDebugDescription(): string
+  {
+    if (this.debugDescription)
+    {
+      return this.debugDescription;
+    }
+    this.debugDescription = dateAsString(DateFormatType.Debug, this.d);
+    return this.debugDescription;
+  }
+  public getViewDescription(): string
+  {
+    if (this.viewDescription)
+    {
+      return this.viewDescription;
+    }
+    this.viewDescription = dateAsString(DateFormatType.View, this.d);
+    return this.viewDescription;
+  }
+  public getTestDescription(): string
+  {
+    if (this.testDescription)
+    {
+      return this.testDescription;
+    }
+    this.testDescription = dateAsString(DateFormatType.Test, this.d);
+    return this.testDescription;
+  }
+  public getDateString(): string
+  {
+    if (this.dateString)
+    {
+      return this.dateString;
+    }
+    this.dateString = this.d.toDateString();
+    return this.dateString;
+  }
+  getTime(): number
+  {
+    if (this.finKittyTime)
+    {
+      return this.finKittyTime;
+    }
+    this.finKittyTime = this.d.getTime();
+    return this.finKittyTime;
+  }
+  setFullYear(y: number)
+  {
+    this.finKittyTime = undefined;
+    this.dateString = undefined;
+    this.description = undefined;
+    this.debugDescription = undefined;
+    this.viewDescription = undefined;
+    this.d.setFullYear(y);
+  }
+}
 
 const doLogToFile = true;
 let doLogIncremental = true;

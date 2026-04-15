@@ -146,10 +146,7 @@ export function todaysAssetsTable(
           model,
           "todaysAssetsTable",
         ),
-        `Asset values (categorised) at ${dateAsString(
-          DateFormatType.View,
-          today,
-        )}`,
+        `Asset values (categorised) at ${today.getViewDescription()}`,
       )}
     </>
   );

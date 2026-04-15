@@ -72,6 +72,7 @@ import {
 } from "../types/interfaces";
 import {
   DateFormatType,
+  FinKittyDate,
   getMonthlyGrowth,
   log,
   printDebug,
@@ -152,11 +153,11 @@ export function generateSequenceOfDates(
   roi: Interval,
   frequency: string /* e.g. 1m or 1y */,
   addPreDate = false, // for charting
-): Date[] {
+): FinKittyDate[] {
   // numCalls = numCalls + 1;
   // log(`numCalls = ${numCalls}`);
 
-  const result: Date[] = [];
+  const result: FinKittyDate[] = [];
   const freq = parseRecurrenceString(frequency);
   const mFreq = freq.frequency === monthly;
   const yFreq = freq.frequency === annually;
@@ -164,7 +165,7 @@ export function generateSequenceOfDates(
 
   if (addPreDate) {
     // add a pre-dates before roi - always either 1w, 1m or 1y prior
-    const preDate = new Date(roi.start);
+    const preDate = new Date(roi.start.d);
     if (frequency === "1m") {
       preDate.setMonth(preDate.getMonth() - 1);
     } else if (frequency === "1w") {
@@ -175,12 +176,13 @@ export function generateSequenceOfDates(
       /* istanbul ignore next  */ //error
       throw new Error(`Error: frequency ${frequency} not implemented!`);
     }
-    result.push(preDate);
+    const d: FinKittyDate = new FinKittyDate(preDate);
+    result.push(d);
   }
 
   // now add dates in roi, from start
   let numstepsAdvanced = 0;
-  let thisDate = new Date(roi.start);
+  let thisDate = new Date(roi.start.d);
   let initialCount;
   if (mFreq) {
     initialCount = thisDate.getMonth();
@@ -190,11 +192,12 @@ export function generateSequenceOfDates(
     initialCount = thisDate.getFullYear();
   }
 
-  while (thisDate < roi.end) {
-    result.push(thisDate);
+  while (thisDate.getTime() < roi.end.getTime()) {
+    const d = new FinKittyDate(thisDate);
+    result.push(d);
 
     // advance thisDate for the next transaction
-    const nextDate = new Date(roi.start);
+    const nextDate = new Date(roi.start.d);
     if (mFreq || yFreq) {
       numstepsAdvanced += freq.count;
     } else if (wFreq) {
@@ -378,7 +381,7 @@ class ValuesContainer {
   private includeInReport: ReportValueChecker = (
     name: string, // name of something which has a value
     val: number | string,
-    date: Date,
+    date: FinKittyDate,
     source: string,
   ) => {
     /* istanbul ignore if  */ //debug
@@ -401,7 +404,7 @@ class ValuesContainer {
     name: string, // thing which has this value
     val: number | string, // the value of the thing
     growths: Map<string, GrowthData>,
-    date: Date,
+    date: FinKittyDate,
     source: string,
     reportIfNoChange: boolean,
     callerID: string,
@@ -471,7 +474,7 @@ class ValuesContainer {
           qchange: qchange,
           qoldVal: qoldVal,
           qnewVal: qnewVal,
-          date: dateAsString(DateFormatType.View, date),
+          date: date.getViewDescription(),
           source: reportSource,
         });
       } else {
@@ -777,7 +780,7 @@ function setValue(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
-  date: Date,
+  date: FinKittyDate,
   name: string,
   newValue: number | string,
   model: ModelData,
@@ -811,7 +814,7 @@ function setValue(
         log(
           `setting first value of ${name}, ` +
             `newValue = ${newValue} ` +
-            `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
+            `date = ${date.getDebugDescription()}, ` +
             `source = ${source}, from  ${callerID}`,
         );
       } else {
@@ -820,7 +823,7 @@ function setValue(
             `setting value of ${name}, ` +
               `newValue = ${newValue} ` +
               `oldValue = ${existingValue} ` +
-              `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
+              `date = ${date.getDebugDescription()}, ` +
               `source = ${source}, from  ${callerID}`,
           );
         } else if (printSameValueInputs) {
@@ -828,7 +831,7 @@ function setValue(
             `set same existing value of ${name}, ` +
               `newValue = ${newValue} ` +
               `oldValue = ${existingValue} ` +
-              `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
+              `date = ${date.getDebugDescription()}, ` +
               `source = ${source}, from  ${callerID}`,
           );
         }
@@ -839,7 +842,7 @@ function setValue(
         log(
           `setting first value of ${name}, ` +
             `newRealValue = ${realNewValue} ` +
-            `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
+            `date = ${date.getDebugDescription()}, ` +
             `source = ${source}, from  ${callerID}`,
         );
       } else {
@@ -848,7 +851,7 @@ function setValue(
             `setting value of ${name}, ` +
               `newRealValue = ${realNewValue} ` +
               `oldRealValue = ${realExistingValue} ` +
-              `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
+              `date = ${date.getDebugDescription()}, ` +
               `source = ${source}, from  ${callerID}`,
           );
         } else if (printSameValueInputs) {
@@ -856,7 +859,7 @@ function setValue(
             `set same existing value of ${name}, ` +
               `newRealValue = ${realNewValue} ` +
               `oldRealValue = ${realExistingValue} ` +
-              `date = ${dateAsString(DateFormatType.Debug, date)}, ` +
+              `date = ${date.getDebugDescription()}, ` +
               `source = ${source}, from  ${callerID}`,
           );
         }
@@ -958,7 +961,7 @@ function diffMonths(d1: Date, d2: Date) {
 }
 
 interface Moment {
-  date: Date;
+  date: FinKittyDate;
   name: string;
   type: string;
   setValue: number | string | undefined;
@@ -1690,7 +1693,7 @@ function calculateCGTPayable(
 
 function adjustAsset(
   amount: number,
-  d: Date,
+  d: FinKittyDate,
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
@@ -1738,7 +1741,7 @@ function adjustAsset(
 
 function adjustCash(
   amount: number,
-  d: Date,
+  d: FinKittyDate,
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   evaluations: Evaluation[],
@@ -1774,7 +1777,7 @@ function updatePurchaseValue(
   growths: Map<string, GrowthData>,
   newOverOldRatio: number,
   evaluations: Evaluation[],
-  startOfTaxYear: Date,
+  startOfTaxYear: FinKittyDate,
   model: ModelData,
   source: string, // e.g. IncomeTaxJoe
 ) {
@@ -1826,7 +1829,7 @@ function updatePurchaseValue(
 }
 
 function payIncomeTax(
-  startOfTaxYear: Date, // should be April 5th of some year
+  startOfTaxYear: FinKittyDate, // should be April 5th of some year
   income: number,
   incomeFixed: number,
   alreadyPaid: number,
@@ -1844,7 +1847,7 @@ function payIncomeTax(
   const taxDue: {
     amountLiable: number;
     rate: number;
-  }[] = calculateIncomeTaxPayable(income, startOfTaxYear.getFullYear(), values);
+  }[] = calculateIncomeTaxPayable(income, startOfTaxYear.d.getFullYear(), values);
   const totalTaxDue = sumTaxDue(taxDue);
   if(showTaxLogs) {
     log(`taxDue for ${source} on ${startOfTaxYear} = ${showObj(taxDue)}, totalTaxDue = ${totalTaxDue}, alreadyPaid = ${alreadyPaid}`);
@@ -1854,11 +1857,11 @@ function payIncomeTax(
     rate: number;
   }[] = calculateIncomeTaxPayable(
     incomeFixed,
-    startOfTaxYear.getFullYear(),
+    startOfTaxYear.d.getFullYear(),
     values,
   );
   if(showTaxLogs) {
-    log(`totalTaxDue for ${source}, ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDue)}`);
+    log(`totalTaxDue for ${source}, ${makeTwoDP(income)} on ${startOfTaxYear.d.getFullYear()} is ${makeTwoDP(totalTaxDue)}`);
   }
   const totalTaxDueForFixed = sumTaxDue(taxDueForFixed);
 
@@ -1873,10 +1876,10 @@ function payIncomeTax(
   }
 
   // log(`totalTaxDueFromCash for ${makeTwoDP(income)} on ${startOfTaxYear.getFullYear()} is ${makeTwoDP(totalTaxDueFromCash)}, already paid ${makeTwoDP(alreadyPaid)}`);
-  const endOfTaxYear = new Date(startOfTaxYear.getFullYear() + 1, 3, 5);
+  const endOfTaxYear = FinKittyDate.getTaxYearDate(startOfTaxYear.d.getFullYear() + 1);
   if (totalTaxDue !== 0) {
     if(showTaxLogs) {
-      log(`in payIncomeTax for ${dateAsString(DateFormatType.Debug,startOfTaxYear)}, adjustCash by ${totalTaxDueFromCash}`);
+      log(`in payIncomeTax for ${startOfTaxYear.getDebugDescription()}, adjustCash by ${totalTaxDueFromCash}`);
     }
     adjustCash(
       -totalTaxDueFromCash,
@@ -1929,7 +1932,7 @@ function sumNI(niDue: { amountLiable: number; rate: number }[]): number {
 }
 
 function logAnnualNIPayments(
-  endOfTaxYear: Date,
+  endOfTaxYear: FinKittyDate,
   nIMonthlyPaymentsPaid: number,
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
@@ -1957,7 +1960,7 @@ function logAnnualNIPayments(
 }
 
 function payCGT(
-  startOfTaxYear: Date, // should be April 5th of some year
+  startOfTaxYear: FinKittyDate, // should be April 5th of some year
   gain: number,
   liableIncome: number,
   values: ValuesContainer,
@@ -1971,11 +1974,11 @@ function payCGT(
   // TODO should pass in whether high rate income tax next
   const CGTDue = calculateCGTPayable(
     gain,
-    startOfTaxYear.getFullYear(),
+    startOfTaxYear.d.getFullYear(),
     values,
     liableIncome,
   );
-  const endOfTaxYear = new Date(startOfTaxYear.getFullYear() + 1, 3, 5);
+  const endOfTaxYear = FinKittyDate.getTaxYearDate(startOfTaxYear.d.getFullYear() + 1);
 
   // log(`taxDue = ${taxDue}`);
   if (CGTDue > 0) {
@@ -2066,7 +2069,7 @@ interface TaxPaymentsMade {
 }
 
 function OptimizeIncomeTax(
-  date: Date,
+  date: FinKittyDate,
   liableIncome: LiabilityTotalAndSources,
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
@@ -2076,8 +2079,8 @@ function OptimizeIncomeTax(
   model: ModelData,
 ) {
   // log(`OptimizeIncomeTax income tax for ${person} and ${liableIncome} on ${dateAsString(DateFormatType.Debug,date)}`);
-  const startYearOfTaxYear = date.getFullYear();
-  const endYearOfTaxYear = new Date(startYearOfTaxYear + 1, 3, 5);
+  const startYearOfTaxYear = date.d.getFullYear();
+  const endYearOfTaxYear = FinKittyDate.getTaxYearDate(startYearOfTaxYear + 1);
   const bands = getTaxBands(liableIncome.amount, startYearOfTaxYear, values);
   if (liableIncome.amount > bands.noTaxBand) {
     return;
@@ -2200,10 +2203,11 @@ function settleUpTax(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
-  const date = new Date(startYearOfTaxYear, 3, 5);
+  const date = FinKittyDate.getTaxYearDate(startYearOfTaxYear);
+
   /* istanbul ignore if  */ //debug
   if (printDebug()) {
-    log(`in settleUpTax, date = ${dateAsString(DateFormatType.Debug, date)}`);
+    log(`in settleUpTax, date = ${date.getDebugDescription()}`);
   }
   const taxTypes = ["cgt", incomeTax, nationalInsurance];
 
@@ -2228,8 +2232,8 @@ function settleUpTax(
       }
     }
   }
-  const endOfTaxYear = new Date(date.getFullYear() + 1, 3, 5);
-
+  const endOfTaxYear = FinKittyDate.getTaxYearDate(date.d.getFullYear() + 1);
+  
   // log(`clear net income and net gain maps for the new tax year`);
   const personNetIncome = new Map<string, number>();
   const personNetGain = new Map<string, number>();
@@ -2608,7 +2612,7 @@ function getTaxMonthDate(startYearOfTaxYear: number, monthOfTaxYear: number) {
     result = new Date(startYearOfTaxYear, monthOfTaxYear, 5);
   }
   // log(`month ${monthOfTaxYear} and year ${startYearOfTaxYear} make date ${dateAsString(DateFormatType.Debug,result)}`);
-  return result;
+  return new FinKittyDate(result);
 }
 
 function payTaxEstimate(
@@ -3267,9 +3271,9 @@ function handleIncome(
       throw new Error(`income ${moment.name} not found in model`);
     }
     const incomeStartDate = getTriggerDate(income.START, triggers, v, model);
-    // log(`income start is ${incomeStartDate}, moment date is ${moment.date}`);
+    // log(`income start is ${incomeStartDate.getDebugDescription()}, moment date is ${moment.date.getDebugDescription()}`);
     /* istanbul ignore if */
-    if (incomeStartDate > moment.date) {
+    if (incomeStartDate.getTime() > moment.date.getTime()) {
       log(
         `Error : don't handleIncome ${income.NAME} before it starts! ${moment.name}`,
       );
@@ -3301,7 +3305,7 @@ function handleIncome(
     // log(`consider pension transaction: ${showObj(pt)}`);
 
     const ptDate = getTriggerDate(pt.DATE, triggers, v, model);
-    if (ptDate > moment.date) {
+    if (ptDate.getTime() > moment.date.getTime()) {
       return;
     }
 
@@ -3309,7 +3313,7 @@ function handleIncome(
 
     // !!! TODO only apply this transaction before the STOP_DATE !!!
     const ptStopDate = getTriggerDate(pt.STOP_DATE, triggers, v, model);
-    if (ptStopDate < moment.date) {
+    if (ptStopDate.getTime() < moment.date.getTime()) {
       return;
     }
 
@@ -3781,14 +3785,14 @@ function getRecurrentMoments(
   prepType: string,
   type: string,
   model: ModelData,
-  startSequenceFrom: Date,
-  startExpenseOrIncomeDate: Date,
-  rOIEndDate: Date,
+  startSequenceFrom: FinKittyDate,
+  startExpenseOrIncomeDate: FinKittyDate,
+  rOIEndDate: FinKittyDate,
 ) {
   const v = getVarVal(model.settings);
   // log(`in getRecurrentMoments`);
   let endDate = getTriggerDate(x.END, model.triggers, v, model);
-  if (rOIEndDate < endDate) {
+  if (rOIEndDate.getTime() < endDate.getTime()) {
     endDate = rOIEndDate;
   }
   const roi = {
@@ -3798,7 +3802,7 @@ function getRecurrentMoments(
   const dates = generateSequenceOfDates(roi, x.RECURRENCE);
   const newMoments: Moment[] = dates.map((date) => {
     let typeForMoment = type;
-    if (date < startExpenseOrIncomeDate) {
+    if (date.getTime() < startExpenseOrIncomeDate.getTime()) {
       typeForMoment = prepType;
     }
     const result: Moment = {
@@ -3838,7 +3842,7 @@ function getRecurrentMoments(
     const from = getTriggerDate(x.VALUE_SET, model.triggers, v, model);
     const to = roi.start;
     // log(`${x.NAME} grew between ${from} and ${to}`);
-    const numMonths = diffMonths(from, to);
+    const numMonths = diffMonths(from.d, to.d);
     /* istanbul ignore if */
     if (!x.NAME.startsWith(pensionDB) && numMonths < 0) {
       log(
@@ -3855,7 +3859,7 @@ function getRecurrentMoments(
 function getAssetMoments(
   asset: Asset,
   model: ModelData,
-  rOIEndDate: Date,
+  rOIEndDate: FinKittyDate,
   frequency: string,
   trackingOnly: boolean,
 ) {
@@ -3910,7 +3914,7 @@ function getAssetMoments(
 function getTransactionMoments(
   transaction: Transaction,
   model: ModelData,
-  rOIEndDate: Date,
+  rOIEndDate: FinKittyDate,
 ) {
   const triggers = model.triggers;
   const v = getVarVal(model.settings);
@@ -3932,7 +3936,7 @@ function getTransactionMoments(
     let stop = rOIEndDate;
     if (transaction.STOP_DATE !== "") {
       const transStop = getTriggerDate(transaction.STOP_DATE, triggers, v, model);
-      if (stop > transStop) {
+      if (stop.getTime() > transStop.getTime()) {
         stop = transStop;
       }
     }
@@ -3955,7 +3959,7 @@ function getTransactionMoments(
     });
   } else {
     const date = getTriggerDate(transaction.DATE, triggers, v, model);
-    if (date < rOIEndDate) {
+    if (date.getTime() < rOIEndDate.getTime()) {
       newMoments.push({
         name: transaction.NAME,
         date,
@@ -5388,9 +5392,9 @@ function generateMoments(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
   cpiInitialVal: number,
-  roiStartDate: Date,
-  roiEndDate: Date,
-  today: Date,
+  roiStartDate: FinKittyDate,
+  roiEndDate: FinKittyDate,
+  today: FinKittyDate,
   evaluations: Evaluation[],
   liabilitiesMap: Map<string, string>,
   pensionTransactions: Transaction[],
@@ -5464,7 +5468,7 @@ function generateMoments(
     // changes is set here.
     logIncomeOrExpenseGrowth(income, true, growths);
     const incomeStart = getTriggerDate(income.START, model.triggers, v, model);
-    let shiftStartBackTo = new Date(incomeStart);
+    let shiftStartBackTo = new Date(incomeStart.d);
 
     const dbTransaction = model.transactions.find((t) => {
       return t.NAME.startsWith(pensionDB) && t.TO === income.NAME;
@@ -5484,7 +5488,7 @@ function generateMoments(
             `with no source income`,
         );
       }
-      shiftStartBackTo = getTriggerDate(sourceIncome.START, model.triggers, v, model);
+      shiftStartBackTo = getTriggerDate(sourceIncome.START, model.triggers, v, model).d;
       // log(`shifting start of ${showObj(income)} back to ${shiftStartBackTo.toDateString()} because of ${showObj(sourceIncome)} starting at ${sourceIncome.START}`);
     }
 
@@ -5494,8 +5498,8 @@ function generateMoments(
     // log(`income start is ${incomeStart.toDateString()}`);
     // log(`value set is ${incomeSetDate.toDateString()}`);
     // log(`shiftStartBackTo = ${shiftStartBackTo.toDateString()}`);
-    if (incomeSetDate < incomeStart && incomeSetDate < shiftStartBackTo) {
-      shiftStartBackTo = incomeSetDate;
+    if (incomeSetDate.getTime() < incomeStart.getTime() && incomeSetDate.getTime() < shiftStartBackTo.getTime()) {
+      shiftStartBackTo = incomeSetDate.d;
     }
 
     // This breaks one of the Ben and Jerry tests
@@ -5504,9 +5508,10 @@ function generateMoments(
     {
     shiftDate(shiftStartBackTo, income.RECURRENCE, +1); // TODO understand impact of this
     }
-    // log(`shifting start of ${showObj(income)} from ${income.START} back using ${shiftStartBackTo.toDateString()} because of ${showObj(income)} recurrence`);
+    //log(`shifting start of ${showObj(income)} from ${income.START} back 
+    //  using ${shiftStartBackTo.toDateString()} because of ${showObj(income)} recurrence`);
 
-    let startSequenceFrom = new Date(incomeStart);
+    let startSequenceFrom = new Date(incomeStart.d);
     // log(`startSequenceFrom = ${startSequenceFrom.toDateString()}`);
     let numAdjustments = 0;
     while (shiftStartBackTo <= startSequenceFrom) {
@@ -5526,19 +5531,20 @@ function generateMoments(
       }
     }
 
-    // log(`income ${income.NAME} had start = ${incomeStart.toDateString()}, but use startSequenceFrom = ${startSequenceFrom.toDateString()}`);
+    // log(`income ${income.NAME} had start = ${incomeStart.getDateString()}, 
+    //   but use startSequenceFrom = ${startSequenceFrom.toDateString()}`);
     const newMoments = getRecurrentMoments(
       income,
       momentType.incomePrep,
       momentType.income,
       model,
-      startSequenceFrom,
+      new FinKittyDate(startSequenceFrom),
       incomeStart,
       roiEndDate,
     );
-    // for (let i = 0; i < newMoments.length; i = i + 1) {
-    //   log(`newMoments[${i}] = ${newMoments[i].name} ${newMoments[i].date.toDateString()}`);
-    // }
+    //for (let i = 0; i < newMoments.length; i = i + 1) {
+    //  log(`newMoments[${i}] = ${newMoments[i].name} ${newMoments[i].date.getDateString()}`);
+    //}
     allMoments = allMoments.concat(newMoments);
     liabilitiesMap.set(income.NAME, income.LIABILITY);
   });
@@ -5611,7 +5617,7 @@ function generateMoments(
   const setSettingsData: {
     settingName: string;
     settingVal: string;
-    setDate: Date;
+    setDate: FinKittyDate;
   }[] = [];
   model.settings.forEach((setting) => {
     // Some types of settings have values at the start of the roi
@@ -5703,7 +5709,7 @@ function generateMoments(
 
     let referencingDates: {
       item: Item;
-      date: Date;
+      date: FinKittyDate;
     }[] = referencingTransactions.map((t) => {
       return {
         item: t,
@@ -5819,7 +5825,7 @@ function generateMoments(
     );
   });
 
-  if (roiEndDate > today) {
+  if (roiEndDate.getTime() > today.getTime()) {
     allMoments.push({
       date: today,
       name: EvaluateAllAssets,
@@ -5860,7 +5866,7 @@ function evaluateAllAssets(
   model: ModelData,
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
-  today: Date,
+  today: FinKittyDate,
   todaysAssetValues: Map<Asset, AssetOrDebtVal>,
   todaysDebtValues: Map<Asset, AssetOrDebtVal>,
   todaysIncomeValues: Map<Income, IncomeVal>,
@@ -5899,11 +5905,11 @@ function evaluateAllAssets(
     let hasStarted = true;
     let hasEnded = false;
     const startDate = checkTriggerDate(i.START, model.triggers, v, undefined, model);
-    if (startDate !== undefined && startDate > today) {
+    if (startDate !== undefined && startDate.getTime() > today.getTime()) {
       hasStarted = false;
     }
     const endDate = checkTriggerDate(i.END, model.triggers, v, undefined, model);
-    if (endDate !== undefined && endDate < today) {
+    if (endDate !== undefined && endDate.getTime() < today.getTime()) {
       hasEnded = true;
     }
     // log(`income ${i.NAME} hasStarted ${hasStarted} hasEnded ${hasEnded}`);
@@ -5923,11 +5929,11 @@ function evaluateAllAssets(
     let hasStarted = true;
     let hasEnded = false;
     const startDate = checkTriggerDate(e.START, model.triggers, v, undefined, model);
-    if (startDate !== undefined && startDate > today) {
+    if (startDate !== undefined && startDate.getTime() > today.getTime()) {
       hasStarted = false;
     }
     const endDate = checkTriggerDate(e.END, model.triggers, v, undefined, model);
-    if (endDate !== undefined && endDate < today) {
+    if (endDate !== undefined && endDate.getTime() < today.getTime()) {
       hasEnded = true;
     }
     const val = traceEvaluationForToday(e.NAME, values, growths);
@@ -5976,8 +5982,8 @@ function handleTaxObligations(
   // Detect if this date has brought us into a new tax year.
   // At a change of tax year, log last year's accrual
   // and start a fresh accrual for the next year.
-  const momentsTaxYear = getYearOfTaxYear(moment.date);
-  const momentsTaxMonth = getMonthOfTaxYear(moment.date);
+  const momentsTaxYear = getYearOfTaxYear(moment.date.d);
+  const momentsTaxMonth = getMonthOfTaxYear(moment.date.d);
   // log(`momentsTaxMonth = ${momentsTaxMonth}, momentsTaxYear = ${momentsTaxYear}`);
   const enteringNewTaxYear =
     timeInTaxCycle.startYearOfTaxYear !== undefined &&
@@ -6049,7 +6055,7 @@ function handleTaxObligations(
 function handleInflationStep(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
-  date: Date,
+  date: FinKittyDate,
 ) {
   // increment base (which started as 1.0) according to inflation value
   // at this moment in time
@@ -6079,7 +6085,7 @@ function handleInflationStep(
 function handleAnnualInflationStep(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
-  date: Date,
+  date: FinKittyDate,
 ) {
   // increment base (which started as 1.0) according to inflation value
   // at this moment in time
@@ -6524,7 +6530,7 @@ function growAndEffectMoment(
     }
     /* istanbul ignore if  */ //debug
     if (printDebug()) {
-      log(`${dateAsString(DateFormatType.Debug, moment.date)},
+      log(`${moment.date.getDebugDescription()},
                 ${momentName},
                 value = ${values.get(momentName)}`);
     }
@@ -6536,7 +6542,7 @@ function getEvaluationsROI(model: ModelData) {
   const startDate = range.start;
   const start2018 = new Date("1 Jan 2018");
   if (start2018.getTime() < startDate.getTime()) {
-    range.start = start2018;
+    range.start = new FinKittyDate(start2018);
   }
   return range;
 }
@@ -6630,11 +6636,11 @@ function getEvaluationsInternal(
 
   const viewRange = getEvaluationsROI(model);
   // We set a start date to set, for example, our CPI base value to 1.0.
-  const roiStartDate: Date = viewRange.start;
+  const roiStartDate: FinKittyDate = viewRange.start;
   // log(`roiStartDate = ${roiStartDate}`);
 
   // We set an end date to act as a stop for recurrent events.
-  const roiEndDate: Date = viewRange.end;
+  const roiEndDate: FinKittyDate = viewRange.end;
   // log(`roiEndDate = ${roiEndDate}`);
 
   // might be set using a settings value
@@ -6709,7 +6715,7 @@ function getEvaluationsInternal(
       "0",
     );
     const first = datedMoments[0].date;
-    const last = new Date(datedMoments[datedMoments.length - 1].date);
+    const last = new Date(datedMoments[datedMoments.length - 1].date.d);
     // have annual inflation effects provide a whole year's worth
     // of change by tracking an extra year of inflationary effect
     // before things start
@@ -6718,7 +6724,7 @@ function getEvaluationsInternal(
 
     const infUpdateDates = generateSequenceOfDates(
       {
-        start: last,
+        start: new FinKittyDate(last),
         end: first,
       },
       "1m",
@@ -6745,7 +6751,7 @@ function getEvaluationsInternal(
     }
     const annualInfUpdateDates = generateSequenceOfDates(
       {
-        start: startAnnualCPIEffect,
+        start: new FinKittyDate(startAnnualCPIEffect),
         end: first,
       },
       "1y",
@@ -6765,11 +6771,11 @@ function getEvaluationsInternal(
     // log(`with moments for updating base values, have ${datedMoments.length}`);
 
     const needPredictedTaxBands = new Date(highestTaxYearInMap, 3, 5);
-    if (needPredictedTaxBands < roiEndDate) {
+    if (needPredictedTaxBands.getTime() < roiEndDate.getTime()) {
       const d = new Date(highestTaxYearInMap, 3, 4);
       // log(`prepare to log tax band values at ${dateAsString(DateFormatType.Debug,d)}`);
       datedMoments.push({
-        date: d,
+        date: new FinKittyDate(d),
         name: "captureLastTaxBands",
         type: momentType.inflation,
         setValue: NaN,
@@ -6794,10 +6800,10 @@ function getEvaluationsInternal(
   };
   if (datedMoments.length > 0) {
     timeInTaxCycle.startYearOfTaxYear = getYearOfTaxYear(
-      datedMoments[datedMoments.length - 1].date,
+      datedMoments[datedMoments.length - 1].date.d,
     );
     timeInTaxCycle.monthOfTaxYear = getMonthOfTaxYear(
-      datedMoments[datedMoments.length - 1].date,
+      datedMoments[datedMoments.length - 1].date.d,
     );
   }
   // we track different types of income liability for different individuals
@@ -6860,7 +6866,7 @@ function getEvaluationsInternal(
     if (printDebug()) {
       log(
         `popped moment is ${showObj({
-          date: dateAsString(DateFormatType.Debug, moment.date),
+          date: moment.date.getDebugDescription(),
           name: moment.name,
           type: moment.type,
           setValue: moment.setValue,
@@ -7112,9 +7118,9 @@ function processBondGenerators(
       for (const d of dates) {
         addBond(
           details,
-          g.NAME + `${dateFormat(d, 'mmmyy')}` + `${generatedRecurrence}` + year,
+          g.NAME + `${dateFormat(d.d, 'mmmyy')}` + `${generatedRecurrence}` + year,
           g.ERA,
-          d.toDateString(),
+          d.getDateString(),
           model,
         );  
         year++;
@@ -8013,8 +8019,8 @@ export function getEvaluations(
     const v = getVarVal(model.settings);
     for (const t of genForInvestTransactions) {
       const matureDate = getTriggerDate(t.DATE, model.triggers, v, model);
-      if ( matureDate < start) {
-        start.setFullYear(matureDate.getFullYear() - 1);
+      if (matureDate.getTime() < start.getTime()) {
+        start.setFullYear(matureDate.d.getFullYear() - 1);
       }
     }
 
@@ -8041,7 +8047,7 @@ export function getEvaluations(
         }
         return {
           ...s,
-          VALUE: `${start.toDateString()}`
+          VALUE: `${start.getDateString()}`
         }
       }),
       version: model.version,
@@ -8067,7 +8073,7 @@ export function getEvaluations(
         reporter: (
           name: string,
           val: number | string,
-          date: Date,
+          date: FinKittyDate,
           source: string,
         ) => {
           val;

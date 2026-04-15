@@ -32,6 +32,7 @@ import {
 import {
   Context,
   DateFormatType,
+  FinKittyDate,
   log,
   makeDateFromString,
   printDebug,
@@ -76,7 +77,7 @@ import {
 import { makeModelFromJSONString } from "./modelFromJSON";
 
 function logMapOfMap(
-  twoMap: Map<string, Map<string, number>>,
+  twoMap: Map<number, Map<string, number>>,
   display = false,
 ) {
   /* istanbul ignore if */
@@ -116,17 +117,17 @@ function logMapOfMapofMap(
 }
 
 function totalChartDataPoints(
-  dateNameValueMap: Map<string, Map<string, number>>,
-  dates: Date[],
+  dateNameValueMap: Map<number, Map<string, number>>,
+  dates: FinKittyDate[],
   items: string[],
 ) {
-  const result = new Map<string, Map<string, number>>();
+  const result = new Map<number, Map<string, number>>();
   dates.forEach((date) => {
     let totalValue = 0.0;
-    const dateString = dateAsString(DateFormatType.Test, date);
+    const time = date.getTime();
     items.forEach((item) => {
       // log(`get data from map for date ${dateString}`);
-      const nameValueMap = dateNameValueMap.get(dateString);
+      const nameValueMap = dateNameValueMap.get(time);
       if (nameValueMap !== undefined) {
         const mapValue = nameValueMap.get(item);
         if (mapValue !== undefined) {
@@ -134,10 +135,10 @@ function totalChartDataPoints(
         }
       }
     });
-    let nvm = result.get(dateString);
+    let nvm = result.get(time);
     if (nvm === undefined) {
-      result.set(dateString, new Map<string, number>());
-      nvm = result.get(dateString);
+      result.set(time, new Map<string, number>());
+      nvm = result.get(time);
     }
     if (nvm !== undefined) {
       nvm.set("Total", totalValue);
@@ -160,8 +161,8 @@ function makeAgeString(
 }
 
 function makeChartDataPoints(
-  dateNameValueMapIncoming: Map<string, Map<string, number>>,
-  dates: Date[],
+  dateNameValueMapIncoming: Map<number, Map<string, number>>,
+  dates: FinKittyDate[],
   itemsIncoming: string[],
   settings: Setting[],
   negateValues: boolean,
@@ -185,12 +186,12 @@ function makeChartDataPoints(
 
   const birthDateSetting = getSettings(settings, birthDate, "");
   dates.forEach((date) => {
-    const dateString = dateAsString(DateFormatType.Test, date);
+    const time = date.getTime();
     items.forEach((item) => {
       // log(`get item ${item} from map for date ${dateString}`);
       let value = 0.0;
       // log(`get data from map for date ${dateString}`);
-      const nameValueMap = dateNameValueMap.get(dateString);
+      const nameValueMap = dateNameValueMap.get(time);
       if (nameValueMap !== undefined) {
         const mapValue = nameValueMap.get(item);
         // log(`got ${item} data ${mapValue} out of map`);
@@ -221,9 +222,9 @@ function makeChartDataPoints(
       } else {
         // log(`add to array ${showObj({label: dateString, y:value})}`);
         const twoDPstring = makeTwoDP(value);
-        let dataLabel = dateString;
+        let dataLabel = date.getDescription();
         if (birthDateSetting !== "") {
-          dataLabel = makeAgeString(date, birthDateSetting, model);
+          dataLabel = makeAgeString(date.d, birthDateSetting, model);
         } else {
           // log(`no birthDate given, dataLabel = ${dataLabel}`);
         }
@@ -231,7 +232,7 @@ function makeChartDataPoints(
         chartArray.push({
           label: dataLabel,
           y: value,
-          ttip: `${parseFloat(twoDPstring).toFixed(2)} at ${dateString}`,
+          ttip: `${parseFloat(twoDPstring).toFixed(2)} at ${dataLabel}`,
         });
       }
     });
@@ -398,26 +399,26 @@ function makeADTChartNames(
 
 function assignCategories(
   dateNameValueMap: Map<
-    string, // date
+    number, // date.getTime()
     Map<
       string, // name
       number // value
     >
   >,
-  allDates: Date[],
+  allDates: FinKittyDate[],
   items: string[],
   model: ModelData,
   categoryCache: Map<string, string>,
 ) {
   // log(`categorise these ${items}`);
   const categoryNames = new Set<string>();
-  const mapForChart = new Map<string, Map<string, number>>();
+  const mapForChart = new Map<number, Map<string, number>>();
   allDates.forEach((date) => {
     items.forEach((item) => {
       // log(`item = ${showObj(item)}`);
-      const d = dateAsString(DateFormatType.Test, date);
+      const time = date.getTime();
 
-      const NVM = dateNameValueMap.get(d);
+      const NVM = dateNameValueMap.get(time);
       if (NVM === undefined) {
         // no data to log here
         return;
@@ -427,10 +428,10 @@ function assignCategories(
         // no data to log here
         return;
       }
-      if (!mapForChart.has(d)) {
-        mapForChart.set(d, new Map<string, number>());
+      if (!mapForChart.has(time)) {
+        mapForChart.set(time, new Map<string, number>());
       }
-      const nameValueMap = mapForChart.get(d);
+      const nameValueMap = mapForChart.get(time);
       /* istanbul ignore if */
       if (nameValueMap === undefined) {
         log("BUG - map should exist");
@@ -458,23 +459,23 @@ function assignCategories(
 
 function filterIncomeOrExpenseItems(
   dateNameValueMap: Map<
-    string, // date
+    number, // date.getTime()
     Map<
       string, // name
       number // value
     >
   >,
-  allDates: Date[],
+  allDates: FinKittyDate[],
   names: string[],
   viewSettings: ViewSettings,
   context: Context,
 ) {
   // log(`filter items by ${focus}`);
   const categoryNames = new Set<string>();
-  const mapForChart = new Map<string, Map<string, number>>();
+  const mapForChart = new Map<number, Map<string, number>>();
   allDates.forEach((date) => {
     names.forEach((item) => {
-      const d = dateAsString(DateFormatType.Test, date);
+      const d = date.getTime(); // dateAsString(DateFormatType.Test, date);
 
       const NVM = dateNameValueMap.get(d);
       if (NVM === undefined) {
@@ -515,7 +516,7 @@ function ensureDateValueMapsExist(
   typeDateNameValueMap: Map<
     string, // type
     Map<
-      string, // date
+      number, // date.getTime()
       Map<
         string, // name
         number // value
@@ -530,7 +531,7 @@ function ensureDateValueMapsExist(
     typeDateNameValueMap.set(
       name,
       new Map<
-        string, // date
+        number, // date.getTime()
         Map<
           string, // name
           number // value
@@ -837,14 +838,14 @@ export function makeChartData(
   // for expense/income/asset
   const nameToTypeMap = mapNamesToTypes(model);
 
-  const allDates: Date[] = generateEvaluationDates(roi, frequency);
+  const allDates: FinKittyDate[] = generateEvaluationDates(roi, frequency);
 
   // log(`dates for chart = ${showObj(allDates)}`);
   // type, date, name, value
   const typeDateNameValueMap = new Map<
     string, // type
     Map<
-      string, // date
+      number, // date.getTime()
       Map<
         string, // name
         number // value
@@ -855,7 +856,7 @@ export function makeChartData(
   typeDateNameValueMap.set(
     "assetOrDebtFocus",
     new Map<
-      string, // date
+      number, // date.getTime()
       Map<
         string, // name
         number // value
@@ -865,7 +866,7 @@ export function makeChartData(
   typeDateNameValueMap.set(
     "tax",
     new Map<
-      string, // date
+      number, // date.getTime()
       Map<
         string, // name
         number // value
@@ -879,7 +880,7 @@ export function makeChartData(
 
   let taxTotal = 0.0;
   evaluationsAndVals.evaluations.forEach((evaln) => {
-    const firstDateAfterEvaln = allDates.find((d) => d >= evaln.date);
+    const firstDateAfterEvaln = allDates.find((d) => d.getTime() >= evaln.date.getTime());
     if (firstDateAfterEvaln === undefined) {
       // no need to capture data from this evaluation
       // it's after all our dates for the chart
@@ -921,13 +922,13 @@ export function makeChartData(
           throw new Error(`couldn't match income for ${evaln.name}`);
         }
         if (
-          evaln.date <
+          evaln.date.getTime() <
           getTriggerDate(
             matchingIncome.START,
             model.triggers,
             getVarVal(model.settings),
             model,
-          )
+          ).getTime()
         ) {
           // we tracked this evaluation just to adjust accrued benefit
           // but don't actually received any of this income yet...
@@ -942,7 +943,7 @@ export function makeChartData(
     ensureDateValueMapsExist(typeDateNameValueMap, evalnType);
     const dateNameValueMap = typeDateNameValueMap.get(evalnType);
     if (dateNameValueMap !== undefined) {
-      const date = dateAsString(DateFormatType.Test, firstDateAfterEvaln);
+      const date = firstDateAfterEvaln.getTime(); // dateAsString(DateFormatType.Test, firstDateAfterEvaln);
       if (!dateNameValueMap.has(date)) {
         // log(`make a map for date ${date}`);
         dateNameValueMap.set(date, new Map<string, number>());
@@ -1019,7 +1020,7 @@ export function makeChartData(
   logMapOfMapofMap(typeDateNameValueMap);
 
   evaluationsAndVals.evaluations.forEach((evaln) => {
-    const firstDateAfterEvaln = allDates.find((d) => d >= evaln.date);
+    const firstDateAfterEvaln = allDates.find((d) => d.getTime() >= evaln.date.getTime());
     if (firstDateAfterEvaln === undefined) {
       // no need to capture data from this evaluation
       // it's after all our dates for the chart
@@ -1097,7 +1098,7 @@ export function makeChartData(
           typeDateNameValueMap.get("assetOrDebtFocus");
       }
       if (assetOrDebtDateNameValueMap !== undefined) {
-        const date = dateAsString(DateFormatType.Test, firstDateAfterEvaln);
+        const date = firstDateAfterEvaln.getTime(); // dateAsString(DateFormatType.Test, firstDateAfterEvaln);
         if (!assetOrDebtDateNameValueMap.has(date)) {
           assetOrDebtDateNameValueMap.set(date, new Map<string, number>());
         }
@@ -1440,9 +1441,9 @@ export function makeChartData(
   const birthDateSetting = getSettings(model.settings, birthDate, "");
   result.labels = allDates.map((d) => {
     if (birthDateSetting !== "") {
-      return makeAgeString(d, birthDateSetting, model);
+      return makeAgeString(d.d, birthDateSetting, model);
     } else {
-      return dateAsString(DateFormatType.Test, d);
+      return d.getDescription();
     }
   });
 

@@ -154,10 +154,7 @@ export function todaysExpensesTable(
     <>
       {collapsibleFragment(
         makeDataGrid(categorisedValues, model, "todaysExpensesTable"),
-        `Expense values (categorised) at ${dateAsString(
-          DateFormatType.View,
-          today,
-        )}`,
+        `Expense values (categorised) at ${today.getViewDescription()}`,
       )}
     </>
   );

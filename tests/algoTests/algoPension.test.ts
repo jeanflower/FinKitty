@@ -5090,7 +5090,8 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
     const revalueMoment = new Date(2026, 8, 15);
     const afterHugeRevalue = evals.filter(
       (e) =>
-        e.name === taxableCrystallizedName && e.date >= revalueMoment,
+        e.name === taxableCrystallizedName &&
+        e.date.getTime() >= revalueMoment.getTime(),
     );
     expect(afterHugeRevalue.length).toBeGreaterThan(0);
     const maxTaxable = Math.max(

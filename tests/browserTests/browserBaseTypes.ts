@@ -123,6 +123,8 @@ export function getDriver() {
   const builder = new webdriver.Builder().forBrowser("chrome");
   const driver = builder.withCapabilities(browserCapabilities).build();
 
+  void driver.manage().window().setRect({ x: 0, y: 0, width: 1280, height: 720 });
+  
   return driver;
 }
 

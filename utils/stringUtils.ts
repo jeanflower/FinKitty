@@ -31,6 +31,7 @@ import {
 import { Setting, ModelData, Trigger } from "../types/interfaces";
 import {
   DateFormatType,
+  FinKittyDate,
   log,
   makeDateFromString,
   printDebug,
@@ -725,7 +726,7 @@ export function findMatchedTriggerDate(
   // log('look for '+triggerName+'in '+triggers.map(showObj))
   const matched = triggers.filter((trigger) => trigger.NAME === dateString);
   // log(`matched trigger = ${showObj(matched)}`);
-  let result = undefined;
+  let result: Date | undefined = undefined;
   if (matched.length !== 0) {
     result = checkTriggerDateRecursive(
       matched[0].DATE,
@@ -776,6 +777,10 @@ export function findMatchedTriggerDate(
     }
   }
   // log(`date for ${input} is ${result}`);
+  if(result === undefined)
+  {
+    return undefined;
+  }
   return result;
 }
 
@@ -793,7 +798,7 @@ function checkTriggerDateRecursive(
   recursionLevel: number,
   cleanedUp: { cleaned: string } | undefined,
   model: ModelData | undefined,
-) {
+): Date | undefined {
   // log(`checkTriggerDateRecursive recursionLevel = ${recursionLevel}, input = ${input}`);
   // log('first look for '+input+'in '+showObj(triggers));
   /* eslint-disable no-use-before-define*/ // recursion
@@ -818,7 +823,7 @@ export function checkTriggerDate(
   varValue: number,
   cleanedUp: { cleaned: string } | undefined = undefined,
   model?: ModelData,
-) {
+): Date | undefined {
   // log(`checking input ${input}`);
   const result = checkTriggerDateRecursive(
     input,
@@ -838,7 +843,7 @@ export function getTriggerDate(
   triggers: Trigger[],
   varValue: number,
   model?: ModelData,
-): Date {
+): FinKittyDate {
   // log(`triggers length is ${triggers.length}`);
   const outcomeDate = checkTriggerDate(
     triggerName,
@@ -848,9 +853,9 @@ export function getTriggerDate(
     model,
   );
   if (outcomeDate !== undefined) {
-    return outcomeDate;
+    return new FinKittyDate(outcomeDate);
   }
-  return new Date("Invalid Date");
+  return new FinKittyDate(new Date("Invalid Date"));
 }
 
 export const dateFormatOptions = {

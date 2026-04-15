@@ -76,6 +76,7 @@ import {
 } from "./types/interfaces";
 import {
   Context,
+  FinKittyDate,
   log,
   printDebug,
   saveLogsFromBrowser,
@@ -494,7 +495,7 @@ function getReporter(
   const endDate = viewRange.end;
   // log(`startDate for reporter = ${startDate}`);
   // log(`endDate for reporter = ${endDate}`);
-  return (name: string, val: number | string, date: Date, source: string) => {
+  return (name: string, val: number | string, date: FinKittyDate, source: string) => {
     // log(`name for matching = ${name}`);
     if (!reactAppComponent.state.reportDefiner) {
       return false;
@@ -527,15 +528,15 @@ function getReporter(
       log(`report for date = ${date}`);
       log(`report for source = ${source}`);
     }
-    if (date < getTodaysDate(model)) {
+    if (date.getTime() < getTodaysDate(model).getTime()) {
       // log(`do not display ${name} bcs date is before today's date`);
       return false;
     }
-    if (date < startDate) {
+    if (date.getTime() < startDate.getTime()) {
       // log(`do not display ${name} bcs date is before startDate`);
       return false;
     }
-    if (date > endDate) {
+    if (date .getTime()> endDate.getTime()) {
       // log(`do not display ${name} bcs date is aftee endDate`);
       return false;
     }
@@ -672,7 +673,7 @@ async function refreshDataInternal(
     let reporter: ReportValueChecker = (
       name: string,
       val: number | string,
-      date: Date,
+      date: FinKittyDate,
       source: string,
       ) =>
       {
@@ -700,7 +701,7 @@ async function refreshDataInternal(
       reporter = (
         name: string,
         val: number | string,
-        date: Date,
+        date: FinKittyDate,
         source: string,
       ) => {
         val;

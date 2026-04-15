@@ -78,7 +78,12 @@ import {
   checkTransaction,
   checkTrigger,
 } from "../models/checks";
-import { Context, DateFormatType, log, showObj } from "../utils/utils";
+import {
+  Context,
+  FinKittyDate,
+  log,
+  showObj,
+} from "../utils/utils";
 
 import DataGridFinKitty, { GridRow } from "./reactComponents/DataGridFinKitty";
 import GrowthFormatter from "./reactComponents/GrowthFormatter";
@@ -1562,10 +1567,7 @@ function getAssetOrDebtCols(
       {
         ...cashValueColumn,
         key: "TODAYSVALUE",
-        name: `value\nat ${dateAsString(
-          DateFormatType.View,
-          getTodaysDate(model),
-        )}`,
+        name: `value\nat ${getTodaysDate(model).getViewDescription()}`,
         renderEditCell: undefined,
       },
     ]);
@@ -2511,10 +2513,7 @@ function incomesTableDiv(
       {
         ...cashValueColumn,
         key: "TODAYSVALUE",
-        name: `value\nat ${dateAsString(
-          DateFormatType.View,
-          getTodaysDate(model),
-        )}`,
+        name: `value\nat ${getTodaysDate(model).getViewDescription()}`,
         renderEditCell: undefined,
       },
     ]);
@@ -2683,10 +2682,7 @@ function expensesTableDiv(
       {
         ...cashValueColumn,
         key: "TODAYSVALUE",
-        name: `value\nat ${dateAsString(
-          DateFormatType.View,
-          getTodaysDate(model),
-        )}`,
+        name: `value\nat ${getTodaysDate(model).getViewDescription()}`,
         renderEditCell: undefined,
       },
     ]);
@@ -2853,12 +2849,18 @@ function expenseMonitoringForTable(
       let hasStarted = true;
       let hasEnded = false;
       const startDate = checkTriggerDate(e.START, model.triggers, v, undefined, model);
-      if (startDate !== undefined && startDate > endMonitorDate) {
+      if (
+        startDate !== undefined &&
+        startDate.getTime() > endMonitorDate.getTime()
+      ) {
         // log(`expense ${e.NAME} started ${startDate} after monitoring ended`);
         hasStarted = false;
       }
       const endDate = checkTriggerDate(e.END, model.triggers, v, undefined, model);
-      if (endDate !== undefined && endDate < startMonitorDate) {
+      if (
+        endDate !== undefined &&
+        endDate.getTime() < startMonitorDate.getTime()
+      ) {
         // log(`expense ${e.NAME} ended ${endDate} before monitoring started`);
         hasEnded = true;
       }
@@ -2955,7 +2957,10 @@ function expenseMonitoringForTable(
   }
   // log(`summaryRows = ${showObj(summaryRows)}`);
 
-  if (colMonths[colMonths.length - 1].startsWith('Jan ')) {
+  if (
+    colMonths.length > 0 &&
+    colMonths[colMonths.length - 1].startsWith("Jan ")
+  ) {
     const colMonth = colMonths[colMonths.length - 1];
     const year = colMonth.substring(colMonth.length - 4, colMonth.length);
     const planningTableData = getPlanningTableData(
@@ -2975,7 +2980,7 @@ function expenseMonitoringForTable(
           // Look for match
           //colMonths[colMonths.length - 1] = Jan 2024 
           //td.DATE = Tue Dec 31 2024
-          return td.DATE.endsWith(year);
+          return String(td.DATE).endsWith(year);
         });
         let budget = 0;
         if (tRow) {
@@ -2987,7 +2992,7 @@ function expenseMonitoringForTable(
           }
 
           const winnings = model.transactions.filter((t) => {
-            if (!t.DATE.endsWith(year)) {
+            if (!String(t.DATE).endsWith(year)) {
               // log(`wrong year ${inspect(t)}`)
               return false;
             }
@@ -3297,14 +3302,15 @@ function makeMonitoringColMonthsFromStartEnd(
 
   const dates = generateSequenceOfDates(
     {
-      start: new Date(`01 ${start}`),
-      end: new Date(`01 ${end}`),
-    }, 
-    '1m', 
-    false);
+      start: new FinKittyDate(new Date(`01 ${start}`)),
+      end: new FinKittyDate(new Date(`01 ${end}`)),
+    },
+    "1m",
+    false,
+  );
   // log(`dates = ${dates}`);
   months = dates.map((d) => {
-    return dateFormat(d, 'mmm yyyy');
+    return dateFormat(d.d, 'mmm yyyy');
   }).reverse();
  return months;
 }
@@ -3552,10 +3558,7 @@ function customSettingsTable(
       {
         ...defaultColumn,
         key: "TODAYSVALUE",
-        name: `value\nat ${dateAsString(
-          DateFormatType.View,
-          getTodaysDate(model),
-        )}`,
+        name: `value\nat ${getTodaysDate(model).getViewDescription()}`,
         renderEditCell: undefined,
       },
     ]);
@@ -3641,10 +3644,7 @@ function adjustSettingsTable(
         {
           ...defaultColumn,
           key: "TODAYSVALUE",
-          name: `value\nat ${dateAsString(
-            DateFormatType.View,
-            getTodaysDate(model),
-          )}`,
+          name: `value\nat ${getTodaysDate(model).getViewDescription()}`,
           renderEditCell: undefined,
         },
         {

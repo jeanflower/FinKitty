@@ -141,10 +141,7 @@ export function todaysIncomesTable(
           model,
           "todaysIncomesTable",
         ),
-        `Income values (categorised) at ${dateAsString(
-          DateFormatType.View,
-          today,
-        )}`,
+        `Income values (categorised) at ${today.getViewDescription()}`,
       )}
     </>
   );

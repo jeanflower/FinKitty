@@ -32,7 +32,7 @@ import {
   Setting,
   Transaction,
 } from "../types/interfaces";
-import { DateFormatType, log, makeDateFromString, showObj } from "../utils/utils";
+import { DateFormatType, FinKittyDate, log, makeDateFromString, showObj } from "../utils/utils";
 import { checkModel, generateAndCheckModel } from "./checks";
 
 import { makeModelFromJSONString } from "./modelFromJSON";
@@ -101,7 +101,7 @@ export function setNonsenseSetting(
 }
 
 // might be today or might be set using a setting
-export function getTodaysDate(model: ModelData) {
+export function getTodaysDate(model: ModelData): FinKittyDate {
   let today = new Date();
   const todaysDate = getSettings(model.settings, valueFocusDate, "", false);
   if (todaysDate !== "") {
@@ -109,7 +109,7 @@ export function getTodaysDate(model: ModelData) {
   } else {
     today.setHours(0, 0, 0, 0);
   }
-  return today;
+  return new FinKittyDate(today);
 }
 
 export function getROI(model: ModelData): Interval {
@@ -120,8 +120,8 @@ export function getROI(model: ModelData): Interval {
   const startDate = checkTriggerDate(start, model.triggers, v, undefined, model);
   const endDate = checkTriggerDate(end, model.triggers, v, undefined, model);
   return {
-    start: startDate !== undefined ? startDate : new Date("1999"),
-    end: endDate !== undefined ? endDate : new Date("2099"),
+    start: startDate !== undefined ? new FinKittyDate(startDate) : new FinKittyDate(new Date("1999")),
+    end: endDate !== undefined ? new FinKittyDate(endDate) : new FinKittyDate(new Date("2099")),
   };
 }
 
@@ -510,11 +510,11 @@ export function isHistorical(obj: Item, model: ModelData) {
   if (determineIfIsAsset(obj)) {
     return false;
   } else {
-    const date = getTodaysDate(model);
+    const date: FinKittyDate = getTodaysDate(model);
     const v = getVarVal(model.settings);
     if (determineIfIsIncome(obj)) {
       const i = obj as Income;
-      const hasFinished = getTriggerDate(i.END, model.triggers, v, model) < date;
+      const hasFinished = getTriggerDate(i.END, model.triggers, v, model).getTime() < date.getTime();
       if (hasFinished) {
         return true;
       } else {
@@ -523,7 +523,7 @@ export function isHistorical(obj: Item, model: ModelData) {
     } else {
       if (determineIfIsExpense(obj)) {
         const e = obj as Expense;
-        const hasFinished = getTriggerDate(e.END, model.triggers, v, model) < date;
+        const hasFinished = getTriggerDate(e.END, model.triggers, v, model).getTime() < date.getTime();
         if (hasFinished) {
           return true;
         } else {
@@ -549,7 +549,7 @@ export function isHistorical(obj: Item, model: ModelData) {
             }
 
             const tDate = getTriggerDate(t.DATE, model.triggers, v, model);
-            if (tDate < date) {
+            if (tDate.getTime() < date.getTime()) {
               // this feels old - is this the latest revalue of this asset?
               const laterOldRevalue = model.transactions.find((lor) => {
                 if (lor === t) {
@@ -562,10 +562,10 @@ export function isHistorical(obj: Item, model: ModelData) {
                   return false;
                 }
                 const lorDate = getTriggerDate(lor.DATE, model.triggers, v, model);
-                if (lorDate > date) {
+                if (lorDate.getTime() > date.getTime()) {
                   return false;
                 }
-                if (lorDate <= tDate) {
+                if (lorDate.getTime() <= tDate.getTime()) {
                   return false;
                 }
                 return true;
@@ -578,7 +578,7 @@ export function isHistorical(obj: Item, model: ModelData) {
             }
           } else if (t.RECURRENCE === "") {
             const tDate = getTriggerDate(t.DATE, model.triggers, v, model);
-            if (tDate < date) {
+            if (tDate.getTime() < date.getTime()) {
               return true;
             }
           }

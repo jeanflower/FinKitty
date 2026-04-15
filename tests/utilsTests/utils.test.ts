@@ -981,181 +981,93 @@ describe("utils tests", () => {
     //  undefined,
     //);
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("a", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Mon Jan 01 2018");
+      getTriggerDate("a", [simpleTrigger], varVal).getTestDescription()).toEqual("Mon Jan 01 2018");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("a+1y", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Tue Jan 01 2019");
+      getTriggerDate("a+1y", [simpleTrigger], varVal).getTestDescription()).toEqual("Tue Jan 01 2019");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("a-1y", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Sun Jan 01 2017");
+      getTriggerDate("a-1y", [simpleTrigger], varVal).getTestDescription()).toEqual("Sun Jan 01 2017");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("a+1m", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Thu Feb 01 2018");
+      getTriggerDate("a+1m", [simpleTrigger], varVal).getTestDescription()).toEqual("Thu Feb 01 2018");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("a-1m", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Fri Dec 01 2017");
+      getTriggerDate("a-1m", [simpleTrigger], varVal).getTestDescription()).toEqual("Fri Dec 01 2017");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("a+1d", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Tue Jan 02 2018");
+      getTriggerDate("a+1d", [simpleTrigger], varVal).getTestDescription()).toEqual("Tue Jan 02 2018");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("a-1d", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Sun Dec 31 2017");
+      getTriggerDate("a-1d", [simpleTrigger], varVal).getTestDescription()).toEqual("Sun Dec 31 2017");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("1 Jan 2018-1d", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Sun Dec 31 2017");
+      getTriggerDate("1 Jan 2018-1d", [simpleTrigger], varVal).getTestDescription()).toEqual("Sun Dec 31 2017");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("2018-1d", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Sun Dec 31 2017"); // will fail in different locales
+      getTriggerDate("2018-1d", [simpleTrigger], varVal).getTestDescription()).toEqual("Sun Dec 31 2017"); // will fail in different locales
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("1 Jan 2018-1d-2d", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Invalid Date");
+      getTriggerDate("1 Jan 2018-1d-2d", [simpleTrigger], varVal).getTestDescription()).toEqual("Invalid Date");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("a-1m-2d", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Invalid Date");
+      getTriggerDate("a-1m-2d", [simpleTrigger], varVal).getTestDescription()).toEqual("Invalid Date");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
+      getTriggerDate(
           "1 Nov 2018<2 Nov 2018?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
-        ),
-      ),
-    ).toEqual("Sun Dec 01 2019");
+        ).getTestDescription()).toEqual("Sun Dec 01 2019");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
+      getTriggerDate(
           "2 Nov 2018<1 Nov 2018?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
-        ),
-      ),
-    ).toEqual("Mon Dec 02 2019");
+        ).getTestDescription()).toEqual("Mon Dec 02 2019");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
+      getTriggerDate(
           "1 Nov 2018<2 Nov 2018?a:2 Dec 2019",
           [simpleTrigger],
           varVal,
-        ),
-      ),
-    ).toEqual("Mon Jan 01 2018");
+        ).getTestDescription()).toEqual("Mon Jan 01 2018");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
+      getTriggerDate(
           "2 Nov 2018<1 Nov 2018?1 Dec 2019:a",
           [simpleTrigger],
           varVal,
-        ),
-      ),
-    ).toEqual("Mon Jan 01 2018");
+        ).getTestDescription()).toEqual("Mon Jan 01 2018");
 
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
+      getTriggerDate(
           "a<2 Nov 2018?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
-        ),
-      ),
-    ).toEqual("Sun Dec 01 2019");
+        ).getTestDescription()).toEqual("Sun Dec 01 2019");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
+      getTriggerDate(
           "2 Nov 2018<a?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
-        ),
-      ),
-    ).toEqual("Mon Dec 02 2019");
+        ).getTestDescription()).toEqual("Mon Dec 02 2019");
 
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
+      getTriggerDate(
           "1 Nov 2018<2 Nov 2018?1 Dec 2019:nonsense",
           [simpleTrigger],
           varVal,
-        ),
-      ),
-    ).toEqual("Sun Dec 01 2019");
+        ).getTestDescription()).toEqual("Sun Dec 01 2019");
 
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
+      getTriggerDate(
           "nonsense<1 Nov 2018?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
-        ),
-      ),
-    ).toEqual("Invalid Date");
+        ).getTestDescription()).toEqual("Invalid Date");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
+      getTriggerDate(
           "1 Nov 2018<nonsense?1 Dec 2019:2 Dec 2019",
           [simpleTrigger],
           varVal,
-        ),
-      ),
-    ).toEqual("Invalid Date");
+        ).getTestDescription()).toEqual("Invalid Date");
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate(
+      getTriggerDate(
           "1 Nov 2018<2 Nov 2018?nonsense:2 Dec 2019",
           [simpleTrigger],
           varVal,
-        ),
-      ),
-    ).toEqual("Invalid Date");
+        ).getTestDescription()).toEqual("Invalid Date");
 
     expect(
-      dateAsString(
-        DateFormatType.Test,
-        getTriggerDate("nonsense", [simpleTrigger], varVal),
-      ),
-    ).toEqual("Invalid Date");
+      getTriggerDate("nonsense", [simpleTrigger], varVal).getTestDescription()).toEqual("Invalid Date");
   });
   it("makeDateTooltip", () => {
     const varVal = 1.0;

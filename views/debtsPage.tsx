@@ -131,10 +131,7 @@ export function todaysDebtsTable(
           model,
           "todaysDebtsTable",
         ),
-        `Debt values (categorised) at ${dateAsString(
-          DateFormatType.View,
-          today,
-        )}`,
+        `Debt values (categorised) at ${today.getViewDescription()}`,
       )}
     </>
   );

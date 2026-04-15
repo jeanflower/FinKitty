@@ -115,8 +115,10 @@ function checkTransactionWords(
       (as.NAME === word || as.CATEGORY === word)
   );
   if (a !== undefined) {
-    if (getTriggerDate(a.START, triggers, v, model) <=
-       getTriggerDate(date, triggers, v, model)) {
+    if (
+      getTriggerDate(a.START, triggers, v, model).getTime() <=
+      getTriggerDate(date, triggers, v, model).getTime()
+    ) {
       return '';
     } else {
       return `asset ${a.NAME} starts too late ${a.START} > ${getTriggerDate(date, triggers, v, model)}`;
@@ -135,8 +137,9 @@ function checkTransactionWords(
   );  
   if (i !== undefined) {
     if (
-      getTriggerDate(i.START, triggers, v, model) >
-      getTriggerDate(date, triggers, v, model)) {
+      getTriggerDate(i.START, triggers, v, model).getTime() >
+      getTriggerDate(date, triggers, v, model).getTime()
+    ) {
       if (name.startsWith(pensionDB)) {
         // allow this!
         // pension SSs can start before their contributing incomes
@@ -171,8 +174,8 @@ function checkTransactionWords(
   i = model.incomes.find(
     (is) =>
       is.LIABILITY.includes(word) &&
-      getTriggerDate(is.START, triggers, v, model) <=
-      getTriggerDate(date, triggers, v, model),
+      getTriggerDate(is.START, triggers, v, model).getTime() <=
+      getTriggerDate(date, triggers, v, model).getTime(),
   );
   if (i !== undefined) {
     // the word is an income liability
@@ -503,12 +506,12 @@ export function checkIncome(i: Income, model: ModelData): string {
   });
   if (cashAssets.length > 0) {
     const cashStarts = getTriggerDate(cashAssets[0].START, model.triggers, v, model);
-    if (startDate < cashStarts) {
+    if (startDate.getTime() < cashStarts.getTime()) {
       return `Income '${i.NAME
         }' start date must be after cash starts; ${dateAsString(
           DateFormatType.View,
           startDate,
-        )} is before ${dateAsString(DateFormatType.View, cashStarts)}`;
+        )} is before ${cashStarts.getViewDescription()}`;
     }
   }
   const taxAssets = model.assets.filter((m) => {
@@ -527,7 +530,7 @@ export function checkIncome(i: Income, model: ModelData): string {
   if (endDate === undefined || !checkDate(endDate)) {
     return `Income '${i.NAME}' end date doesn't make sense : ${showObj(i.END)}`;
   }
-  if (valueSetDate > startDate) {
+  if (valueSetDate.getTime() > startDate.getTime()) {
     return `Income '${i.NAME
       }' value must be set on or before the start of the income.
       Start is ${dateAsString(DateFormatType.View, startDate)} and
@@ -568,14 +571,14 @@ export function checkExpense(e: Expense, model: ModelData): string {
     return `Expense '${e.NAME}' end date doesn't make sense :
       ${showObj(e.END)}`;
   }
-  if (valueSetDate > startDate) {
+  if (valueSetDate.getTime() > startDate.getTime()) {
     return `Expense '${e.NAME
       }' value must be set on or before the start of the income.
       Start is ${dateAsString(DateFormatType.View, startDate)} and
       value is set ${dateAsString(DateFormatType.View, valueSetDate)}.`;
   }
 
-  if (valueSetDate < startDate) {
+  if (valueSetDate.getTime() < startDate.getTime()) {
     const cpiSetting = model.settings.find((s) => {
       return s.NAME === cpi;
     });
@@ -626,7 +629,7 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
       )}'' should have TO an income not an asset : ${a.NAME}`;
     }
     if (
-      getTriggerDate(a.START, triggers, v, model) > getTriggerDate(t.DATE, triggers, v, model)
+      getTriggerDate(a.START, triggers, v, model).getTime() > getTriggerDate(t.DATE, triggers, v, model).getTime()
     ) {
       return (
         `Transaction '${getDisplayName(t.NAME, t.TYPE)}' dated before start ` +
@@ -660,8 +663,8 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
     // transacting on an income - check dates
     if (!t.NAME.startsWith(pensionDB)) {
       if (
-        getTriggerDate(i.START, triggers, v, model) >
-        getTriggerDate(t.DATE, triggers, v, model)
+        getTriggerDate(i.START, triggers, v, model).getTime() >
+        getTriggerDate(t.DATE, triggers, v, model).getTime()
       ) {
         return (
           `Transaction '${getDisplayName(
@@ -685,8 +688,8 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
     }
     // transacting on an expense - check dates
     if (
-      getTriggerDate(exp.START, triggers, v, model) >
-      getTriggerDate(t.DATE, triggers, v, model)
+      getTriggerDate(exp.START, triggers, v, model).getTime() >
+      getTriggerDate(t.DATE, triggers, v, model).getTime()
     ) {
       return (
         `Transaction '${getDisplayName(t.NAME, t.TYPE)}' dated before start ` +
@@ -694,7 +697,7 @@ function checkTransactionTo(word: string, t: Transaction, model: ModelData) {
       );
     }
     if (
-      getTriggerDate(exp.END, triggers, v, model) < getTriggerDate(t.DATE, triggers, v, model)
+      getTriggerDate(exp.END, triggers, v, model).getTime() < getTriggerDate(t.DATE, triggers, v, model).getTime()
     ) {
       return (
         `Transaction '${getDisplayName(t.NAME, t.TYPE)}' dated after end ` +
@@ -1699,7 +1702,7 @@ function checkViewROI(settings: Setting[], triggers: Trigger[]) {
     return `Setting "${roiEnd}" should be a valid date string (e.g. 1 April 2018)`;
   }
 
-  if (endDate < startDate) {
+  if (endDate.getTime() < startDate.getTime()) {
     return `Setting "${roiEnd}" should be after setting "${roiStart}"`;
   }
   return "";
@@ -1759,7 +1762,7 @@ function checkMonitorRange(
     return `Setting "${monitorEnd}" should be a valid date string (e.g. 1 April 2018)`;
   }
 
-  if (endDate < startDate) {
+  if (endDate.getTime() < startDate.getTime()) {
     return `Setting "${monitorEnd}" should be after setting "${monitorStart}"`;
   }
   return "";
