@@ -1,6 +1,12 @@
 import React, { Component, FormEvent } from "react";
 
-import { DateFormatType, log, printDebug, showObj } from "../../utils/utils";
+import {
+  DateFormatType,
+  FinKittyDate,
+  log,
+  printDebug,
+  showObj,
+} from "../../utils/utils";
 import { InputRow } from "./Input";
 import { dateAsString } from "../../utils/stringUtils";
 import { inspect } from 'util';
@@ -12,7 +18,7 @@ interface EditFormState {
 }
 interface EditProps {
   name: string;
-  value: Date;
+  value: Date | FinKittyDate;
   submitFunction: (value: string) => Promise<{
     updated: boolean;
     value: string;
@@ -20,6 +26,13 @@ interface EditProps {
   showAlert: (message: string) => void;
 }
 export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
+  private getDisplayDate(value: Date | FinKittyDate): Date {
+    if (value instanceof FinKittyDate) {
+      return value.d;
+    }
+    return value;
+  }
+
   public constructor(props: EditProps) {
     super(props);
     /* istanbul ignore if  */
@@ -27,7 +40,10 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
       log("props for AddDeleteEntryForm: " + showObj(props));
     }
 
-    const dateString = dateAsString(DateFormatType.View, props.value);
+    const dateString = dateAsString(
+      DateFormatType.View,
+      this.getDisplayDate(props.value),
+    );
 
     this.state = {
       value: dateString,
@@ -47,7 +63,10 @@ export class AddDeleteEntryForm extends Component<EditProps, EditFormState> {
           type={"text"}
           name={`EditWidget${this.props.name}`}
           value={this.state.value}
-          placeholder={this.props.value}
+          placeholder={dateAsString(
+            DateFormatType.View,
+            this.getDisplayDate(this.props.value),
+          )}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               this.setState({ value: e.target.value });
           }}

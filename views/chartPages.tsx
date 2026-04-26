@@ -58,10 +58,63 @@ import {
 import { getColor, getNameForChart, ViewSettings } from "../utils/viewUtils";
 import { makeStringFromCashValue } from "../utils/stringUtils";
 import { getSettings, isNumberString } from "../models/modelQueries";
+import { getYearOfTaxYear } from "../models/evaluations";
+import type { ChartXLabelFormat } from "../types/interfaces";
+
+/** e.g. 6 Apr 2020 → "2020/21" (UK tax year: 6 Apr – 5 Apr) */
+function formatUKTaxYearCategoryLabel(
+  l: string | number | undefined,
+): string {
+  if (l === undefined) {
+    return "";
+  }
+  if (typeof l === "number" || isNumberString(String(l))) {
+    return String(l);
+  }
+  const d = new Date(l as string);
+  if (Number.isNaN(d.getTime())) {
+    return String(l);
+  }
+  const y0 = getYearOfTaxYear(d);
+  const y1Short = (y0 + 1) % 100;
+  const y1p = y1Short < 10 ? `0${y1Short}` : `${y1Short}`;
+  return `${y0}/${y1p}`;
+}
+
+/** Formatted category / period label: must match x-axis tick formatting and tooltip title. */
+function formatBarCategoryLabel(
+  l: string | number | undefined,
+  viewSettings: ViewSettings,
+  xLabelFormat: ChartXLabelFormat = "default",
+): string {
+  if (l === undefined) {
+    return "";
+  }
+  if (xLabelFormat === "ukTaxYear") {
+    return formatUKTaxYearCategoryLabel(l);
+  }
+  if (typeof l === "number" || isNumberString(String(l))) {
+    return String(l);
+  }
+  const d = new Date(l as string);
+  if (Number.isNaN(d.getTime())) {
+    return String(l);
+  }
+  const freq = viewSettings.getViewSetting(viewFrequency, annually);
+  if (freq === weekly) {
+    return dateFormat(d, "dd mmmm yyyy");
+  } else if (freq === monthly) {
+    return dateFormat(d, "mmmm yyyy");
+  } else {
+    // annual buckets: show the full bucket date (day month year), not year-only
+    return dateFormat(d, "dd mmmm yyyy");
+  }
+}
 
 export function makeBarData(
   labels: string[],
   chartData: ItemChartData[],
+  options?: { xLabelFormat?: ChartXLabelFormat },
 ): ChartData {
   return {
     labels: labels,
@@ -77,6 +130,9 @@ export function makeBarData(
       };
     }),
     displayLegend: true,
+    ...(options?.xLabelFormat !== undefined
+      ? { xLabelFormat: options.xLabelFormat }
+      : {}),
   };
 }
 
@@ -467,6 +523,22 @@ function makeBarChart(
             display: data.displayLegend,
             position: "right",
           },
+          tooltip: {
+            callbacks: {
+              title: (tooltipItems) => {
+                if (tooltipItems.length === 0) {
+                  return "";
+                }
+                const idx = tooltipItems[0].dataIndex;
+                const l = data.labels[idx];
+                return formatBarCategoryLabel(
+                  l,
+                  viewSettings,
+                  data.xLabelFormat ?? "default",
+                );
+              },
+            },
+          },
         },
         animation: {
           duration: 0,
@@ -486,22 +558,12 @@ function makeBarChart(
                     )} to make tick text`,
                   );
                 }
-                const l: number | string = data.labels[index];
-                if (typeof l === "number" || isNumberString(l)) {
-                  return l;
-                }
-                const d = new Date(l);
-                const freq = viewSettings.getViewSetting(
-                  viewFrequency,
-                  annually,
+                const l: number | string | undefined = data.labels[index];
+                return formatBarCategoryLabel(
+                  l,
+                  viewSettings,
+                  data.xLabelFormat ?? "default",
                 );
-                if (freq === weekly) {
-                  return dateFormat(d, "dd mmmm yyyy");
-                } else if (freq === monthly) {
-                  return dateFormat(d, "mmmm yyyy");
-                } else {
-                  return dateFormat(d, "yyyy");
-                }
               },
             },
           },

@@ -202,10 +202,13 @@ export interface ChartDataSet {
   //barThickness: number,
   barPercentage: number;
 }
+export type ChartXLabelFormat = "default" | "ukTaxYear";
+
 export interface ChartData {
   labels: string[];
   datasets: ChartDataSet[];
   displayLegend: boolean;
+  xLabelFormat?: ChartXLabelFormat;
 }
 export interface ItemChartData {
   item: Item;
@@ -235,6 +238,7 @@ export interface ReportDatum {
 
 export interface DataForView {
   labels: string[];
+  taxLabels: string[];
   assetData: ItemChartData[];
   debtData: ItemChartData[];
   expensesData: ItemChartData[];

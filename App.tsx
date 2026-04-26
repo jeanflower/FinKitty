@@ -809,7 +809,19 @@ async function refreshDataInternal(
     const incomesChartData = makeBarData(chartData.labels, incomesData);
     const assetChartData = makeBarData(chartData.labels, assetData);
     const debtChartData = makeBarData(chartData.labels, debtData);
-    const taxChartData = makeBarData(chartData.labels, taxData);
+    const taxBarLabelsFromPoints =
+      taxData.length > 0
+        ? taxData[0].chartDataPoints.map((p) => p.label)
+        : [];
+    const taxLabels =
+      taxBarLabelsFromPoints.length > 0
+        ? taxBarLabelsFromPoints
+        : chartData.taxLabels.length > 0
+          ? chartData.taxLabels
+          : chartData.labels;
+    const taxChartData = makeBarData(taxLabels, taxData, {
+      xLabelFormat: "ukTaxYear",
+    });
 
     const planningData = getAnnualPlanningAssetData(
       modelProcessed, 

@@ -39,7 +39,10 @@ import {
   saveLogsUsingFs,
   showObj,
 } from "../utils/utils";
-import { generateSequenceOfDates, processGenerators } from "./evaluations";
+import {
+  generateSequenceOfDates,
+  processGenerators,
+} from "./evaluations";
 
 import { checkEvalnType, evaluationType } from "./checks";
 import {
@@ -670,6 +673,52 @@ function generateEvaluationDates(roi: Interval, frequency: string) {
   return generateSequenceOfDates(roi, freqString, addPreDate);
 }
 
+/**
+ * Simplified "tax year" for charting: 1 Apr (year) through 31 Mar (year+1),
+ * matching the April 1 start snap used above. (In-app tax logic may use
+ * different HMRC boundaries; this is only the chart axis.)
+ */
+function getTaxYearStartForChart(d: Date): Date {
+  const m = d.getMonth();
+  const y = d.getFullYear();
+  if (m < 3) {
+    return new Date(y - 1, 3, 1);
+  }
+  return new Date(y, 3, 1);
+}
+
+/** Exclusive end for sequence generation: the 1 Apr after the last day of the tax year containing d. */
+function getTaxYearEndExclusiveForChart(d: Date): Date {
+  const tys = getTaxYearStartForChart(d);
+  return new Date(tys.getFullYear() + 1, 3, 1);
+}
+
+function generateTaxChartDates(roi: Interval, frequency: string) {
+  let taxYearStart = new Date(roi.start.d);
+  if (
+    roi.start.d.getMonth() > 3 ||
+    (roi.start.d.getMonth() === 3 && roi.start.d.getDate() > 1)
+  ) {
+    taxYearStart = new Date(roi.start.d.getFullYear(), 3, 1);
+  }
+  const taxYearEnd = getTaxYearEndExclusiveForChart(roi.end.d);
+  const snappedROI: Interval = {
+    start: new FinKittyDate(taxYearStart),
+    end: new FinKittyDate(taxYearEnd),
+  };
+  return generateEvaluationDates(snappedROI, frequency);
+}
+
+/** Full date list from the tax-year–aligned grid (includes pre-bucket; see getTaxChartSeriesPointCount). */
+export function getTaxChartDateCount(roi: Interval, frequency: string): number {
+  return generateTaxChartDates(roi, frequency).length;
+}
+
+/** Bar count actually shown for tax series: `makeChartData` drops the pre-date with `taxDates.shift()`. */
+export function getTaxChartSeriesPointCount(roi: Interval, frequency: string): number {
+  return Math.max(0, generateTaxChartDates(roi, frequency).length - 1);
+}
+
 function getDisplayType(evaln: Evaluation, nameToTypeMap: Map<string, string>) {
   // ensure that for this evaluation, its type
   // is present in the typeDateNameValueMap
@@ -698,6 +747,7 @@ function needsEmptyCharts(evaluationsAndVals: {
 function emptyCharts() {
   const emptyData: DataForView = {
     labels: [],
+    taxLabels: [],
     expensesData: [],
     incomesData: [],
     assetData: [],
@@ -812,6 +862,7 @@ export function makeChartData(
   // set up empty data structure for result
   const result: DataForView = {
     labels: [],
+    taxLabels: [],
     expensesData: [],
     incomesData: [],
     assetData: [],
@@ -839,6 +890,10 @@ export function makeChartData(
   const nameToTypeMap = mapNamesToTypes(model);
 
   const allDates: FinKittyDate[] = generateEvaluationDates(roi, frequency);
+  // Tax chart buckets always use UK tax-year–aligned dates; other charts use ROI
+  // buckets. Both are built from the same evaluation list, independent of the
+  // current UI tab, so view switches do not require different bucketing logic.
+  const taxDates: FinKittyDate[] = generateTaxChartDates(roi, frequency);
 
   // log(`dates for chart = ${showObj(allDates)}`);
   // type, date, name, value
@@ -880,16 +935,20 @@ export function makeChartData(
 
   let taxTotal = 0.0;
   evaluationsAndVals.evaluations.forEach((evaln) => {
-    const firstDateAfterEvaln = allDates.find((d) => d.getTime() >= evaln.date.getTime());
+    const evalnType = getDisplayType(evaln, nameToTypeMap);
+    if (!evalnType) {
+      // e.g. when quantities change we come here
+      return;
+    }
+    const datesForEvaln =
+      evalnType === evaluationType.taxLiability ? taxDates : allDates;
+    const firstDateAfterEvaln = datesForEvaln.find(
+      (d) => d.getTime() >= evaln.date.getTime(),
+    );
     if (firstDateAfterEvaln === undefined) {
       // no need to capture data from this evaluation
       // it's after all our dates for the chart
       // log(`evaln = ${showObj(evaln)} not in date range - don't process`);
-      return;
-    }
-    const evalnType = getDisplayType(evaln, nameToTypeMap);
-    if (!evalnType) {
-      // e.g. when quantities change we come here
       return;
     }
     // log(`processing ${showObj(evaln)}`);
@@ -1020,16 +1079,20 @@ export function makeChartData(
   logMapOfMapofMap(typeDateNameValueMap);
 
   evaluationsAndVals.evaluations.forEach((evaln) => {
-    const firstDateAfterEvaln = allDates.find((d) => d.getTime() >= evaln.date.getTime());
+    const evalnType = getDisplayType(evaln, nameToTypeMap);
+    if (!evalnType) {
+      // e.g. when quantities change we come here
+      return;
+    }
+    const datesForEvaln =
+      evalnType === evaluationType.taxLiability ? taxDates : allDates;
+    const firstDateAfterEvaln = datesForEvaln.find(
+      (d) => d.getTime() >= evaln.date.getTime(),
+    );
     if (firstDateAfterEvaln === undefined) {
       // no need to capture data from this evaluation
       // it's after all our dates for the chart
       // log(`evaln = ${showObj(evaln)} not in date range - don't process`);
-      return;
-    }
-    const evalnType = getDisplayType(evaln, nameToTypeMap);
-    if (!evalnType) {
-      // e.g. when quantities change we come here
       return;
     }
     let evalNameForChart = evaln.name;
@@ -1223,6 +1286,7 @@ export function makeChartData(
 
   // remove the 'preDate' (helped with defining first displayable bucket)
   allDates.shift();
+  taxDates.shift();
 
   const taxValueSources = assetOrDebtValueSources;
   const assetDetail = viewSettings.getViewSetting(viewDetail, coarseDetail, assetsView); // TODO debtsView?
@@ -1397,7 +1461,7 @@ export function makeChartData(
     logMapOfMap(mapForTaxChart);
     result.taxData = makeChartDataPoints(
       mapForTaxChart,
-      allDates,
+      taxDates,
       taxValueSources,
       model.settings,
       false, // don't negate
@@ -1440,6 +1504,13 @@ export function makeChartData(
   // log(`chart data produced: ${showObj(result)}`);
   const birthDateSetting = getSettings(model.settings, birthDate, "");
   result.labels = allDates.map((d) => {
+    if (birthDateSetting !== "") {
+      return makeAgeString(d.d, birthDateSetting, model);
+    } else {
+      return d.getDescription();
+    }
+  });
+  result.taxLabels = taxDates.map((d) => {
     if (birthDateSetting !== "") {
       return makeAgeString(d.d, birthDateSetting, model);
     } else {

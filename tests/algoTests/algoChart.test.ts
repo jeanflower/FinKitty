@@ -2150,68 +2150,67 @@ describe(" chart data tests", () => {
       viewSettings,
       evalsAndValues,
     );
-  
     // printTestCodeForChart(result);
-  
-    expect(result.expensesData.length).toBe(0);
-    expect(result.incomesData.length).toBe(1);
-    expect(result.incomesData[0].item.NAME).toBe('javaJob1');
-    {
-    const chartPts = result.incomesData[0].chartDataPoints;
-    expect(chartPts.length).toBe(5);
-    expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
-    expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
-    expectChartData(chartPts, 2, 'Fri Apr 01 2022', 3000, -1);
-    expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
-    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
-    }
-    
-    expect(result.assetData.length).toBe(3);
-    expect(result.assetData[0].item.NAME).toBe('Cash');
-    {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(5);
-    expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
-    expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
-    expectChartData(chartPts, 2, 'Fri Apr 01 2022', 5700, -1);
-    expectChartData(chartPts, 3, 'Sat Apr 01 2023', 5700, -1);
-    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 5700, -1);
-    }
-    
-    expect(result.assetData[1].item.NAME).toBe('ScottishWidows');
-    {
-    const chartPts = result.assetData[1].chartDataPoints;
-    expect(chartPts.length).toBe(5);
-    expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
-    expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
-    expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1300, -1);
-    expectChartData(chartPts, 3, 'Sat Apr 01 2023', 1300, -1);
-    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1300, -1);
-    }
-    
-    expect(result.assetData[2].item.NAME).toBe('NorwichUnion');
-    {
-    const chartPts = result.assetData[2].chartDataPoints;
-    expect(chartPts.length).toBe(5);
-    expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
-    expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
-    expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1300, -1);
-    expectChartData(chartPts, 3, 'Sat Apr 01 2023', 1300, -1);
-    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1300, -1);
-    }
-    
-    expect(result.debtData.length).toBe(0);
-    expect(result.taxData.length).toBe(1);
-    expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
-    {
-    const chartPts = result.taxData[0].chartDataPoints;
-    expect(chartPts.length).toBe(5);
-    expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
-    expectChartData(chartPts, 1, 'Thu Apr 01 2021', 250, -1);
-    expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2975, -1);
-    expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2475, -1);
-    expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
-    }
+expect(result.expensesData.length).toBe(0);
+expect(result.incomesData.length).toBe(1);
+expect(result.incomesData[0].item.NAME).toBe('javaJob1');
+{
+  const chartPts = result.incomesData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 3000, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+}
+
+expect(result.assetData.length).toBe(3);
+expect(result.assetData[0].item.NAME).toBe('Cash');
+{
+  const chartPts = result.assetData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 5700, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 5700, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 5700, -1);
+}
+
+expect(result.assetData[1].item.NAME).toBe('ScottishWidows');
+{
+  const chartPts = result.assetData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1300, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 1300, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1300, -1);
+}
+
+expect(result.assetData[2].item.NAME).toBe('NorwichUnion');
+{
+  const chartPts = result.assetData[2].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 1300, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 1300, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 1300, -1);
+}
+
+expect(result.debtData.length).toBe(0);
+expect(result.taxData.length).toBe(1);
+expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
+{
+  const chartPts = result.taxData[0].chartDataPoints;
+  expect(chartPts.length).toBe(6);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 250, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2975, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2475, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  expectChartData(chartPts, 5, 'Tue Apr 01 2025', 0, -1);
+}
   });
 
   it('handle PDC generator coarse', () => {
@@ -2360,56 +2359,55 @@ describe(" chart data tests", () => {
       viewSettings,
       evalsAndValues,
     );
-  
     // printTestCodeForChart(result);
-  
-    expect(result.expensesData.length).toBe(0);
-      expect(result.incomesData.length).toBe(1);
-      expect(result.incomesData[0].item.NAME).toBe('programming');
-      {
-      const chartPts = result.incomesData[0].chartDataPoints;
-      expect(chartPts.length).toBe(5);
-      expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
-      expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
-      expectChartData(chartPts, 2, 'Fri Apr 01 2022', 3000, -1);
-      expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
-      expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
-      }
-      
-      expect(result.assetData.length).toBe(2);
-      expect(result.assetData[0].item.NAME).toBe('Cash');
-      {
-      const chartPts = result.assetData[0].chartDataPoints;
-      expect(chartPts.length).toBe(5);
-      expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
-      expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
-      expectChartData(chartPts, 2, 'Fri Apr 01 2022', 5700, -1);
-      expectChartData(chartPts, 3, 'Sat Apr 01 2023', 5700, -1);
-      expectChartData(chartPts, 4, 'Mon Apr 01 2024', 5700, -1);
-      }
-      
-      expect(result.assetData[1].item.NAME).toBe('pension');
-      {
-      const chartPts = result.assetData[1].chartDataPoints;
-      expect(chartPts.length).toBe(5);
-      expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
-      expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
-      expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2600, -1);
-      expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2600, -1);
-      expectChartData(chartPts, 4, 'Mon Apr 01 2024', 2600, -1);
-      }
-      
-      expect(result.debtData.length).toBe(0);
-      expect(result.taxData.length).toBe(1);
-      expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
-      {
-      const chartPts = result.taxData[0].chartDataPoints;
-      expect(chartPts.length).toBe(5);
-      expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
-      expectChartData(chartPts, 1, 'Thu Apr 01 2021', 250, -1);
-      expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2975, -1);
-      expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2475, -1);
-      expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
-      }
+expect(result.expensesData.length).toBe(0);
+expect(result.incomesData.length).toBe(1);
+expect(result.incomesData[0].item.NAME).toBe('programming');
+{
+  const chartPts = result.incomesData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 3000, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 0, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+}
+
+expect(result.assetData.length).toBe(2);
+expect(result.assetData[0].item.NAME).toBe('Cash');
+{
+  const chartPts = result.assetData[0].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 3000, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 5700, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 5700, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 5700, -1);
+}
+
+expect(result.assetData[1].item.NAME).toBe('pension');
+{
+  const chartPts = result.assetData[1].chartDataPoints;
+  expect(chartPts.length).toBe(5);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 0, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2600, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2600, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 2600, -1);
+}
+
+expect(result.debtData.length).toBe(0);
+expect(result.taxData.length).toBe(1);
+expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
+{
+  const chartPts = result.taxData[0].chartDataPoints;
+  expect(chartPts.length).toBe(6);
+  expectChartData(chartPts, 0, 'Wed Apr 01 2020', 0, -1);
+  expectChartData(chartPts, 1, 'Thu Apr 01 2021', 250, -1);
+  expectChartData(chartPts, 2, 'Fri Apr 01 2022', 2975, -1);
+  expectChartData(chartPts, 3, 'Sat Apr 01 2023', 2475, -1);
+  expectChartData(chartPts, 4, 'Mon Apr 01 2024', 0, -1);
+  expectChartData(chartPts, 5, 'Tue Apr 01 2025', 0, -1);
+}
   });
 });

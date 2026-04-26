@@ -4308,61 +4308,95 @@ describe("evaluations tests", () => {
       viewSettings,
       evalsAndValues,
     );
-
     // printTestCodeForChart(result);
+expect(result.expensesData.length).toBe(0);
+expect(result.incomesData.length).toBe(0);
+expect(result.assetData.length).toBe(2);
+expect(result.assetData[0].item.NAME).toBe('savings');
+{
+  const chartPts = result.assetData[0].chartDataPoints;
+  expect(chartPts.length).toBe(6);
+  expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+  expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500000, -1);
+  expectChartData(chartPts, 2, 'Thu Feb 01 2018', 504744.40, 2);
+  expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509533.81, 2);
+  expectChartData(chartPts, 4, 'Sun Apr 01 2018', 514368.67, 2);
+  expectChartData(chartPts, 5, 'Tue May 01 2018', 519249.41, 2);
+}
 
-      expect(result.expensesData.length).toBe(0);
-      expect(result.incomesData.length).toBe(0);
-      expect(result.assetData.length).toBe(2);
-      expect(result.assetData[0].item.NAME).toBe('savings');
-      {
-      const chartPts = result.assetData[0].chartDataPoints;
-      expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 500000, -1);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 504744.40, 2);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 509533.81, 2);
-      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 514368.67, 2);
-      expectChartData(chartPts, 5, 'Tue May 01 2018', 519249.41, 2);
-      }
-      
-      expect(result.assetData[1].item.NAME).toBe('Cash');
-      {
-      const chartPts = result.assetData[1].chartDataPoints;
-      expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -115.54, 2);
-      expectChartData(chartPts, 4, 'Sun Apr 01 2018', -240.09, 2);
-      expectChartData(chartPts, 5, 'Tue May 01 2018', -373.73, 2);
-      }
-      
-      expect(result.debtData.length).toBe(0);
-      expect(result.taxData.length).toBe(2);
-      expect(result.taxData[0].item.NAME).toBe('Joe income (incomeTax)');
-      {
-      const chartPts = result.taxData[0].chartDataPoints;
-      expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
-      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
-      expectChartData(chartPts, 5, 'Tue May 01 2018', 373.73, 2);
-      }
-      
-      expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
-      {
-      const chartPts = result.taxData[1].chartDataPoints;
-      expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
-      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
-      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
-      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
-      expectChartData(chartPts, 5, 'Tue May 01 2018', 13994.94, 2);
-      }
+expect(result.assetData[1].item.NAME).toBe('Cash');
+{
+  const chartPts = result.assetData[1].chartDataPoints;
+  expect(chartPts.length).toBe(6);
+  expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+  expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+  expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+  expectChartData(chartPts, 3, 'Thu Mar 01 2018', -115.54, 2);
+  expectChartData(chartPts, 4, 'Sun Apr 01 2018', -240.09, 2);
+  expectChartData(chartPts, 5, 'Tue May 01 2018', -373.73, 2);
+}
+
+expect(result.debtData.length).toBe(0);
+expect(result.taxData.length).toBe(2);
+expect(result.taxData[0].item.NAME).toBe('Joe income (incomeTax)');
+{
+  const chartPts = result.taxData[0].chartDataPoints;
+  expect(chartPts.length).toBe(24);
+  expectChartData(chartPts, 0, 'Sat Apr 01 2017', 0, -1);
+  expectChartData(chartPts, 1, 'Mon May 01 2017', 0, -1);
+  expectChartData(chartPts, 2, 'Thu Jun 01 2017', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Jul 01 2017', 0, -1);
+  expectChartData(chartPts, 4, 'Tue Aug 01 2017', 0, -1);
+  expectChartData(chartPts, 5, 'Fri Sep 01 2017', 0, -1);
+  expectChartData(chartPts, 6, 'Sun Oct 01 2017', 0, -1);
+  expectChartData(chartPts, 7, 'Wed Nov 01 2017', 0, -1);
+  expectChartData(chartPts, 8, 'Fri Dec 01 2017', 0, -1);
+  expectChartData(chartPts, 9, 'Mon Jan 01 2018', 0, -1);
+  expectChartData(chartPts, 10, 'Thu Feb 01 2018', 0, -1);
+  expectChartData(chartPts, 11, 'Thu Mar 01 2018', 0, -1);
+  expectChartData(chartPts, 12, 'Sun Apr 01 2018', 0, -1);
+  expectChartData(chartPts, 13, 'Tue May 01 2018', 373.73, 2);
+  expectChartData(chartPts, 14, 'Fri Jun 01 2018', 0, -1);
+  expectChartData(chartPts, 15, 'Sun Jul 01 2018', 0, -1);
+  expectChartData(chartPts, 16, 'Wed Aug 01 2018', 0, -1);
+  expectChartData(chartPts, 17, 'Sat Sep 01 2018', 0, -1);
+  expectChartData(chartPts, 18, 'Mon Oct 01 2018', 0, -1);
+  expectChartData(chartPts, 19, 'Thu Nov 01 2018', 0, -1);
+  expectChartData(chartPts, 20, 'Sat Dec 01 2018', 0, -1);
+  expectChartData(chartPts, 21, 'Tue Jan 01 2019', 0, -1);
+  expectChartData(chartPts, 22, 'Fri Feb 01 2019', 0, -1);
+  expectChartData(chartPts, 23, 'Fri Mar 01 2019', 0, -1);
+}
+
+expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+{
+  const chartPts = result.taxData[1].chartDataPoints;
+  expect(chartPts.length).toBe(24);
+  expectChartData(chartPts, 0, 'Sat Apr 01 2017', 0, -1);
+  expectChartData(chartPts, 1, 'Mon May 01 2017', 0, -1);
+  expectChartData(chartPts, 2, 'Thu Jun 01 2017', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Jul 01 2017', 0, -1);
+  expectChartData(chartPts, 4, 'Tue Aug 01 2017', 0, -1);
+  expectChartData(chartPts, 5, 'Fri Sep 01 2017', 0, -1);
+  expectChartData(chartPts, 6, 'Sun Oct 01 2017', 0, -1);
+  expectChartData(chartPts, 7, 'Wed Nov 01 2017', 0, -1);
+  expectChartData(chartPts, 8, 'Fri Dec 01 2017', 0, -1);
+  expectChartData(chartPts, 9, 'Mon Jan 01 2018', 0, -1);
+  expectChartData(chartPts, 10, 'Thu Feb 01 2018', 0, -1);
+  expectChartData(chartPts, 11, 'Thu Mar 01 2018', 0, -1);
+  expectChartData(chartPts, 12, 'Sun Apr 01 2018', 0, -1);
+  expectChartData(chartPts, 13, 'Tue May 01 2018', 13994.94, 2);
+  expectChartData(chartPts, 14, 'Fri Jun 01 2018', 0, -1);
+  expectChartData(chartPts, 15, 'Sun Jul 01 2018', 0, -1);
+  expectChartData(chartPts, 16, 'Wed Aug 01 2018', 0, -1);
+  expectChartData(chartPts, 17, 'Sat Sep 01 2018', 0, -1);
+  expectChartData(chartPts, 18, 'Mon Oct 01 2018', 0, -1);
+  expectChartData(chartPts, 19, 'Thu Nov 01 2018', 0, -1);
+  expectChartData(chartPts, 20, 'Sat Dec 01 2018', 0, -1);
+  expectChartData(chartPts, 21, 'Tue Jan 01 2019', 0, -1);
+  expectChartData(chartPts, 22, 'Fri Feb 01 2019', 0, -1);
+  expectChartData(chartPts, 23, 'Fri Mar 01 2019', 0, -1);
+}
   });
 
   it("have two assets share the same growth rate", () => {
@@ -6713,49 +6747,83 @@ describe("evaluations tests", () => {
       viewSettings,
       evalsAndValues,
     );
-
     // printTestCodeForChart(result);
+expect(result.expensesData.length).toBe(0);
+expect(result.incomesData.length).toBe(0);
+expect(result.assetData.length).toBe(1);
+expect(result.assetData[0].item.NAME).toBe('Cash');
+{
+  const chartPts = result.assetData[0].chartDataPoints;
+  expect(chartPts.length).toBe(6);
+  expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+  expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+  expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
+  expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
+  expectChartData(chartPts, 4, 'Sun Apr 01 2018', -36250, -1);
+  expectChartData(chartPts, 5, 'Tue May 01 2018', -27500, -1);
+}
 
-    expect(result.expensesData.length).toBe(0);
-    expect(result.incomesData.length).toBe(0);
-    expect(result.assetData.length).toBe(1);
-    expect(result.assetData[0].item.NAME).toBe('Cash');
-    {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', -36250, -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', -27500, -1);
-    }
-    
-    expect(result.debtData.length).toBe(0);
-    expect(result.taxData.length).toBe(2);
-    expect(result.taxData[0].item.NAME).toBe('Joe income (incomeTax)');
-    {
-    const chartPts = result.taxData[0].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 27500, -1);
-    }
-    
-    expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
-    {
-    const chartPts = result.taxData[1].chartDataPoints;
-    expect(chartPts.length).toBe(6);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 72500, -1);
-    }
+expect(result.debtData.length).toBe(0);
+expect(result.taxData.length).toBe(2);
+expect(result.taxData[0].item.NAME).toBe('Joe income (incomeTax)');
+{
+  const chartPts = result.taxData[0].chartDataPoints;
+  expect(chartPts.length).toBe(24);
+  expectChartData(chartPts, 0, 'Sat Apr 01 2017', 0, -1);
+  expectChartData(chartPts, 1, 'Mon May 01 2017', 0, -1);
+  expectChartData(chartPts, 2, 'Thu Jun 01 2017', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Jul 01 2017', 0, -1);
+  expectChartData(chartPts, 4, 'Tue Aug 01 2017', 0, -1);
+  expectChartData(chartPts, 5, 'Fri Sep 01 2017', 0, -1);
+  expectChartData(chartPts, 6, 'Sun Oct 01 2017', 0, -1);
+  expectChartData(chartPts, 7, 'Wed Nov 01 2017', 0, -1);
+  expectChartData(chartPts, 8, 'Fri Dec 01 2017', 0, -1);
+  expectChartData(chartPts, 9, 'Mon Jan 01 2018', 0, -1);
+  expectChartData(chartPts, 10, 'Thu Feb 01 2018', 0, -1);
+  expectChartData(chartPts, 11, 'Thu Mar 01 2018', 0, -1);
+  expectChartData(chartPts, 12, 'Sun Apr 01 2018', 0, -1);
+  expectChartData(chartPts, 13, 'Tue May 01 2018', 27500, -1);
+  expectChartData(chartPts, 14, 'Fri Jun 01 2018', 0, -1);
+  expectChartData(chartPts, 15, 'Sun Jul 01 2018', 0, -1);
+  expectChartData(chartPts, 16, 'Wed Aug 01 2018', 0, -1);
+  expectChartData(chartPts, 17, 'Sat Sep 01 2018', 0, -1);
+  expectChartData(chartPts, 18, 'Mon Oct 01 2018', 0, -1);
+  expectChartData(chartPts, 19, 'Thu Nov 01 2018', 0, -1);
+  expectChartData(chartPts, 20, 'Sat Dec 01 2018', 0, -1);
+  expectChartData(chartPts, 21, 'Tue Jan 01 2019', 0, -1);
+  expectChartData(chartPts, 22, 'Fri Feb 01 2019', 0, -1);
+  expectChartData(chartPts, 23, 'Fri Mar 01 2019', 0, -1);
+}
+
+expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
+{
+  const chartPts = result.taxData[1].chartDataPoints;
+  expect(chartPts.length).toBe(24);
+  expectChartData(chartPts, 0, 'Sat Apr 01 2017', 0, -1);
+  expectChartData(chartPts, 1, 'Mon May 01 2017', 0, -1);
+  expectChartData(chartPts, 2, 'Thu Jun 01 2017', 0, -1);
+  expectChartData(chartPts, 3, 'Sat Jul 01 2017', 0, -1);
+  expectChartData(chartPts, 4, 'Tue Aug 01 2017', 0, -1);
+  expectChartData(chartPts, 5, 'Fri Sep 01 2017', 0, -1);
+  expectChartData(chartPts, 6, 'Sun Oct 01 2017', 0, -1);
+  expectChartData(chartPts, 7, 'Wed Nov 01 2017', 0, -1);
+  expectChartData(chartPts, 8, 'Fri Dec 01 2017', 0, -1);
+  expectChartData(chartPts, 9, 'Mon Jan 01 2018', 0, -1);
+  expectChartData(chartPts, 10, 'Thu Feb 01 2018', 0, -1);
+  expectChartData(chartPts, 11, 'Thu Mar 01 2018', 0, -1);
+  expectChartData(chartPts, 12, 'Sun Apr 01 2018', 0, -1);
+  expectChartData(chartPts, 13, 'Tue May 01 2018', 72500, -1);
+  expectChartData(chartPts, 14, 'Fri Jun 01 2018', 0, -1);
+  expectChartData(chartPts, 15, 'Sun Jul 01 2018', 0, -1);
+  expectChartData(chartPts, 16, 'Wed Aug 01 2018', 0, -1);
+  expectChartData(chartPts, 17, 'Sat Sep 01 2018', 0, -1);
+  expectChartData(chartPts, 18, 'Mon Oct 01 2018', 0, -1);
+  expectChartData(chartPts, 19, 'Thu Nov 01 2018', 0, -1);
+  expectChartData(chartPts, 20, 'Sat Dec 01 2018', 0, -1);
+  expectChartData(chartPts, 21, 'Tue Jan 01 2019', 0, -1);
+  expectChartData(chartPts, 22, 'Fri Feb 01 2019', 0, -1);
+  expectChartData(chartPts, 23, 'Fri Mar 01 2019', 0, -1);
+}
   });
 
   it("sell more things than we have", () => {
@@ -7798,101 +7866,137 @@ describe("evaluations tests", () => {
     expect(result.incomesData.length).toBe(1);
     expect(result.incomesData[0].item.NAME).toBe('NSIinterest');
     {
-    const chartPts = result.incomesData[0].chartDataPoints;
-    expect(chartPts.length).toBe(18);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1241.40, 2);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1245.46, 2);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 1249.54, 2);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 1253.63, 2);
-    expectChartData(chartPts, 6, 'Fri Jun 01 2018', 1257.74, 2);
-    expectChartData(chartPts, 7, 'Sun Jul 01 2018', 1261.85, 2);
-    expectChartData(chartPts, 8, 'Wed Aug 01 2018', 1265.98, 2);
-    expectChartData(chartPts, 9, 'Sat Sep 01 2018', 1270.13, 2);
-    expectChartData(chartPts, 10, 'Mon Oct 01 2018', 1274.29, 2);
-    expectChartData(chartPts, 11, 'Thu Nov 01 2018', 1278.46, 2);
-    expectChartData(chartPts, 12, 'Sat Dec 01 2018', 1282.64, 2);
-    expectChartData(chartPts, 13, 'Tue Jan 01 2019', 1286.84, 2);
-    expectChartData(chartPts, 14, 'Fri Feb 01 2019', 1291.06, 2);
-    expectChartData(chartPts, 15, 'Fri Mar 01 2019', 1295.28, 2);
-    expectChartData(chartPts, 16, 'Mon Apr 01 2019', 1299.52, 2);
-    expectChartData(chartPts, 17, 'Wed May 01 2019', 1303.78, 2);
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(18);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1241.40, 2);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 1245.46, 2);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 1249.54, 2);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 1253.63, 2);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 1257.74, 2);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 1261.85, 2);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 1265.98, 2);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 1270.13, 2);
+      expectChartData(chartPts, 10, 'Mon Oct 01 2018', 1274.29, 2);
+      expectChartData(chartPts, 11, 'Thu Nov 01 2018', 1278.46, 2);
+      expectChartData(chartPts, 12, 'Sat Dec 01 2018', 1282.64, 2);
+      expectChartData(chartPts, 13, 'Tue Jan 01 2019', 1286.84, 2);
+      expectChartData(chartPts, 14, 'Fri Feb 01 2019', 1291.06, 2);
+      expectChartData(chartPts, 15, 'Fri Mar 01 2019', 1295.28, 2);
+      expectChartData(chartPts, 16, 'Mon Apr 01 2019', 1299.52, 2);
+      expectChartData(chartPts, 17, 'Wed May 01 2019', 1303.78, 2);
     }
-    
+
     expect(result.assetData.length).toBe(1);
     expect(result.assetData[0].item.NAME).toBe('Cash');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(18);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1243.45, 2);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 2493.02, 2);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 3748.75, 2);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 5010.64, 2);
-    expectChartData(chartPts, 6, 'Fri Jun 01 2018', 6235.52, 2);
-    expectChartData(chartPts, 7, 'Sun Jul 01 2018', 7465.73, 2);
-    expectChartData(chartPts, 8, 'Wed Aug 01 2018', 8701.27, 2);
-    expectChartData(chartPts, 9, 'Sat Sep 01 2018', 9942.18, 2);
-    expectChartData(chartPts, 10, 'Mon Oct 01 2018', 11188.47, 2);
-    expectChartData(chartPts, 11, 'Thu Nov 01 2018', 12440.16, 2);
-    expectChartData(chartPts, 12, 'Sat Dec 01 2018', 13697.28, 2);
-    expectChartData(chartPts, 13, 'Tue Jan 01 2019', 14959.83, 2);
-    expectChartData(chartPts, 14, 'Fri Feb 01 2019', 16227.85, 2);
-    expectChartData(chartPts, 15, 'Fri Mar 01 2019', 17501.35, 2);
-    expectChartData(chartPts, 16, 'Mon Apr 01 2019', 18780.34, 2);
-    expectChartData(chartPts, 17, 'Wed May 01 2019', 20064.86, 2);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(18);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 1243.45, 2);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 2493.02, 2);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 3748.75, 2);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 5010.64, 2);
+      expectChartData(chartPts, 6, 'Fri Jun 01 2018', 6235.52, 2);
+      expectChartData(chartPts, 7, 'Sun Jul 01 2018', 7465.73, 2);
+      expectChartData(chartPts, 8, 'Wed Aug 01 2018', 8701.27, 2);
+      expectChartData(chartPts, 9, 'Sat Sep 01 2018', 9942.18, 2);
+      expectChartData(chartPts, 10, 'Mon Oct 01 2018', 11188.47, 2);
+      expectChartData(chartPts, 11, 'Thu Nov 01 2018', 12440.16, 2);
+      expectChartData(chartPts, 12, 'Sat Dec 01 2018', 13697.28, 2);
+      expectChartData(chartPts, 13, 'Tue Jan 01 2019', 14959.83, 2);
+      expectChartData(chartPts, 14, 'Fri Feb 01 2019', 16227.85, 2);
+      expectChartData(chartPts, 15, 'Fri Mar 01 2019', 17501.35, 2);
+      expectChartData(chartPts, 16, 'Mon Apr 01 2019', 18780.34, 2);
+      expectChartData(chartPts, 17, 'Wed May 01 2019', 20064.86, 2);
     }
-    
+
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(2);
     expect(result.taxData[0].item.NAME).toBe('Joe income (incomeTax)');
     {
-    const chartPts = result.taxData[0].chartDataPoints;
-    expect(chartPts.length).toBe(18);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 0, -1);
-    expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
-    expectChartData(chartPts, 7, 'Sun Jul 01 2018', 0, -1);
-    expectChartData(chartPts, 8, 'Wed Aug 01 2018', 0, -1);
-    expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
-    expectChartData(chartPts, 10, 'Mon Oct 01 2018', 0, -1);
-    expectChartData(chartPts, 11, 'Thu Nov 01 2018', 0, -1);
-    expectChartData(chartPts, 12, 'Sat Dec 01 2018', 0, -1);
-    expectChartData(chartPts, 13, 'Tue Jan 01 2019', 0, -1);
-    expectChartData(chartPts, 14, 'Fri Feb 01 2019', 0, -1);
-    expectChartData(chartPts, 15, 'Fri Mar 01 2019', 0, -1);
-    expectChartData(chartPts, 16, 'Mon Apr 01 2019', 0, -1);
-    expectChartData(chartPts, 17, 'Wed May 01 2019', 573.52, 2);
+      const chartPts = result.taxData[0].chartDataPoints;
+      expect(chartPts.length).toBe(36);
+      expectChartData(chartPts, 0, 'Sat Apr 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon May 01 2017', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Jun 01 2017', 0, -1);
+      expectChartData(chartPts, 3, 'Sat Jul 01 2017', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Aug 01 2017', 0, -1);
+      expectChartData(chartPts, 5, 'Fri Sep 01 2017', 0, -1);
+      expectChartData(chartPts, 6, 'Sun Oct 01 2017', 0, -1);
+      expectChartData(chartPts, 7, 'Wed Nov 01 2017', 0, -1);
+      expectChartData(chartPts, 8, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 9, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 10, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 11, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 12, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 13, 'Tue May 01 2018', 0, -1);
+      expectChartData(chartPts, 14, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 15, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 16, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 17, 'Sat Sep 01 2018', 0, -1);
+      expectChartData(chartPts, 18, 'Mon Oct 01 2018', 0, -1);
+      expectChartData(chartPts, 19, 'Thu Nov 01 2018', 0, -1);
+      expectChartData(chartPts, 20, 'Sat Dec 01 2018', 0, -1);
+      expectChartData(chartPts, 21, 'Tue Jan 01 2019', 0, -1);
+      expectChartData(chartPts, 22, 'Fri Feb 01 2019', 0, -1);
+      expectChartData(chartPts, 23, 'Fri Mar 01 2019', 0, -1);
+      expectChartData(chartPts, 24, 'Mon Apr 01 2019', 0, -1);
+      expectChartData(chartPts, 25, 'Wed May 01 2019', 573.52, 2);
+      expectChartData(chartPts, 26, 'Sat Jun 01 2019', 0, -1);
+      expectChartData(chartPts, 27, 'Mon Jul 01 2019', 0, -1);
+      expectChartData(chartPts, 28, 'Thu Aug 01 2019', 0, -1);
+      expectChartData(chartPts, 29, 'Sun Sep 01 2019', 0, -1);
+      expectChartData(chartPts, 30, 'Tue Oct 01 2019', 0, -1);
+      expectChartData(chartPts, 31, 'Fri Nov 01 2019', 0, -1);
+      expectChartData(chartPts, 32, 'Sun Dec 01 2019', 0, -1);
+      expectChartData(chartPts, 33, 'Wed Jan 01 2020', 0, -1);
+      expectChartData(chartPts, 34, 'Sat Feb 01 2020', 0, -1);
+      expectChartData(chartPts, 35, 'Sun Mar 01 2020', 0, -1);
     }
-    
+
     expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
     {
-    const chartPts = result.taxData[1].chartDataPoints;
-    expect(chartPts.length).toBe(18);
-    expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
-    expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
-    expectChartData(chartPts, 2, 'Thu Feb 01 2018', 0, -1);
-    expectChartData(chartPts, 3, 'Thu Mar 01 2018', 0, -1);
-    expectChartData(chartPts, 4, 'Sun Apr 01 2018', 0, -1);
-    expectChartData(chartPts, 5, 'Tue May 01 2018', 4990.04, 2);
-    expectChartData(chartPts, 6, 'Fri Jun 01 2018', 0, -1);
-    expectChartData(chartPts, 7, 'Sun Jul 01 2018', 0, -1);
-    expectChartData(chartPts, 8, 'Wed Aug 01 2018', 0, -1);
-    expectChartData(chartPts, 9, 'Sat Sep 01 2018', 0, -1);
-    expectChartData(chartPts, 10, 'Mon Oct 01 2018', 0, -1);
-    expectChartData(chartPts, 11, 'Thu Nov 01 2018', 0, -1);
-    expectChartData(chartPts, 12, 'Sat Dec 01 2018', 0, -1);
-    expectChartData(chartPts, 13, 'Tue Jan 01 2019', 0, -1);
-    expectChartData(chartPts, 14, 'Fri Feb 01 2019', 0, -1);
-    expectChartData(chartPts, 15, 'Fri Mar 01 2019', 0, -1);
-    expectChartData(chartPts, 16, 'Mon Apr 01 2019', 0, -1);
-    expectChartData(chartPts, 17, 'Wed May 01 2019', 14794.06, 2);
+      const chartPts = result.taxData[1].chartDataPoints;
+      expect(chartPts.length).toBe(36);
+      expectChartData(chartPts, 0, 'Sat Apr 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon May 01 2017', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Jun 01 2017', 0, -1);
+      expectChartData(chartPts, 3, 'Sat Jul 01 2017', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Aug 01 2017', 0, -1);
+      expectChartData(chartPts, 5, 'Fri Sep 01 2017', 0, -1);
+      expectChartData(chartPts, 6, 'Sun Oct 01 2017', 0, -1);
+      expectChartData(chartPts, 7, 'Wed Nov 01 2017', 0, -1);
+      expectChartData(chartPts, 8, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 9, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 10, 'Thu Feb 01 2018', 0, -1);
+      expectChartData(chartPts, 11, 'Thu Mar 01 2018', 0, -1);
+      expectChartData(chartPts, 12, 'Sun Apr 01 2018', 0, -1);
+      expectChartData(chartPts, 13, 'Tue May 01 2018', 4990.04, 2);
+      expectChartData(chartPts, 14, 'Fri Jun 01 2018', 0, -1);
+      expectChartData(chartPts, 15, 'Sun Jul 01 2018', 0, -1);
+      expectChartData(chartPts, 16, 'Wed Aug 01 2018', 0, -1);
+      expectChartData(chartPts, 17, 'Sat Sep 01 2018', 0, -1);
+      expectChartData(chartPts, 18, 'Mon Oct 01 2018', 0, -1);
+      expectChartData(chartPts, 19, 'Thu Nov 01 2018', 0, -1);
+      expectChartData(chartPts, 20, 'Sat Dec 01 2018', 0, -1);
+      expectChartData(chartPts, 21, 'Tue Jan 01 2019', 0, -1);
+      expectChartData(chartPts, 22, 'Fri Feb 01 2019', 0, -1);
+      expectChartData(chartPts, 23, 'Fri Mar 01 2019', 0, -1);
+      expectChartData(chartPts, 24, 'Mon Apr 01 2019', 0, -1);
+      expectChartData(chartPts, 25, 'Wed May 01 2019', 14794.06, 2);
+      expectChartData(chartPts, 26, 'Sat Jun 01 2019', 0, -1);
+      expectChartData(chartPts, 27, 'Mon Jul 01 2019', 0, -1);
+      expectChartData(chartPts, 28, 'Thu Aug 01 2019', 0, -1);
+      expectChartData(chartPts, 29, 'Sun Sep 01 2019', 0, -1);
+      expectChartData(chartPts, 30, 'Tue Oct 01 2019', 0, -1);
+      expectChartData(chartPts, 31, 'Fri Nov 01 2019', 0, -1);
+      expectChartData(chartPts, 32, 'Sun Dec 01 2019', 0, -1);
+      expectChartData(chartPts, 33, 'Wed Jan 01 2020', 0, -1);
+      expectChartData(chartPts, 34, 'Sat Feb 01 2020', 0, -1);
+      expectChartData(chartPts, 35, 'Sun Mar 01 2020', 0, -1);
     }
   });
   it("get category of asset, expense, income", () => {
