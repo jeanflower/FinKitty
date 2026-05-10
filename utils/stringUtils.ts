@@ -747,23 +747,29 @@ export function findMatchedTriggerDate(
     if (parsedDate.getTime()) {
       result = parsedDate;
       if (cleanedUp) {
-        const preferredString = dateAsString(DateFormatType.Data, parsedDate);
-        const preferredStringDate = new Date(preferredString);
-        if (preferredStringDate.getTime() === parsedDate.getTime()) {
-          cleanedUp.cleaned = preferredString;
+        // Keep the symbolic token so JSON round-trip and offsets like
+        // "tomorrow+1d" stay relative (see makeDateFromString in utils.ts).
+        if (dateString === "tomorrow") {
+          cleanedUp.cleaned = "tomorrow";
         } else {
-          // we are about to accept this string because it
-          // can be made sense of
-          // if it's of the form '2019', convert it to '1 Jan 2019'
-          const regExp = RegExp("[1-2]{1}[0-9]{3}");
-          if (dateString.match(regExp)) {
-            cleanedUp.cleaned = `1 Jan ${dateString}`;
+          const preferredString = dateAsString(DateFormatType.Data, parsedDate);
+          const preferredStringDate = new Date(preferredString);
+          if (preferredStringDate.getTime() === parsedDate.getTime()) {
+            cleanedUp.cleaned = preferredString;
           } else {
-            // we have a string for a date which
-            // becomes a different date when we convert
-            // string -> Date -> string -> Date
-            /* istanbul ignore next */
-            cleanedUp.cleaned = dateString;
+            // we are about to accept this string because it
+            // can be made sense of
+            // if it's of the form '2019', convert it to '1 Jan 2019'
+            const regExp = RegExp("[1-2]{1}[0-9]{3}");
+            if (dateString.match(regExp)) {
+              cleanedUp.cleaned = `1 Jan ${dateString}`;
+            } else {
+              // we have a string for a date which
+              // becomes a different date when we convert
+              // string -> Date -> string -> Date
+              /* istanbul ignore next */
+              cleanedUp.cleaned = dateString;
+            }
           }
         }
       }

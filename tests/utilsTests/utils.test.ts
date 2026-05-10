@@ -891,6 +891,16 @@ describe("utils tests", () => {
     checkTriggerDate("a+1d", [simpleTrigger], varVal, cleanedString);
     expect(cleanedString.cleaned).toEqual("a+1d");
 
+    cleanedString.cleaned = "";
+    checkTriggerDate("tomorrow", [], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("tomorrow");
+    cleanedString.cleaned = "";
+    checkTriggerDate("tomorrow+1d", [], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("tomorrow+1d");
+    cleanedString.cleaned = "";
+    checkTriggerDate("tomorrow+2m", [], varVal, cleanedString);
+    expect(cleanedString.cleaned).toEqual("tomorrow+2m");
+
     expect(
       dateAsString(
         DateFormatType.Test,
