@@ -125,6 +125,9 @@ export function todaysAssetsTable(
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
+    if (!parentCallbacks.filterForEra(key[0])) {
+      continue;
+    }
     const cat = key[1].category;
     if (cat === "") {
       addToMap(key[0], key[1], categorisedValues);
@@ -189,6 +192,7 @@ export function assetsDiv(
       {collapsibleFragment(
         renderBondGeneratorsTable(
           model,
+          parentCallbacks.filterForEra,
           parentCallbacks.showAlert,
           doChecks,
           parentCallbacks.submitGenerator,
@@ -202,6 +206,7 @@ export function assetsDiv(
       {collapsibleFragment(
         renderDCPGeneratorsTable(
           model,
+          parentCallbacks.filterForEra,
           parentCallbacks.showAlert,
           doChecks,
           parentCallbacks.submitGenerator,
@@ -231,6 +236,7 @@ export function assetsDiv(
             }
             attemptRename={parentCallbacks.attemptRename}
             refreshData={parentCallbacks.refreshData}
+            filterForEra={parentCallbacks.filterForEra}
           />
         </div>,
         `Add an asset, a defined-contributions pension, or revalue an asset`,

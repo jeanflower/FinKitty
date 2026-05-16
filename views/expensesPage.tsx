@@ -125,6 +125,7 @@ export function todaysExpensesTable(
   model: ModelData,
   todaysValues: Map<Expense, ExpenseVal>,
   doShowTodaysValueColumns: () => boolean,
+  filterForEra: (item: Item) => boolean,
 ) {
   if (todaysValues.size === 0 || !doShowTodaysValueColumns()) {
     return;
@@ -134,6 +135,9 @@ export function todaysExpensesTable(
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
+    if (!filterForEra(key[0])) {
+      continue;
+    }
     if (key[1].hasStarted && !key[1].hasEnded) {
       const cat = key[1].category;
       if (cat === "") {
@@ -325,6 +329,7 @@ export function expensesDiv(
         model,
         todaysValues,
         parentCallbacks.doShowTodaysValueColumns,
+        parentCallbacks.filterForEra,
       )}
       {transactionFilteredTable(
         model,

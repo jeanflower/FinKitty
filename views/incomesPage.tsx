@@ -105,6 +105,7 @@ export function todaysIncomesTable(
   model: ModelData,
   todaysValues: Map<Income, IncomeVal>,
   doShowTodaysValueColumns: () => boolean,
+  filterForEra: (item: Item) => boolean,
 ) {
   if (todaysValues.size === 0 || !doShowTodaysValueColumns()) {
     return;
@@ -114,6 +115,9 @@ export function todaysIncomesTable(
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
+    if (!filterForEra(key[0])) {
+      continue;
+    }
     if (!key[1].hasEnded) {
       const cat = key[1].category;
       if (cat === "") {
@@ -182,6 +186,7 @@ export function incomesDiv(
         model,
         todaysValues,
         parentCallbacks.doShowTodaysValueColumns,
+        parentCallbacks.filterForEra,
       )}
       {transactionFilteredTable(
         model,
@@ -205,7 +210,8 @@ export function incomesDiv(
             deleteGeneratorFunction={parentCallbacks.deleteGenerator}
             model={model}
             showAlert={parentCallbacks.showAlert}
-            doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData} 
+            doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}
+            filterForEra={parentCallbacks.filterForEra}
           />
         </div>,
         "Add an income, a defined-benefits pension, or revalue an income",

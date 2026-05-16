@@ -1847,7 +1847,10 @@ export function transactionsForTable(
 
   if (type === revalueAsset) {
     const dcpRevGens = model.generators.filter((g) => {
-      return g.TYPE === generatorTypeDCPRevalue;
+      return (
+        g.TYPE === generatorTypeDCPRevalue &&
+        parentCallbacks.filterForEra(g)
+      );
     });
     const collapsedRows = dcpRevGens
       .map((g) => {
@@ -4496,6 +4499,7 @@ function handleDCPGeneratorGridRowsUpdated(
 
 export function renderBondGeneratorsTable(
   model: ModelData,
+  filterForEra: (item: Item) => boolean,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   submitGenerator: (
@@ -4521,7 +4525,7 @@ export function renderBondGeneratorsTable(
   ) => Promise<void>,
 ){
   const generators: Generator[] = model.generators.filter((g) => {
-    return g.TYPE === "Bonds";
+    return g.TYPE === "Bonds" && filterForEra(g);
   });
   const rowData = addIndices(generators.map((g) => {
     const details: BondGeneratorDetails = g.DETAILS;
@@ -4633,6 +4637,7 @@ export function renderBondGeneratorsTable(
 
 export function renderDCPGeneratorsTable(
   model: ModelData,
+  filterForEra: (item: Item) => boolean,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   submitGenerator: (
@@ -4658,7 +4663,7 @@ export function renderDCPGeneratorsTable(
   ) => Promise<void>,
 ){
   const generators: Generator[] = model.generators.filter((g) => {
-    return g.TYPE === "Defined Contributions";
+    return g.TYPE === "Defined Contributions" && filterForEra(g);
   });
 
   const rowData = addIndices(generators.map((g) => {
@@ -4903,6 +4908,7 @@ function handleDCPWithdrawalGeneratorGridRowsUpdated(
 
 export function renderDCPWithdrawalGeneratorsTable(
   model: ModelData,
+  filterForEra: (item: Item) => boolean,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   submitGenerator: (
@@ -4928,7 +4934,7 @@ export function renderDCPWithdrawalGeneratorsTable(
   ) => Promise<void>,
 ){
   const generators: Generator[] = model.generators.filter((g) => {
-    return g.TYPE === "DCPWithdrawal";
+    return g.TYPE === "DCPWithdrawal" && filterForEra(g);
   });
   const rowData = addIndices(generators.map((g) => {
     const details: DCPWithdrawalDetails = g.DETAILS;

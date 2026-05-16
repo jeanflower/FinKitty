@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://github.com/jeanflower/FinKitty",
-  "version": "2.0.156",
+  "version": "2.0.158",
   "engines": {
     "node": "20.x"
   },
@@ -16,7 +16,7 @@
     "test": "jest --watch",
     "test:ci": "jest --ci",
     "test:algo": "jest tests/algoTests --ci --no-coverage",
-    "rebaseline:chart": "node scripts/rebaseline-chart-its.mjs",
+    "rebaseline:algo": "node scripts/rebaseline-algo-tests.mjs",
     "perf:eval": "node -e \"if(!process.env.FINKITTY_PERF_MODEL_PATH){console.error('Set FINKITTY_PERF_MODEL_PATH to the absolute path of your JSON export.');process.exit(1)}\" && jest tests/perf/getEvaluations.perf.test.ts --runInBand --ci --testTimeout=600000",
     "perf:eval:fast": "node -e \"if(!process.env.FINKITTY_PERF_MODEL_PATH){console.error('Set FINKITTY_PERF_MODEL_PATH to the absolute path of your JSON export.');process.exit(1)}\" && FINKITTY_PERF_ITERATIONS=10 FINKITTY_PERF_WARMUP=1 jest tests/perf/getEvaluations.perf.test.ts --runInBand --ci --testTimeout=600000",
     "perf:across-commits": "bash scripts/perf-across-commits.sh",

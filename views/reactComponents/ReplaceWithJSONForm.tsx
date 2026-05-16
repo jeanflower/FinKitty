@@ -89,8 +89,8 @@ export class ReplaceWithJSONForm extends Component<
         />
         {makeButton(
           this.props.getUIMode() === simpleUI
-            ? "switch to advanced UI mode"
-            : "switch to simple UI mode",
+            ? "Switch to advanced UI mode"
+            : "Switch to simple UI mode",
           async (e: FormEvent<Element>) => {
             if (this.props.getUIMode() === simpleUI) {
               await this.setState({
@@ -109,7 +109,7 @@ export class ReplaceWithJSONForm extends Component<
         )}
         <br></br>
         {makeButton(
-          this.props.showHistorical() ? "hide old items" : `show old items`,
+          this.props.showHistorical() ? "Hide old items" : `Show old items`,
           () => {
             this.props.toggleOption(showHistoricalOption);
           },
@@ -119,8 +119,8 @@ export class ReplaceWithJSONForm extends Component<
         )}
         {makeButton(
           this.props.showCurrent()
-            ? "hide current items"
-            : `show current items`,
+            ? "Hide current items"
+            : `Show current items`,
           () => {
             this.props.toggleOption(showCurrentOption);
           },
@@ -129,7 +129,7 @@ export class ReplaceWithJSONForm extends Component<
           "outline-secondary",
         )}
         {makeButton(
-          this.props.showFuture() ? "hide future items" : `show future items`,
+          this.props.showFuture() ? "Hide future items" : `Show future items`,
           () => {
             this.props.toggleOption(showFutureOption);
           },
@@ -139,8 +139,8 @@ export class ReplaceWithJSONForm extends Component<
         )}
         {makeButton(
           this.props.getOption(evalModeOption)
-            ? `don't refresh charts on model edit`
-            : "do refresh charts on model edit",
+            ? `Don't refresh charts on model edit`
+            : "Do refresh charts on model edit",
           async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: "eval",
@@ -154,8 +154,8 @@ export class ReplaceWithJSONForm extends Component<
         <br></br>
         {makeButton(
           this.props.getOption(checkModelOnEditOption)
-            ? `don't check model on edit`
-            : "do check model on edit",
+            ? `Don't check model on edit`
+            : "Do check model on edit",
           async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: checkModelOnEditOption,
@@ -169,8 +169,8 @@ export class ReplaceWithJSONForm extends Component<
         <br></br>
         {makeButton(
           this.props.getOption(checkOverwriteOption)
-            ? `don't check before overwrite`
-            : "do check before overwrite",
+            ? `Don't check before overwrite`
+            : "Do check before overwrite",
           async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: "overwrite",
@@ -184,8 +184,8 @@ export class ReplaceWithJSONForm extends Component<
         <br></br>
         {makeButton(
           this.props.getOption(goToAssetsPageOption)
-            ? `don't jump to Assets page when selecting a model`
-            : `do jump to Assets page when selecting a model`,
+            ? `Don't jump to Assets page when selecting a model`
+            : `Do jump to Assets page when selecting a model`,
           async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: "overview",
@@ -199,8 +199,8 @@ export class ReplaceWithJSONForm extends Component<
         <br></br>
         {makeButton(
           this.props.getOption(showAllBackupsOption)
-            ? "show latest model backu"
-            : "show all model backups",
+            ? "Show latest model backu"
+            : "Show all model backups",
           async (e: FormEvent<Element>) => {
             await this.setState({
               JSON: showAllBackupsOption,

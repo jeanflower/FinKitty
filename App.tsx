@@ -139,6 +139,7 @@ import {
   revertToUndoModel,
   standardiseDates,
 } from "./models/modelUtils";
+import { autoSetOldEra } from "./models/autoSetOldEra";
 import {
   checkTriggerDate,
   dateAsString,
@@ -2814,6 +2815,25 @@ class AppContent extends Component<AppProps, AppState> {
             `btn-standardise-dates`,
             "outline-secondary",
           )}
+          {makeButton(
+            "Auto set old era",
+            async () => {
+              const result = autoSetOldEra(reactAppComponent.state.modelDataRaw);
+              if (result.checkMessage !== "") {
+                showAlert(result.checkMessage);
+                return;
+              }
+              await refreshData(
+                true,
+                true,
+                77,
+              );
+              showAlert(result.summary);
+            },
+            `btn-auto-set-old-era`,
+            `btn-auto-set-old-era`,
+            "outline-secondary",
+          )}
           <br></br>
           {makeButton(
             "Copy model as JSON to clipboard",
@@ -3047,6 +3067,7 @@ class AppContent extends Component<AppProps, AppState> {
         collapsibleFragment(
           renderDCPWithdrawalGeneratorsTable(
             this.state.modelDataProcessed,
+            parentCallbacks.filterForEra,
             parentCallbacks.showAlert,
             this.options.checkModelOnEdit,
             parentCallbacks.submitGenerator,

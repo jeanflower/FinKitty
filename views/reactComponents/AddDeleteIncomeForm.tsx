@@ -4,6 +4,7 @@ import { Button, Col, Row } from "react-bootstrap";
 import { checkIncomeLiability, isValidValue } from "../../models/checks";
 import {
   Income,
+  Item,
   ModelData,
   Transaction,
   Trigger,
@@ -89,6 +90,7 @@ interface EditIncomeProps extends FormProps {
   ) => Promise<void>;
   deleteGeneratorFunction: (name: string) => Promise<DeleteResult>;
   doCheckBeforeOverwritingExistingData: () => boolean;
+  filterForEra: (item: Item) => boolean;
 }
 
 export function incomeOptions(
@@ -271,7 +273,11 @@ export class AddDeleteIncomeForm extends Component<
     return (
       <>
         <div className="ml-3 my-4">
-          {this.renderDPBGenerators(this.props.model.generators)}
+          {this.renderDPBGenerators(
+        this.props.model.generators.filter((g) =>
+          this.props.filterForEra(g),
+        ),
+      )}
         </div>
         <div className="btn-group ml-3" role="group">
           {makeButton(

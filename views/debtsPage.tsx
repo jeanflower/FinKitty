@@ -101,6 +101,7 @@ export function todaysDebtsTable(
   model: ModelData,
   todaysValues: Map<Asset, AssetOrDebtVal>,
   doShowTodaysValueColumns: () => boolean,
+  filterForEra: (item: Item) => boolean,
 ) {
   if (todaysValues.size === 0 || !doShowTodaysValueColumns()) {
     return;
@@ -109,6 +110,9 @@ export function todaysDebtsTable(
 
   const entries = Array.from(todaysValues.entries());
   for (const key of entries) {
+    if (!filterForEra(key[0])) {
+      continue;
+    }
     const cat = key[1].category;
     if (cat === "") {
       addToMap(key[0], key[1], categorisedValues);
@@ -174,6 +178,7 @@ export function debtsDiv(
         model,
         todaysDebtValues,
         parentCallbacks.doShowTodaysValueColumns,
+        parentCallbacks.filterForEra,
       )}
       {collapsibleFragment(
         <div className="addNewDebt">

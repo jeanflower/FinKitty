@@ -128,6 +128,7 @@ interface EditAssetProps extends FormProps {
     refreshChart: boolean,
     sourceID: number,
   ) => Promise<void>,
+  filterForEra: (item: Item) => boolean;
 }
 
 function handleBondGeneratorGridRowsUpdated(
@@ -557,7 +558,7 @@ export class AddDeleteAssetForm extends Component<
 
     const dcpSubAssetNames = new Set<string>();
     for (const g of this.props.model.generators) {
-      if (g.TYPE === "Defined Contributions") {
+      if (g.TYPE === "Defined Contributions" && this.props.filterForEra(g)) {
         for (const sub of getDCPPensionSubAssetNames(g)) {
           dcpSubAssetNames.add(sub);
         }
@@ -568,7 +569,7 @@ export class AddDeleteAssetForm extends Component<
     );
 
     const dcpPensionChoices: Item[] = this.props.model.generators
-      .filter((g) => g.TYPE === "Defined Contributions")
+      .filter((g) => g.TYPE === "Defined Contributions" && this.props.filterForEra(g))
       .map((g) => ({
         NAME: `${g.NAME}${dcpRevalueAssetOptionSuffix}`,
         ERA: undefined,
