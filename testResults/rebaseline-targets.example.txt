@@ -1,0 +1,8 @@
+# Copy to rebaseline-targets.txt (gitignored) or let start4TestLocalWebServer.sh fill it.
+#
+#   cp testResults/rebaseline-targets.example.txt testResults/rebaseline-targets.txt
+#
+# Then:  npm run rebaseline:algo
+#        npm run rebaseline:algo -- --write
+
+# tests/algoTests/algoPension.test.ts::pay into defined contributions pension simplest

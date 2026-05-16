@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://github.com/jeanflower/FinKitty",
-  "version": "2.0.158",
+  "version": "2.0.159",
   "engines": {
     "node": "20.x"
   },
@@ -13,7 +13,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "jest --watch",
+    "test": "jest --watchAll",
     "test:ci": "jest --ci",
     "test:algo": "jest tests/algoTests --ci --no-coverage",
     "rebaseline:algo": "node scripts/rebaseline-algo-tests.mjs",

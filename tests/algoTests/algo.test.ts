@@ -8926,8 +8926,6 @@ expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
 
-    // printTestCodeForEvals(evalsAndValues.evaluations);
-
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -8935,5 +8933,52 @@ expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
     );
 
     // printTestCodeForChart(result);
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(1);
+    expect(result.assetData[0].item.NAME).toBe('RSUs');
+    {
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(36);
+      expectChartData(chartPts, 0, 'Sun Jan 01 2023', 5410.08, 2);
+      expectChartData(chartPts, 1, 'Wed Feb 01 2023', 5437.13, 2);
+      expectChartData(chartPts, 2, 'Wed Mar 01 2023', 5464.32, 2);
+      expectChartData(chartPts, 3, 'Sat Apr 01 2023', 5491.64, 2);
+      expectChartData(chartPts, 4, 'Mon May 01 2023', 7142.36, 2);
+      expectChartData(chartPts, 5, 'Thu Jun 01 2023', 7178.07, 2);
+      expectChartData(chartPts, 6, 'Sat Jul 01 2023', 7213.96, 2);
+      expectChartData(chartPts, 7, 'Tue Aug 01 2023', 7250.03, 2);
+      expectChartData(chartPts, 8, 'Fri Sep 01 2023', 7286.28, 2);
+      expectChartData(chartPts, 9, 'Sun Oct 01 2023', 7322.71, 2);
+      expectChartData(chartPts, 10, 'Wed Nov 01 2023', 7359.33, 2);
+      expectChartData(chartPts, 11, 'Fri Dec 01 2023', 7396.12, 2);
+      expectChartData(chartPts, 12, 'Mon Jan 01 2024', 7433.10, 2);
+      expectChartData(chartPts, 13, 'Thu Feb 01 2024', 7470.27, 2);
+      expectChartData(chartPts, 14, 'Fri Mar 01 2024', 7507.62, 2);
+      expectChartData(chartPts, 15, 'Mon Apr 01 2024', 7545.16, 2);
+      expectChartData(chartPts, 16, 'Wed May 01 2024', 7582.88, 2);
+      expectChartData(chartPts, 17, 'Sat Jun 01 2024', 7620.80, 2);
+      expectChartData(chartPts, 18, 'Mon Jul 01 2024', 7658.90, 2);
+      expectChartData(chartPts, 19, 'Thu Aug 01 2024', 7697.20, 2);
+      expectChartData(chartPts, 20, 'Sun Sep 01 2024', 7735.68, 2);
+      expectChartData(chartPts, 21, 'Tue Oct 01 2024', 7774.36, 2);
+      expectChartData(chartPts, 22, 'Fri Nov 01 2024', 7813.23, 2);
+      expectChartData(chartPts, 23, 'Sun Dec 01 2024', 7852.30, 2);
+      expectChartData(chartPts, 24, 'Wed Jan 01 2025', 7891.56, 2);
+      expectChartData(chartPts, 25, 'Sat Feb 01 2025', 7931.02, 2);
+      expectChartData(chartPts, 26, 'Sat Mar 01 2025', 7970.67, 2);
+      expectChartData(chartPts, 27, 'Tue Apr 01 2025', 8010.53, 2);
+      expectChartData(chartPts, 28, 'Thu May 01 2025', 8050.58, 2);
+      expectChartData(chartPts, 29, 'Sun Jun 01 2025', 8090.83, 2);
+      expectChartData(chartPts, 30, 'Tue Jul 01 2025', 8131.29, 2);
+      expectChartData(chartPts, 31, 'Fri Aug 01 2025', 8171.94, 2);
+      expectChartData(chartPts, 32, 'Mon Sep 01 2025', 8212.80, 2);
+      expectChartData(chartPts, 33, 'Wed Oct 01 2025', 8253.87, 2);
+      expectChartData(chartPts, 34, 'Sat Nov 01 2025', 8295.14, 2);
+      expectChartData(chartPts, 35, 'Mon Dec 01 2025', 8336.61, 2);
+    }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
   });
 });

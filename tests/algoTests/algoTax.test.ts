@@ -2526,10 +2526,12 @@ describe("tax tests", () => {
 
     const evalsAndValues = getTestEvaluations(model);
 
-    // const evals = evalsAndValues.evaluations;
-    // log(`evals = ${showObj(evals)}`);
-    // printTestCodeForEvals(evals);
-    // expect(evals.length).toBe(198);
+    /* 
+    const evals = evalsAndValues.evaluations;
+    log(`evals = ${showObj(evals)}`);
+    printTestCodeForEvals(evals);
+    expect(evals.length).toBe(198);
+    */
 
     const viewSettings = defaultTestViewSettings();
 

@@ -22,6 +22,10 @@ showObj;
 
 export const serverUri = "http://localhost:3000/#";
 
+/** Default Selenium window size; override with FINKITTY_BROWSER_WINDOW_WIDTH / _HEIGHT. */
+export const defaultBrowserWindowWidth = 1280;
+export const defaultBrowserWindowHeight = 720;
+
 export const dBSleep = 1500; // time to round trip through DB
 export const calcSleep = 1000; // time to recalculate charts etc
 const shortSleep = 200;
@@ -91,27 +95,89 @@ async function sendKeysWithFillContext(
   }
 }
 
+function parseBrowserWindowDimension(
+  envName: string,
+  defaultValue: number,
+): number {
+  const raw = process.env[envName];
+  if (raw === undefined || raw.trim() === "") {
+    return defaultValue;
+  }
+  const n = Number.parseInt(raw.trim(), 10);
+  if (!Number.isFinite(n) || n < 400) {
+    /* eslint-disable no-console */
+    console.warn(
+      `[browser tests] Invalid ${envName}=${JSON.stringify(raw)}; using ${defaultValue}`,
+    );
+    /* eslint-enable no-console */
+    return defaultValue;
+  }
+  return n;
+}
+
+export function getBrowserWindowSize(): { width: number; height: number } {
+  return {
+    width: parseBrowserWindowDimension(
+      "FINKITTY_BROWSER_WINDOW_WIDTH",
+      defaultBrowserWindowWidth,
+    ),
+    height: parseBrowserWindowDimension(
+      "FINKITTY_BROWSER_WINDOW_HEIGHT",
+      defaultBrowserWindowHeight,
+    ),
+  };
+}
+
+const seleniumDebugNoise =
+  /Selenium Manager binary found at|^Driver path:|^Browser path:/;
+
+let seleniumConsoleQuietInstalled = false;
+
+/** Suppress Selenium Manager console.debug spam (browser tests only — not in jest.setup.js). */
+function installSeleniumConsoleQuietOnce() {
+  if (seleniumConsoleQuietInstalled) {
+    return;
+  }
+  seleniumConsoleQuietInstalled = true;
+  const originalDebug = console.debug.bind(console);
+  console.debug = (...args: unknown[]) => {
+    const message = args.map((a) => String(a)).join(" ");
+    if (seleniumDebugNoise.test(message)) {
+      return;
+    }
+    originalDebug(...args);
+  };
+}
+
+/** True when FINKITTY_BROWSER_HEADLESS is 1, true, yes, or on (case-insensitive). */
+export function isBrowserHeadless(): boolean {
+  const raw = process.env.FINKITTY_BROWSER_HEADLESS;
+  if (raw === undefined || raw.trim() === "") {
+    return false;
+  }
+  const v = raw.trim().toLowerCase();
+  return v === "1" || v === "true" || v === "yes" || v === "on";
+}
+
 export function getDriver() {
   // from
   // https://jakebinstein.com/blog/how-to-set-browser-capabilities-in-webdriverjs-example-headless-mode/
 
+  installSeleniumConsoleQuietOnce();
+
   const browserOptions: { args: string[] } = {
-    args: ["--disable-gpu", "--no-sandbox"],
+    args: ["--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage"],
   };
 
-  // Shrink Chrome UI + page (like zoom under 100%) on small / HiDPI screens so controls stay reachable.
-  // Example: FINKITTY_CHROME_DEVICE_SCALE_FACTOR=0.85 npm test
-  const scaleFactor = process.env.FINKITTY_CHROME_DEVICE_SCALE_FACTOR;
-  if (scaleFactor !== undefined && scaleFactor.trim() !== "") {
-    browserOptions.args.push(
-      `--force-device-scale-factor=${scaleFactor.trim()}`,
-    );
+  const headless = isBrowserHeadless();
+  if (headless) {
+    browserOptions.args.unshift("--headless=new");
   }
 
-  // this hasn't worked for a long time - needs fresh attention
-  //if (headless) {
-  //  browserOptions.args.unshift('--headless');
-  //}
+  const { width, height } = getBrowserWindowSize();
+  if (headless) {
+    browserOptions.args.push(`--window-size=${width},${height}`);
+  }
 
   // Set up the browser capabilities.
   // Some lines could be condensed into one-liners if that's your preferred style.
@@ -123,9 +189,27 @@ export function getDriver() {
   const builder = new webdriver.Builder().forBrowser("chrome");
   const driver = builder.withCapabilities(browserCapabilities).build();
 
-  void driver.manage().window().setRect({ x: 0, y: 0, width: 1280, height: 720 });
-  
+  if (printDebug()) {
+    const pageZoom = process.env.FINKITTY_BROWSER_PAGE_ZOOM?.trim();
+    log(
+      `[browser tests] ${headless ? "Headless, " : ""}window ${width}×${height}px` +
+        (pageZoom ? `, page zoom ${pageZoom}` : ""),
+    );
+  }
+  void driver.manage().window().setRect({ x: 0, y: 0, width, height });
+
   return driver;
+}
+
+/** Shrink page content for small screens (CSS zoom via FINKITTY_BROWSER_PAGE_ZOOM). */
+export async function applyBrowserPageZoom(driver: ThenableWebDriver): Promise<void> {
+  const pageZoom = process.env.FINKITTY_BROWSER_PAGE_ZOOM;
+  if (pageZoom === undefined || pageZoom.trim() === "") {
+    return;
+  }
+  await driver.executeScript(
+    `document.documentElement.style.zoom = ${JSON.stringify(pageZoom.trim())}`,
+  );
 }
 
 export function bugSleep(message: string) {
@@ -400,12 +484,7 @@ export async function beforeAllWork(
     "--- after browser loads URI",
   );
 
-  const pageZoom = process.env.FINKITTY_BROWSER_PAGE_ZOOM;
-  if (pageZoom !== undefined && pageZoom.trim() !== "") {
-    await driver.executeScript(
-      `document.documentElement.style.zoom = ${JSON.stringify(pageZoom.trim())}`,
-    );
-  }
+  await applyBrowserPageZoom(driver);
 
   // Handle errors around SSL certificates
   // push through "Advanced" and "Proceed"

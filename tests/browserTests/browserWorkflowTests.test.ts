@@ -12,6 +12,7 @@ import {
   serverUri,
   enterTextControl,
   getDataDumpFromPage,
+  applyBrowserPageZoom,
 } from "./browserBaseTypes";
 import {
   addSetting,
@@ -235,6 +236,7 @@ describe("BrowserWorkflowTests 01", () => {
 
     await driver.get("about:blank");
     await driver.get(serverUri);
+    await applyBrowserPageZoom(driver);
     await clickButton(driver, "buttonTestLogin");
     await enterTextControl(driver, "overwrite");
 
@@ -252,6 +254,7 @@ describe("BrowserWorkflowTests 01", () => {
 
     await driver.get("about:blank");
     await driver.get(serverUri);
+    await applyBrowserPageZoom(driver);
     await clickButton(driver, "buttonTestLogin");
     await enterTextControl(driver, "overwrite");
 

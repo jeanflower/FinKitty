@@ -7,6 +7,11 @@
 
 # testing
 /coverage
+testResults/*
+!testResults/README.txt
+!testResults/rebaseline-targets.example.txt
+# legacy location (before testResults/); safe to delete locally
+.rebaseline-capture.txt
 CPU*.cpuprofile
 
 # next.js

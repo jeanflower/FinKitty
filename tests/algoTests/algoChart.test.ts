@@ -1359,7 +1359,6 @@ describe(" chart data tests", () => {
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
-    // printTestCodeForEvals(evals);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -1415,7 +1414,6 @@ describe(" chart data tests", () => {
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
-    // printTestCodeForEvals(evals);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -1493,7 +1491,6 @@ describe(" chart data tests", () => {
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
-    // printTestCodeForEvals(evals);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -1571,7 +1568,6 @@ describe(" chart data tests", () => {
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
-    // printTestCodeForEvals(evals);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -1827,7 +1823,6 @@ describe(" chart data tests", () => {
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
-    // printTestCodeForEvals(evals);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -1868,7 +1863,6 @@ describe(" chart data tests", () => {
     // const evals = evalsAndValues.evaluations;
     // log(`evals = ${showObj(evals)}`);
 
-    // printTestCodeForEvals(evals);
 
     const viewSettings = defaultTestViewSettings();
 
@@ -2142,9 +2136,7 @@ describe(" chart data tests", () => {
     // log(evalsAndValues.todaysExpenseValues);
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
-  
-    // printTestCodeForEvals(evalsAndValues.evaluations);
-  
+    
     const result = makeChartDataFromEvaluations(
       model,
       viewSettings,
@@ -2351,8 +2343,6 @@ expect(result.taxData[0].item.NAME).toBe('Joe income (net)');
     // log(evalsAndValues.todaysExpenseValues);
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
-  
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,

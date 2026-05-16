@@ -6313,7 +6313,6 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
     const evalsAndValues = getTestEvaluations(model);
 
     // const evals = evalsAndValues.evaluations;
-    // printTestCodeForEvals(evals);
 
     viewSettings.setViewSetting(viewFrequency, annually);
     viewSettings.toggleViewFilter(Context.Asset, allItems);
@@ -7169,7 +7168,6 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
 
-    // printTestCodeForEvals(evalsAndValues.evaluations);
 
     const result = makeChartDataFromEvaluations(
       model,
@@ -7404,7 +7402,6 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
 
-    // printTestCodeForEvals(evalsAndValues.evaluations);
 
     const result = makeChartDataFromEvaluations(
       model,
@@ -7640,7 +7637,6 @@ it('handle PDB generator NI income no SS with cpi', () => {
   // log(evalsAndValues.todaysIncomeValues);
   // log(evalsAndValues.todaysSettingValues);
 
-  // printTestCodeForEvals(evalsAndValues.evaluations);
 
   const result = makeChartDataFromEvaluations(
     model,
@@ -7900,7 +7896,6 @@ it('handle PDB generator NI income SS with cpi', () => {
   // log(evalsAndValues.todaysIncomeValues);
   // log(evalsAndValues.todaysSettingValues);
 
-  // printTestCodeForEvals(evalsAndValues.evaluations);
 
   const result = makeChartDataFromEvaluations(
     model,
@@ -8135,7 +8130,6 @@ it('handle PDB generator tax income SS with cpi', () => {
   // log(evalsAndValues.todaysIncomeValues);
   // log(evalsAndValues.todaysSettingValues);
 
-  // printTestCodeForEvals(evalsAndValues.evaluations);
 
   const result = makeChartDataFromEvaluations(
     model,
@@ -8420,7 +8414,6 @@ it('handle PDB generator tax income no SS with cpi', () => {
   // log(evalsAndValues.todaysIncomeValues);
   // log(evalsAndValues.todaysSettingValues);
 
-  // printTestCodeForEvals(evalsAndValues.evaluations);
 
   const result = makeChartDataFromEvaluations(
     model,
@@ -8700,7 +8693,6 @@ it('handle PDC generator low income no cpi', () => {
   // log(evalsAndValues.todaysIncomeValues);
   // log(evalsAndValues.todaysSettingValues);
 
-  // printTestCodeForEvals(evalsAndValues.evaluations);
 
   const result = makeChartDataFromEvaluations(
     model,
@@ -8890,7 +8882,6 @@ it('handle PDC generator withdrawal', () => {
   // log(evalsAndValues.todaysIncomeValues);
   // log(evalsAndValues.todaysSettingValues);
 
-  // printTestCodeForEvals(evalsAndValues.evaluations);
 
   const result = makeChartDataFromEvaluations(
     model,
@@ -9550,7 +9541,6 @@ it('handle PDC generator NI income no cpi', () => {
   // log(evalsAndValues.todaysIncomeValues);
   // log(evalsAndValues.todaysSettingValues);
 
-  // printTestCodeForEvals(evalsAndValues.evaluations);
 
   const result = makeChartDataFromEvaluations(
     model,
@@ -9750,7 +9740,6 @@ it('handle PDC generator NI income SS no cpi', () => {
   // log(evalsAndValues.todaysIncomeValues);
   // log(evalsAndValues.todaysSettingValues);
 
-  // printTestCodeForEvals(evalsAndValues.evaluations);
 
   const result = makeChartDataFromEvaluations(
     model,
@@ -9962,7 +9951,6 @@ it('handle PDC generator tax income SS no cpi', () => {
   // log(evalsAndValues.todaysIncomeValues);
   // log(evalsAndValues.todaysSettingValues);
 
-  // printTestCodeForEvals(evalsAndValues.evaluations);
 
   const result = makeChartDataFromEvaluations(
     model,
@@ -10196,7 +10184,6 @@ it('handle PDC generator tax income no SS no cpi', () => {
   // log(evalsAndValues.todaysIncomeValues);
   // log(evalsAndValues.todaysSettingValues);
 
-  // printTestCodeForEvals(evalsAndValues.evaluations);
 
   const result = makeChartDataFromEvaluations(
     model,

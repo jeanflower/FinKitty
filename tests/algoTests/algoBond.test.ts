@@ -126,7 +126,6 @@ describe("bonds tests", () => {
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
   
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,
@@ -268,7 +267,6 @@ describe("bonds tests", () => {
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
   
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,
@@ -421,7 +419,6 @@ describe("bonds tests", () => {
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
   
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,
@@ -599,7 +596,6 @@ describe("bonds tests", () => {
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
   
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,
@@ -905,7 +901,6 @@ describe("bonds tests", () => {
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
   
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,
@@ -1211,7 +1206,6 @@ describe("bonds tests", () => {
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
   
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,
@@ -1584,7 +1578,6 @@ describe("bonds tests", () => {
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
   
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,
@@ -1878,7 +1871,6 @@ describe("bonds tests", () => {
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
   
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,
@@ -2172,7 +2164,6 @@ describe("bonds tests", () => {
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
   
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,
@@ -2309,7 +2300,6 @@ describe("bonds tests", () => {
     // log(evalsAndValues.todaysIncomeValues);
     // log(evalsAndValues.todaysSettingValues);
   
-    // printTestCodeForEvals(evalsAndValues.evaluations);
   
     const result = makeChartDataFromEvaluations(
       model,
@@ -2324,11 +2314,11 @@ describe("bonds tests", () => {
     expect(result.assetData.length).toBe(1);
     expect(result.assetData[0].item.NAME).toBe('Cash');
     {
-    const chartPts = result.assetData[0].chartDataPoints;
-    expect(chartPts.length).toBe(1);
-    expectChartData(chartPts, 0, 'Sun Dec 30 2029', 97160.77, 2);
+      const chartPts = result.assetData[0].chartDataPoints;
+      expect(chartPts.length).toBe(1);
+      expectChartData(chartPts, 0, 'Sun Dec 30 2029', 97160.77, 2);
     }
-    
+
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
   });

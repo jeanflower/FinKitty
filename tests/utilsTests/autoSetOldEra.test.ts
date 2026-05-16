@@ -241,9 +241,9 @@ describe("autoSetOldEra", () => {
     m.expenses = [oldExpense, newExpense];
     const r1 = autoSetOldEra(m, { anchorDate: ANCHOR });
     expect(r1.checkMessage).toBe("");
-    expect(r1.summary).toMatch(/\b1 expenses \(end before 2y\)/);
+    expect(r1.summary).toBe("Updated ERA for old items; changed: 1 expenses, ");
     const r2 = autoSetOldEra(m, { anchorDate: ANCHOR });
     expect(r2.checkMessage).toBe("");
-    expect(r2.summary).toMatch(/\b0 expenses \(end before 2y\)/);
+    expect(r2.summary).toBe("Updated ERA for old items; changed: ");
   });
 });

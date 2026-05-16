@@ -1,3 +1,4 @@
+import { appendFileSync } from "fs";
 import {
   CASH_ASSET_NAME,
   pensionDB,
@@ -99,24 +100,61 @@ export function expectEvals(
   }
 }
 
-export function printTestCodeForEvals(evals: Evaluation[]) {
+/**
+ * Embeds a string in single-quoted test source (same style as `expectEvals(..., 'name', 'date', …)`).
+ */
+function tsStringLiteralSingleQuoted(s: string): string {
+  return `'${s.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
+}
+
+/** When set by `scripts/rebaseline-algo-tests.mjs --write`, codegen is appended here (testResults/.rebaseline-capture.txt). */
+function writeRebaselineCapture(kind: "evals" | "chart", body: string) {
+  const path = process.env.FINKITTY_REBASELINE_CAPTURE;
+  if (!path) return;
+  const begin = kind === "evals" ? "@@REBASELINE_BEGIN:evals@@" : "@@REBASELINE_BEGIN:chart@@";
+  const end = kind === "evals" ? "@@REBASELINE_END:evals@@" : "@@REBASELINE_END:chart@@";
+  appendFileSync(path, `${begin}\n${body}${body.endsWith("\n") ? "" : "\n"}${end}\n`, "utf8");
+}
+
+export type PrintTestCodeForEvalsOptions = {
+  /** Indent for each emitted line (match the `it` body, e.g. `"    "` or `"  "`). */
+  baseIndent?: string;
+};
+
+/**
+ * Logs copy-pastable `expect(evals.length)` / `expectEvals` lines to **stdout** (like
+ * `printTestCodeForChart`), for use with `npm run rebaseline:algo` while prints are uncommented.
+ *
+ * **Rebaseline layout (see `scripts/rebaseline-algo-tests.mjs`):** keep a commented marker
+ * `// printTestCodeForEvals(evals);` (or `evalsAndValues.evaluations`) immediately above the
+ * `expect(evals.length)` / `expectEvals` block. Chart expectations use
+ * `// printTestCodeForChart(result);` above the `expect(result.*)` / `expectChartData` block.
+ * `npm run rebaseline:algo -- --write --test=…` replaces those blocks from captured stdout.
+ */
+export function printTestCodeForEvals(
+  evals: Evaluation[],
+  options?: PrintTestCodeForEvalsOptions,
+) {
+  const b = options?.baseIndent ?? "    ";
   let result = "";
-  result += `expect(evals.length).toBe(${evals.length});\n`;
+  result += b + `expect(evals.length).toBe(${evals.length});\n`;
   for (let i = 0; i < evals.length; i += 1) {
-    // log(`evals[${i}] is ${showObj(evals[i])}`);
     result +=
+      b +
       `expectEvals(evals, ${i}, ` +
-      `'${evals[i].name}', '${dateAsString(
-        DateFormatType.Test,
-        evals[i].date,
-      )}', `;
+      `${tsStringLiteralSingleQuoted(evals[i].name)}, ${tsStringLiteralSingleQuoted(
+        evals[i].date.getTestDescription(),
+      )}, `;
     if (evals[i].value.toFixed(0) === `${evals[i].value}`) {
       result += `${evals[i].value}, -1);\n`;
     } else {
       result += `${evals[i].value.toFixed(2)}, 2);\n`;
     }
   }
-  log(result);
+  writeRebaselineCapture("evals", result);
+  /* eslint-disable no-console */ // intentional codegen dump for test maintenance
+  console.log(result);
+  /* eslint-enable no-console */
 }
 
 export function printTestCodeForReportData(reportData: ReportDatum[]) {
@@ -173,114 +211,170 @@ export function expectChartData(
   }
 }
 
-export function printTestCodeForChart(result: DataForView) {
+/** One chart series: single-quoted strings; `b` for `expect`/`{`/`}`, `b + "  "` inside `{`. */
+function formatChartTestCodeForSeries(
+  accessPath: string,
+  itemName: string,
+  chartPts: ChartDataPoint[],
+  b: string,
+) {
+  const inBlock = b + "  ";
+  let s = "";
+  s +=
+    b +
+    `expect(${accessPath}.item.NAME).toBe(${tsStringLiteralSingleQuoted(
+      itemName,
+    )});\n`;
+  s += b + "{\n";
+  s += inBlock + `const chartPts = ${accessPath}.chartDataPoints;\n`;
+  s += inBlock + `expect(chartPts.length).toBe(${chartPts.length});\n`;
+  for (let j = 0; j < chartPts.length; j += 1) {
+    s +=
+      inBlock +
+      `expectChartData(chartPts, ${j}, ${tsStringLiteralSingleQuoted(
+        chartPts[j].label,
+      )}, `;
+    if (chartPts[j].y.toFixed(0) === `${chartPts[j].y}`) {
+      s += `${chartPts[j].y}, -1);\n`;
+    } else {
+      s += `${chartPts[j].y.toFixed(2)}, 2);\n`;
+    }
+  }
+  s += b + "}\n\n";
+  return s;
+}
+
+/** Which `result.*Data` chart blocks `printTestCodeForChart` may emit (canonical order). */
+export type ChartSection = 'expenses' | 'incomes' | 'assets' | 'debt' | 'tax';
+
+export type PrintTestCodeForChartOptions = {
+  /**
+   * Indent before each top-level `expect` / `{` in the pasted block.
+   * Use `"    "` (4 spaces) for tests that use a 4-space `it` body, etc.
+   */
+  baseIndent?: string;
+  /**
+   * Emit only these chart sections (in expenses → incomes → assets → debt → tax order).
+   * Omit or leave empty for the full chart dump. Example: `['assets', 'tax']` when only
+   * those series changed.
+   */
+  sections?: readonly ChartSection[];
+};
+
+const CHART_SECTION_ORDER: readonly ChartSection[] = [
+  'expenses',
+  'incomes',
+  'assets',
+  'debt',
+  'tax',
+];
+
+function resolveChartSections(
+  options?: PrintTestCodeForChartOptions,
+): readonly ChartSection[] {
+  const raw = options?.sections;
+  if (!raw?.length) {
+    return CHART_SECTION_ORDER;
+  }
+  const allowed = new Set<ChartSection>(CHART_SECTION_ORDER);
+  const picked: ChartSection[] = [];
+  for (const s of CHART_SECTION_ORDER) {
+    if (raw.includes(s) && allowed.has(s)) {
+      picked.push(s);
+    }
+  }
+  return picked.length > 0 ? picked : CHART_SECTION_ORDER;
+}
+
+/**
+ * Logs copy-pastable `expect` / `expectChartData` lines for a full
+ * `DataForView` (expenses, incomes, assets, debt, tax).
+ *
+ * **Rebaseline layout:** keep `// printTestCodeForChart(result);` (with any options) directly
+ * above the chart `expect` block; pair with `// printTestCodeForEvals(…)` for evaluations.
+ * Use `npm run rebaseline:algo -- --write --test=…` to refresh both blocks automatically.
+ *
+ * **Manual workflow (minimize unrelated git diffs):**
+ * 1. Uncomment `printTestCodeForChart(result)` (or
+ *    `printTestCodeForChart(result, { baseIndent: "  " })` if this `it`
+ *    body indents with 2 spaces, etc.).
+ * 2. Run the test (e.g. `npm run rebaseline:algo -- --test='…/file.ts::it name'`); copy the
+ *    `console` output. Content uses
+ *    **single-quoted** strings (same as the original `expectChartData`
+ *    style), **one blank line** between series, and `baseIndent` + 2
+ *    spaces inside each `{` … `}`.
+ * 3. Replace the old expectation block. **Match** the `baseIndent` to
+ *    sibling lines in the `it` (e.g. if your `expect` lines start with
+ *    4 spaces, the pasted block should too—re-indent if the terminal
+ *    or Jest’s UI added an extra level).
+ * 4. Re-comment the call and re-run the test. To limit noise, pass
+ *    `{ sections: ['tax'] }` (or `{ sections: ['assets', 'tax'] }`, etc.) instead of dumping
+ *    every series.
+ */
+export function printTestCodeForChart(
+  result: DataForView,
+  options?: PrintTestCodeForChartOptions,
+) {
+  const b = options?.baseIndent ?? "    ";
+  const active = resolveChartSections(options);
   let toPrint = "";
-  toPrint += `expect(result.expensesData.length).toBe(${result.expensesData.length});\n`;
-  for (let i = 0; i < result.expensesData.length; i += 1) {
-    toPrint +=
-      `expect(result.expensesData[${i}].item.NAME).toBe(` +
-      `'${result.expensesData[i].item.NAME}');\n`;
-    toPrint += "{\n";
-    toPrint += `const chartPts = result.expensesData[${i}].chartDataPoints;\n`;
-    const chartPts = result.expensesData[i].chartDataPoints;
-    toPrint += `expect(chartPts.length).toBe(${chartPts.length});\n`;
-    for (let j = 0; j < chartPts.length; j += 1) {
-      toPrint += `expectChartData(chartPts, ${j}, '${chartPts[j].label}', `;
-      if (chartPts[j].y.toFixed(0) === `${chartPts[j].y}`) {
-        toPrint += `${chartPts[j].y}, -1);\n`;
-      } else {
-        toPrint += `${chartPts[j].y.toFixed(2)}, 2);\n`;
+  for (const sec of active) {
+    if (sec === "expenses") {
+      toPrint += b + `expect(result.expensesData.length).toBe(${result.expensesData.length});\n`;
+      for (let i = 0; i < result.expensesData.length; i += 1) {
+        toPrint += formatChartTestCodeForSeries(
+          `result.expensesData[${i}]`,
+          result.expensesData[i].item.NAME,
+          result.expensesData[i].chartDataPoints,
+          b,
+        );
+      }
+    } else if (sec === "incomes") {
+      toPrint += b + `expect(result.incomesData.length).toBe(${result.incomesData.length});\n`;
+      for (let i = 0; i < result.incomesData.length; i += 1) {
+        toPrint += formatChartTestCodeForSeries(
+          `result.incomesData[${i}]`,
+          result.incomesData[i].item.NAME,
+          result.incomesData[i].chartDataPoints,
+          b,
+        );
+      }
+    } else if (sec === "assets") {
+      toPrint += b + `expect(result.assetData.length).toBe(${result.assetData.length});\n`;
+      for (let i = 0; i < result.assetData.length; i += 1) {
+        toPrint += formatChartTestCodeForSeries(
+          `result.assetData[${i}]`,
+          result.assetData[i].item.NAME,
+          result.assetData[i].chartDataPoints,
+          b,
+        );
+      }
+    } else if (sec === "debt") {
+      toPrint += b + `expect(result.debtData.length).toBe(${result.debtData.length});\n`;
+      for (let i = 0; i < result.debtData.length; i += 1) {
+        toPrint += formatChartTestCodeForSeries(
+          `result.debtData[${i}]`,
+          result.debtData[i].item.NAME,
+          result.debtData[i].chartDataPoints,
+          b,
+        );
+      }
+    } else if (sec === "tax") {
+      toPrint += b + `expect(result.taxData.length).toBe(${result.taxData.length});\n`;
+      for (let i = 0; i < result.taxData.length; i += 1) {
+        toPrint += formatChartTestCodeForSeries(
+          `result.taxData[${i}]`,
+          result.taxData[i].item.NAME,
+          result.taxData[i].chartDataPoints,
+          b,
+        );
       }
     }
-    toPrint += "}\n";
-    toPrint += "\n";
   }
-  toPrint +=
-    "expect(result.incomesData.length).toBe(" +
-    `${result.incomesData.length});\n`;
-  for (let i = 0; i < result.incomesData.length; i += 1) {
-    toPrint +=
-      `expect(result.incomesData[${i}].item.NAME).toBe(` +
-      `'${result.incomesData[i].item.NAME}');\n`;
-    toPrint += "{\n";
-    toPrint += `const chartPts = result.incomesData[${i}].chartDataPoints;\n`;
-    const chartPts = result.incomesData[i].chartDataPoints;
-    toPrint += `expect(chartPts.length).toBe(${chartPts.length});\n`;
-    for (let j = 0; j < chartPts.length; j += 1) {
-      toPrint += `expectChartData(chartPts, ${j}, '${chartPts[j].label}', `;
-      if (chartPts[j].y.toFixed(0) === `${chartPts[j].y}`) {
-        toPrint += `${chartPts[j].y}, -1);\n`;
-      } else {
-        toPrint += `${chartPts[j].y.toFixed(2)}, 2);\n`;
-      }
-    }
-    toPrint += "}\n";
-    toPrint += "\n";
-  }
-  toPrint +=
-    "expect(result.assetData.length).toBe(" + `${result.assetData.length});\n`;
-  for (let i = 0; i < result.assetData.length; i += 1) {
-    toPrint +=
-      `expect(result.assetData[${i}].item.NAME).toBe(` +
-      `'${result.assetData[i].item.NAME}');\n`;
-    toPrint += "{\n";
-    toPrint += `const chartPts = result.assetData[${i}].chartDataPoints;\n`;
-    const chartPts = result.assetData[i].chartDataPoints;
-    toPrint += `expect(chartPts.length).toBe(${chartPts.length});\n`;
-    for (let j = 0; j < chartPts.length; j += 1) {
-      toPrint += `expectChartData(chartPts, ${j}, '${chartPts[j].label}', `;
-      if (chartPts[j].y.toFixed(0) === `${chartPts[j].y}`) {
-        toPrint += `${chartPts[j].y}, -1);\n`;
-      } else {
-        toPrint += `${chartPts[j].y.toFixed(2)}, 2);\n`;
-      }
-    }
-    toPrint += "}\n";
-    toPrint += "\n";
-  }
-  toPrint +=
-    "expect(result.debtData.length).toBe(" + `${result.debtData.length});\n`;
-  for (let i = 0; i < result.debtData.length; i += 1) {
-    toPrint +=
-      `expect(result.debtData[${i}].item.NAME).toBe(` +
-      `'${result.debtData[i].item.NAME}');\n`;
-    toPrint += "{\n";
-    toPrint += `const chartPts = result.debtData[${i}].chartDataPoints;\n`;
-    const chartPts = result.debtData[i].chartDataPoints;
-    toPrint += `expect(chartPts.length).toBe(${chartPts.length});\n`;
-    for (let j = 0; j < chartPts.length; j += 1) {
-      toPrint += `expectChartData(chartPts, ${j}, '${chartPts[j].label}', `;
-      if (chartPts[j].y.toFixed(0) === `${chartPts[j].y}`) {
-        toPrint += `${chartPts[j].y}, -1);\n`;
-      } else {
-        toPrint += `${chartPts[j].y.toFixed(2)}, 2);\n`;
-      }
-    }
-    toPrint += "}\n";
-    toPrint += "\n";
-  }
-  toPrint +=
-    "expect(result.taxData.length).toBe(" + `${result.taxData.length});\n`;
-  for (let i = 0; i < result.taxData.length; i += 1) {
-    toPrint +=
-      `expect(result.taxData[${i}].item.NAME).toBe(` +
-      `'${result.taxData[i].item.NAME}');\n`;
-    toPrint += "{\n";
-    toPrint += `const chartPts = result.taxData[${i}].chartDataPoints;\n`;
-    const chartPts = result.taxData[i].chartDataPoints;
-    toPrint += `expect(chartPts.length).toBe(${chartPts.length});\n`;
-    for (let j = 0; j < chartPts.length; j += 1) {
-      toPrint += `expectChartData(chartPts, ${j}, '${chartPts[j].label}', `;
-      if (chartPts[j].y.toFixed(0) === `${chartPts[j].y}`) {
-        toPrint += `${chartPts[j].y}, -1);\n`;
-      } else {
-        toPrint += `${chartPts[j].y.toFixed(2)}, 2);\n`;
-      }
-    }
-    toPrint += "}\n";
-    toPrint += "\n";
-  }
-  log(toPrint);
+  writeRebaselineCapture("chart", toPrint);
+  /* eslint-disable no-console */ // intentional codegen dump for test maintenance
+  console.log(toPrint);
+  /* eslint-enable no-console */
 }
 
 export function getTestEvaluations(
