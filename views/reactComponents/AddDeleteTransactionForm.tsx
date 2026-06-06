@@ -595,12 +595,6 @@ export class AddDeleteTransactionForm extends Component<
         );
         return;
       }
-      if (toAbsolute === "") {
-        this.props.showAlert(
-          "To absolute should be T (absolute value) or F (relative value",
-        );
-        return;
-      }
       const parsedLiquidateYN = makeBooleanFromYesNo(
         this.state.LIQUIDATE_FOR_CASH,
       );
