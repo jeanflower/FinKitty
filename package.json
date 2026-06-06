@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://github.com/jeanflower/FinKitty",
-  "version": "2.0.163",
+  "version": "2.0.164",
   "engines": {
     "node": "20.x"
   },
@@ -16,6 +16,12 @@
     "test": "jest --watchAll",
     "test:ci": "jest --ci",
     "test:algo": "jest tests/algoTests --ci --no-coverage",
+    "test:algo:symmetry": "FINKITTY_EXPR_SYMMETRY_ENABLE=1 jest tests/algoTests --ci --no-coverage",
+    "test:algo:probe:suffixZero": "FINKITTY_EXPR_PROBE=suffixZero jest tests/algoTests --ci --no-coverage",
+    "test:algo:probe:prefixZero": "FINKITTY_EXPR_PROBE=prefixZero jest tests/algoTests --ci --no-coverage",
+    "test:algo:probe:sandwichZero": "FINKITTY_EXPR_PROBE=sandwichZero jest tests/algoTests --ci --no-coverage",
+    "test:algo:probe:suffixOne": "FINKITTY_EXPR_PROBE=suffixOne jest tests/algoTests --ci --no-coverage",
+    "test:algo:probe:prefixZeroSuffixOne": "FINKITTY_EXPR_PROBE=prefixZeroSuffixOne jest tests/algoTests --ci --no-coverage",
     "rebaseline:algo": "node scripts/rebaseline-algo-tests.mjs",
     "perf:eval": "node -e \"if(!process.env.FINKITTY_PERF_MODEL_PATH){console.error('Set FINKITTY_PERF_MODEL_PATH to the absolute path of your JSON export.');process.exit(1)}\" && jest tests/perf/getEvaluations.perf.test.ts --runInBand --ci --testTimeout=600000",
     "perf:eval:fast": "node -e \"if(!process.env.FINKITTY_PERF_MODEL_PATH){console.error('Set FINKITTY_PERF_MODEL_PATH to the absolute path of your JSON export.');process.exit(1)}\" && FINKITTY_PERF_ITERATIONS=10 FINKITTY_PERF_WARMUP=1 jest tests/perf/getEvaluations.perf.test.ts --runInBand --ci --testTimeout=600000",

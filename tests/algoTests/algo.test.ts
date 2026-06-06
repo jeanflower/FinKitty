@@ -1660,6 +1660,191 @@ describe("evaluations tests", () => {
     expectEvals(evals, 2, "PRnd", "Fri Feb 01 2019", 10, -1);
   });
 
+  it("should evaluate a binary addition expression as an income value", () => {
+    const roi = {
+      start: "Dec 1, 2018 00:00:00",
+      end: "March 1, 2019 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          START: "January 1 2019",
+          END: "July 1 2019",
+          NAME: "PRnd",
+          VALUE: "x + y",
+          VALUE_SET: "January 1 2018",
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "12.0", constType);
+    setSetting(model.settings, "x", "5", adjustableType);
+    setSetting(model.settings, "y", "3", adjustableType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    expect(evals.length).toBe(4);
+    expectEvals(evals, 0, "x", "Mon Jan 01 2018", 5, -1);
+    expectEvals(evals, 1, "y", "Mon Jan 01 2018", 3, -1);
+    expectEvals(evals, 2, "PRnd", "Tue Jan 01 2019", 8, -1);
+    expectEvals(evals, 3, "PRnd", "Fri Feb 01 2019", 8, -1);
+  });
+
+  it("should evaluate a binary subtraction expression as an income value", () => {
+    const roi = {
+      start: "Dec 1, 2018 00:00:00",
+      end: "March 1, 2019 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          START: "January 1 2019",
+          END: "July 1 2019",
+          NAME: "PRnd",
+          VALUE: "2x-y",
+          VALUE_SET: "January 1 2018",
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "12.0", constType);
+    setSetting(model.settings, "x", "5", adjustableType);
+    setSetting(model.settings, "y", "3", adjustableType);
+
+    const evals = getTestEvaluations(model).evaluations;
+
+    expectEvals(evals, 2, "PRnd", "Tue Jan 01 2019", 7, -1);
+  });
+
+  it("expense 68+A and A+68 with setting A=0 should match plain 68 for Estate", () => {
+    const roi = {
+      start: "1 Jan 2019",
+      end: "1 Jan 2020",
+    };
+    const makeModel = (expenseValue: string): ModelData => ({
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "1 Jan 2019",
+          VALUE: "0",
+          GROWTH: "0",
+          CPI_IMMUNE: true,
+        },
+        {
+          ...simpleAsset,
+          NAME: "Estate",
+          START: "2019",
+          VALUE: "0",
+          GROWTH: "0",
+          CPI_IMMUNE: true,
+        },
+      ],
+      expenses: [
+        {
+          ...simpleExpense,
+          NAME: "MyExp",
+          START: "1 Feb 2019",
+          END: "1 Dec 2019",
+          VALUE: expenseValue,
+          VALUE_SET: "1 Feb 2019",
+          CPI_IMMUNE: false,
+          RECURRENCE: "1m",
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "makeEstate",
+          DATE: "1 Nov 2019",
+          FROM: CASH_ASSET_NAME,
+          FROM_VALUE: "1",
+          FROM_ABSOLUTE: false,
+          TO: "Estate",
+          TO_VALUE: "1",
+          TO_ABSOLUTE: false,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    });
+    setSetting(makeModel("68").settings, cpi, "2.5", constType);
+    const addA = (m: ModelData) => {
+      setSetting(m.settings, "A", "0", adjustableType);
+      return m;
+    };
+
+    const estateFinal = (expenseValue: string) => {
+      const model = addA(makeModel(expenseValue));
+      const evals = getTestEvaluations(model, false).evaluations;
+      const estateEvals = evals.filter((e) => {
+        return e.name === "Estate";
+      });
+      return estateEvals[estateEvals.length - 1]?.value;
+    };
+
+    const plain = estateFinal("68");
+    expect(estateFinal("68+A")).toBe(plain);
+    expect(estateFinal("A+68")).toBe(plain);
+    expect(estateFinal("A+700+A")).toBe(estateFinal("700"));
+
+    // Setting name "A" must not match substrings such as "April" in other values.
+    const modelWithApril = addA(makeModel("A+68"));
+    setSetting(modelWithApril.settings, "B", "1 April 2018", adjustableType);
+    const aprilEvals = getTestEvaluations(modelWithApril, false).evaluations;
+    const aprilEstate = aprilEvals.filter((e) => {
+      return e.name === "Estate";
+    });
+    expect(aprilEstate[aprilEstate.length - 1]?.value).toBe(plain);
+  });
+
+  it("should start an asset with a binary expression value", () => {
+    const roi = {
+      start: "Dec 1, 2017",
+      end: "March 1, 2018",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "Dec 1, 2017",
+          VALUE: "1000",
+          GROWTH: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: "MyAsset",
+          START: "Jan 1 2018",
+          VALUE: "MySetting+X",
+          GROWTH: "0",
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "0.0", constType);
+    setSetting(model.settings, "MySetting", "100", adjustableType);
+    setSetting(model.settings, "X", "50", adjustableType);
+
+    const evals = getTestEvaluations(model, false).evaluations;
+    const startEval = evals.find((e) => {
+      return (
+        e.name === "MyAsset" && e.date.getTestDescription() === "Mon Jan 01 2018"
+      );
+    });
+
+    expect(startEval?.value).toBe(150);
+  });
+
   it("should use a setting as a cpi-affected income value", () => {
     // A setting-named income value (not CPI immune) is normalised against the
     // CPI base at VALUE_SET and then grows with CPI, matching a numeric value.

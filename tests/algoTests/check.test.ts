@@ -888,6 +888,13 @@ describe("checks tests", () => {
           HINT: "growthValue",
           TYPE: adjustableType,
         },
+        {
+          NAME: "A",
+          ERA: undefined,
+          VALUE: "0",
+          HINT: "growthValue",
+          TYPE: adjustableType,
+        },
       ],
     };
     suppressLogs();
@@ -915,6 +922,17 @@ describe("checks tests", () => {
           ...simpleExpense,
           VALUE: "x", // this is a setting name
           CPI_IMMUNE: true, // defined by setting => OK as long as doesn't grow by CPI
+        },
+        model,
+      ),
+    ).toEqual(``);
+    expect(
+      checkExpense(
+        {
+          ...simpleExpense,
+          NAME: "Run car",
+          VALUE: "A+700+A",
+          CPI_IMMUNE: true,
         },
         model,
       ),
@@ -1100,6 +1118,57 @@ describe("checks tests", () => {
 
     unSuppressLogs();
   });
+
+  it("allows proportional transaction to asset with binary expression value", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "March 1, 2018 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "VanPurchaseFunds",
+          FROM: "Van",
+          FROM_ABSOLUTE: false,
+          FROM_VALUE: "1.0",
+          TO: "Cash",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1",
+          DATE: "January 3 2018",
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "Van",
+          START: "January 2 2018",
+          VALUE: "1000",
+          GROWTH: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: "Cash",
+          START: "January 1 2018",
+          VALUE: "222+X",
+          GROWTH: "0",
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: "X",
+          VALUE: "10",
+        },
+      ],
+    };
+
+    expect(checkModel(model).message).toEqual("");
+  });
+
   it("has proportional transaction blocked for string-valued income", () => {
     const roi = {
       start: "Dec 1, 2017 00:00:00",
@@ -1198,6 +1267,34 @@ describe("checks tests", () => {
     unSuppressLogs();
   });
 
+  it("accepts income value with scaled setting One suffix", () => {
+    const roi = {
+      start: "Dec 1, 2018 00:00:00",
+      end: "March 1, 2019 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          START: "January 1 2019",
+          END: "July 1 2019",
+          NAME: "PRnd",
+          VALUE: "2xOne",
+          VALUE_SET: "January 1 2018",
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        { ...simpleSetting, NAME: "x", VALUE: "5" },
+        { ...simpleSetting, NAME: "One", VALUE: "1" },
+      ],
+    };
+    expect(isValidValue("2xOne", model)).toBe(true);
+    expect(checkIncome(model.incomes[0], model)).toBe("");
+  });
+
   it('notices whitespace in settings values', () => {
     {
     const model = getMinimalModelCopy();
@@ -1281,6 +1378,38 @@ describe("checks tests", () => {
     const checkResponse = checkSettings(model);
     expect(checkResponse?.message).toEqual(
       `Setting 's2' has value '2apple' that does not ` +
+        `resolve to a number (missing or non-numeric setting reference)`,
+    );
+
+    model.settings.push({
+      ...simpleSetting,
+      NAME: "apple",
+      VALUE: "3",
+      TYPE: adjustableType,
+      ERA: 0,
+    });
+    expect(checkSettings(model)).toBeUndefined();
+  });
+
+  it("checkSettings rejects binary setting values that reference missing settings", () => {
+    const model = getMinimalModelCopy();
+    model.settings.push({
+      ...simpleSetting,
+      NAME: "s3",
+      VALUE: "x + apple",
+      TYPE: adjustableType,
+      ERA: 0,
+    });
+    model.settings.push({
+      ...simpleSetting,
+      NAME: "x",
+      VALUE: "5",
+      TYPE: adjustableType,
+      ERA: 0,
+    });
+    const checkResponse = checkSettings(model);
+    expect(checkResponse?.message).toEqual(
+      `Setting 's3' has value 'x + apple' that does not ` +
         `resolve to a number (missing or non-numeric setting reference)`,
     );
 

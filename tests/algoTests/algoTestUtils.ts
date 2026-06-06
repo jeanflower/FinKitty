@@ -1,3 +1,4 @@
+import { expect } from "@jest/globals";
 import { appendFileSync } from "fs";
 import {
   CASH_ASSET_NAME,
@@ -82,6 +83,46 @@ import { allViews } from "../../utils/allViews";
 import { minimalModel } from "../../models/minimalModel";
 import { makeModelFromJSONString } from "../../models/modelFromJSON";
 import { ViewSettings } from "../../utils/viewUtils";
+import {
+  ExpressionProbeTransform,
+  applyExpressionProbeTransform,
+  assertZeroIdentitySymmetry,
+  isExpressionSymmetryAutoCheckEnabled,
+  parseExpressionProbeTransform,
+} from "./expressionProbe";
+
+let symmetryCheckDepth = 0;
+
+function currentJestTestName(): string | undefined {
+  return expect.getState().currentTestName ?? undefined;
+}
+
+function maybeAssertZeroIdentitySymmetry(
+  unprocessedModel: ModelData,
+  frequency: string,
+): void {
+  if (symmetryCheckDepth > 0) {
+    return;
+  }
+  if (process.env.FINKITTY_EXPR_PROBE !== undefined) {
+    return;
+  }
+  if (!isExpressionSymmetryAutoCheckEnabled()) {
+    return;
+  }
+  symmetryCheckDepth += 1;
+  try {
+    assertZeroIdentitySymmetry(
+      unprocessedModel,
+      (model) => {
+        return runTestEvaluationsCore(model, false, false, frequency).evaluations;
+      },
+      { context: currentJestTestName() },
+    );
+  } finally {
+    symmetryCheckDepth -= 1;
+  }
+}
 
 export function expectEvals(
   evals: Evaluation[],
@@ -377,11 +418,12 @@ export function printTestCodeForChart(
   /* eslint-enable no-console */
 }
 
-export function getTestEvaluations(
+function runTestEvaluationsCore(
   unprocessedModel: ModelData,
   renamingChecks = true,
   diffChecks = false,
   frequency = monthly,
+  exprProbe?: ExpressionProbeTransform,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<Asset, AssetOrDebtVal>;
@@ -392,6 +434,10 @@ export function getTestEvaluations(
 } {
   const model = makeModelFromJSONString(JSON.stringify(unprocessedModel));
   model.name = 'ready to be processed';
+
+  if (exprProbe !== undefined) {
+    applyExpressionProbeTransform(model, exprProbe);
+  }
 
   processGenerators(model);
   model.name = 'has been processed';
@@ -779,6 +825,32 @@ export function getTestEvaluations(
   return evalnsAndVals;
 }
 
+export function getTestEvaluations(
+  unprocessedModel: ModelData,
+  renamingChecks = true,
+  diffChecks = false,
+  frequency = monthly,
+): {
+  evaluations: Evaluation[];
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+  todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+  todaysIncomeValues: Map<Income, IncomeVal>;
+  todaysExpenseValues: Map<Expense, ExpenseVal>;
+  todaysSettingValues: Map<Setting, SettingVal>;
+} {
+  maybeAssertZeroIdentitySymmetry(unprocessedModel, frequency);
+  const exprProbe = parseExpressionProbeTransform(
+    process.env.FINKITTY_EXPR_PROBE,
+  );
+  return runTestEvaluationsCore(
+    unprocessedModel,
+    renamingChecks,
+    diffChecks,
+    frequency,
+    exprProbe,
+  );
+}
+
 export function getTestEvaluationsForReport(
   unprocessedModel: ModelData,
   reporter: ReportValueChecker,
@@ -791,8 +863,16 @@ export function getTestEvaluationsForReport(
   todaysSettingValues: Map<Setting, SettingVal>;
   reportData: ReportDatum[];
 } {
+  maybeAssertZeroIdentitySymmetry(unprocessedModel, monthly);
+  const exprProbe = parseExpressionProbeTransform(
+    process.env.FINKITTY_EXPR_PROBE,
+  );
   const model = makeModelFromJSONString(JSON.stringify(unprocessedModel));
   model.name = 'ready to be processed';
+
+  if (exprProbe !== undefined) {
+    applyExpressionProbeTransform(model, exprProbe);
+  }
 
   processGenerators(model);
   model.name = 'has been processed';

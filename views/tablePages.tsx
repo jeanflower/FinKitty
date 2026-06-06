@@ -263,15 +263,16 @@ function handleExpenseGridRowsUpdated(
   // log('new expense '+showObj(expense));
   const parsedGrowsWithCPI = makeBooleanFromYesNo(newRow.GROWS_WITH_CPI);
 
-  const valueIsSetting = model.settings.find((s) => {
-    return s.NAME === newRow.VALUE;
-  });
   const parsedValue = makeCashValueFromString(newRow.VALUE);
+  let expValue = "";
+  if (parsedValue.checksOK) {
+    expValue = `${parsedValue.value}`;
+  } else {
+    expValue = newRow.VALUE;
+  }
   if (doChecks) {
     if (!parsedGrowsWithCPI.checksOK) {
       showAlert("Whether expense grows with CPI should be 'y' or 'n'");
-    } else if (!valueIsSetting && !parsedValue.checksOK) {
-      showAlert(`Value ${newRow.VALUE} can't be understood as a cash value`);
     } else {
       const expenseForSubmission: Expense = {
         NAME: newRow.NAME,
@@ -279,7 +280,7 @@ function handleExpenseGridRowsUpdated(
         CATEGORY: newRow.CATEGORY,
         START: newRow.START,
         END: newRow.END,
-        VALUE: valueIsSetting ? newRow.VALUE : `${parsedValue.value}`,
+        VALUE: expValue,
         VALUE_SET: newRow.VALUE_SET,
         CPI_IMMUNE: !parsedGrowsWithCPI.value,
         RECURRENCE: newRow.RECURRENCE,
@@ -299,7 +300,7 @@ function handleExpenseGridRowsUpdated(
       CATEGORY: newRow.CATEGORY,
       START: newRow.START,
       END: newRow.END,
-      VALUE: `${parsedValue.value}`,
+      VALUE: expValue,
       VALUE_SET: newRow.VALUE_SET,
       CPI_IMMUNE: !parsedGrowsWithCPI.value,
       RECURRENCE: newRow.RECURRENCE,

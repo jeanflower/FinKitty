@@ -23,9 +23,22 @@ import {
   makeValueAbsPropFromString,
   makeYesNoFromBoolean,
   removeNumberPart,
+  parseNumericExpression,
+  splitBinaryNumericExpression,
+  isNumericExpressionTerm,
+  getNumericExpressionTerms,
+  numericExpressionReferencesName,
+  modelNameReferencesSetting,
+  valueReferencesWord,
+  valueIsPlainSettingAlias,
+  valueIsPureSymbolicValue,
+  splitScaledSettingSuffix,
+  splitScaledValueSuffix,
+  modelAssetNames,
 } from "../../utils/stringUtils";
 import {
   definedBenefitsPension,
+  emptyModel,
   simpleAsset,
   simpleExpense,
   simpleIncome,
@@ -724,6 +737,133 @@ describe("utils tests", () => {
       absolute: true,
       checksOK: false,
       value: "notASetting",
+    });
+    expect(makeValueAbsPropFromString("x + y", settings)).toEqual({
+      absolute: true,
+      checksOK: true,
+      value: "x + y",
+    });
+    expect(makeValueAbsPropFromString("2x-3y", settings)).toEqual({
+      absolute: true,
+      checksOK: true,
+      value: "2x-3y",
+    });
+  });
+  it("parseNumericExpression", () => {
+    expect(parseNumericExpression("2x + 3y")).toEqual({
+      terms: ["2x", "3y"],
+      ops: ["+"],
+    });
+    expect(parseNumericExpression("100-mySetting")).toEqual({
+      terms: ["100", "mySetting"],
+      ops: ["-"],
+    });
+    expect(parseNumericExpression("-50+10")).toEqual({
+      terms: ["-50", "10"],
+      ops: ["+"],
+    });
+    expect(parseNumericExpression("A+700+A")).toEqual({
+      terms: ["A", "700", "A"],
+      ops: ["+", "+"],
+    });
+    expect(parseNumericExpression("1+2+3")).toEqual({
+      terms: ["1", "2", "3"],
+      ops: ["+", "+"],
+    });
+    expect(parseNumericExpression("x")).toBeUndefined();
+    expect(parseNumericExpression("2x")).toBeUndefined();
+  });
+  it("splitBinaryNumericExpression", () => {
+    expect(splitBinaryNumericExpression("2x + 3y")).toEqual({
+      left: "2x",
+      op: "+",
+      right: "3y",
+    });
+    expect(splitBinaryNumericExpression("1+2+3")).toBeUndefined();
+  });
+  it("isNumericExpressionTerm", () => {
+    expect(isNumericExpressionTerm("100")).toBe(true);
+    expect(isNumericExpressionTerm("-2.5")).toBe(true);
+    expect(isNumericExpressionTerm("x")).toBe(true);
+    expect(isNumericExpressionTerm("2x")).toBe(true);
+    expect(isNumericExpressionTerm("")).toBe(false);
+    expect(isNumericExpressionTerm("+")).toBe(false);
+  });
+  it("numericExpressionReferencesName", () => {
+    expect(numericExpressionReferencesName("x + y", "y")).toBe(true);
+    expect(numericExpressionReferencesName("2x-100", "x")).toBe(true);
+    expect(numericExpressionReferencesName("100", "x")).toBe(false);
+    expect(numericExpressionReferencesName("68+A", "A")).toBe(true);
+    expect(numericExpressionReferencesName("A+68", "A")).toBe(true);
+    expect(numericExpressionReferencesName("1 April 2018", "A")).toBe(false);
+    const probeModel: ModelData = {
+      ...emptyModel,
+      settings: [
+        { NAME: "x", VALUE: "5", HINT: "", TYPE: "", ERA: undefined },
+        { NAME: "One", VALUE: "1", HINT: "", TYPE: "", ERA: undefined },
+      ],
+      assets: [{ ...simpleAsset, NAME: "NSI" }],
+    };
+    expect(numericExpressionReferencesName("2xOne", "x", probeModel)).toBe(
+      true,
+    );
+    expect(
+      numericExpressionReferencesName("0.0012414NSIOne", "NSI", probeModel),
+    ).toBe(true);
+    expect(numericExpressionReferencesName("2xOne-y", "x", probeModel)).toBe(
+      true,
+    );
+  });
+  it("splitScaledValueSuffix", () => {
+    const names = ["USD", "twoUSD", "fourUSD", "One", "x"];
+    const assets = ["NSI", "Cash"];
+    expect(splitScaledValueSuffix("NSIOne", names, assets)).toEqual({
+      baseWord: "NSI",
+      suffixSetting: "One",
+    });
+    expect(splitScaledValueSuffix("xOne", names, assets)).toEqual({
+      baseWord: "x",
+      suffixSetting: "One",
+    });
+  });
+  it("modelNameReferencesSetting", () => {
+    expect(modelNameReferencesSetting("A", "A")).toBe(true);
+    expect(modelNameReferencesSetting("Cash", "A")).toBe(false);
+    expect(modelNameReferencesSetting("1 April 2018", "A")).toBe(false);
+  });
+  it("valueReferencesWord", () => {
+    expect(valueReferencesWord("x + 100")).toBe(true);
+    expect(valueReferencesWord("100-50")).toBe(false);
+    expect(valueReferencesWord("2x")).toBe(true);
+  });
+  it("valueIsPureSymbolicValue", () => {
+    expect(valueIsPureSymbolicValue("MyCarValue")).toBe(true);
+    expect(valueIsPureSymbolicValue("2x")).toBe(true);
+    expect(valueIsPureSymbolicValue("222+X")).toBe(false);
+    expect(valueIsPureSymbolicValue("x+y")).toBe(false);
+    expect(valueIsPureSymbolicValue("222")).toBe(false);
+  });
+  it("valueIsPlainSettingAlias", () => {
+    expect(valueIsPlainSettingAlias("MyCarValue")).toBe(true);
+    expect(valueIsPlainSettingAlias("2x")).toBe(false);
+    expect(valueIsPlainSettingAlias("50One")).toBe(false);
+    expect(valueIsPlainSettingAlias("222")).toBe(false);
+  });
+  it("splitScaledSettingSuffix", () => {
+    const names = ["USD", "twoUSD", "fourUSD", "One", "x"];
+    expect(splitScaledSettingSuffix("xOne", names)).toEqual({
+      baseWord: "x",
+      suffixSetting: "One",
+    });
+    expect(splitScaledSettingSuffix("fourUSDOne", names)).toEqual({
+      baseWord: "fourUSD",
+      suffixSetting: "One",
+    });
+    expect(splitScaledSettingSuffix("twoUSD", names)).toBeUndefined();
+    expect(splitScaledSettingSuffix("USD", names)).toBeUndefined();
+    expect(splitScaledSettingSuffix("xOne", names)).toEqual({
+      baseWord: "x",
+      suffixSetting: "One",
     });
   });
   it("makeStringFromValueAbsProp", () => {

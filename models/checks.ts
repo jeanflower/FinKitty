@@ -38,6 +38,7 @@ import {
   transferCrystallizedPension,
   viewDetail,
   viewFrequency,
+  viewType,
   monitorEnd,
   monitorStart,
   bondInvest,
@@ -63,6 +64,13 @@ import {
   checkTriggerDate,
   dateAsString,
   getDisplayName,
+  modelSettingNamesLongestFirst,
+  parseNumericExpression,
+  splitScaledSettingSuffix,
+  splitScaledValueSuffix,
+  modelAssetNames,
+  valueIsPlainSettingAlias,
+  valueIsPureSymbolicValue,
 } from "../utils/stringUtils";
 import {
   getSettings,
@@ -212,6 +220,12 @@ export function isValidValueInternal(
   if (isNumberString(value)) {
     return true;
   }
+  const expr = parseNumericExpression(value);
+  if (expr !== undefined) {
+    return expr.terms.every((term) => {
+      return isValidValueInternal(term, model, iterationDepth);
+    });
+  }
   if (iterationDepth > 10) {
     // TODO : how low can iteration get?
     /* istanbul ignore next */
@@ -219,15 +233,21 @@ export function isValidValueInternal(
   }
 
   const parsed = getNumberAndWordParts(value);
-  if (parsed.wordPart !== undefined) {
+  if (parsed.wordPart.length > 0) {
+    const settingNames = modelSettingNamesLongestFirst(model);
+    const split = splitScaledValueSuffix(
+      parsed.wordPart,
+      settingNames,
+      modelAssetNames(model),
+    );
+    const wordPart = split?.baseWord ?? parsed.wordPart;
     const settingVal = getSettings(
       model.settings,
-      parsed.wordPart,
+      wordPart,
       "missing",
       false,
     );
     if (settingVal !== "missing") {
-      // log(`does setting ${settingVal} makes sense for a value...`);
       const recursiveVal = isValidValueInternal(
         settingVal,
         model,
@@ -235,10 +255,25 @@ export function isValidValueInternal(
       );
       if (!recursiveVal) {
         log(`${settingVal} is not a valid value`);
+        return false;
       }
-      return recursiveVal;
+      if (split !== undefined) {
+        const suffixVal = getSettings(
+          model.settings,
+          split.suffixSetting,
+          "missing",
+          false,
+        );
+        if (
+          suffixVal === "missing" ||
+          !isValidValueInternal(suffixVal, model, iterationDepth + 1)
+        ) {
+          return false;
+        }
+      }
+      return true;
     }
-    if (isAnAssetOrAssets(parsed.wordPart, model)) {
+    if (isAnAssetOrAssets(wordPart, model)) {
       return true; // could be appropriate ... TODO always workable?
     }
   }
@@ -263,6 +298,16 @@ function isResolvableNumericSettingValueInternal(
   if (isNumberString(value)) {
     return true;
   }
+  const expr = parseNumericExpression(value);
+  if (expr !== undefined) {
+    return expr.terms.every((term) => {
+      return isResolvableNumericSettingValueInternal(
+        term,
+        model,
+        iterationDepth,
+      );
+    });
+  }
   if (iterationDepth > 10) {
     /* istanbul ignore next */
     return false;
@@ -271,20 +316,44 @@ function isResolvableNumericSettingValueInternal(
   if (parsed.wordPart.length === 0) {
     return false;
   }
+  const settingNames = modelSettingNamesLongestFirst(model);
+  const split = splitScaledSettingSuffix(parsed.wordPart, settingNames);
+  const wordPart = split?.baseWord ?? parsed.wordPart;
   const settingVal = getSettings(
     model.settings,
-    parsed.wordPart,
+    wordPart,
     "missing",
     false,
   );
   if (settingVal === "missing") {
     return false;
   }
-  return isResolvableNumericSettingValueInternal(
-    settingVal,
-    model,
-    iterationDepth + 1,
-  );
+  if (
+    !isResolvableNumericSettingValueInternal(
+      settingVal,
+      model,
+      iterationDepth + 1,
+    )
+  ) {
+    return false;
+  }
+  if (split !== undefined) {
+    const suffixVal = getSettings(
+      model.settings,
+      split.suffixSetting,
+      "missing",
+      false,
+    );
+    if (suffixVal === "missing") {
+      return false;
+    }
+    return isResolvableNumericSettingValueInternal(
+      suffixVal,
+      model,
+      iterationDepth + 1,
+    );
+  }
+  return true;
 }
 
 export function isResolvableNumericSettingValue(
@@ -309,6 +378,29 @@ export function resolveNumericSettingValue(
   if (isNumberString(value)) {
     return parseFloat(value);
   }
+  const expr = parseNumericExpression(value);
+  if (expr !== undefined) {
+    let result = resolveNumericSettingValue(
+      expr.terms[0],
+      model,
+      iterationDepth,
+    );
+    if (result === undefined) {
+      return undefined;
+    }
+    for (let i = 0; i < expr.ops.length; i += 1) {
+      const next = resolveNumericSettingValue(
+        expr.terms[i + 1],
+        model,
+        iterationDepth,
+      );
+      if (next === undefined) {
+        return undefined;
+      }
+      result = expr.ops[i] === "+" ? result + next : result - next;
+    }
+    return result;
+  }
   if (iterationDepth > 10) {
     /* istanbul ignore next */
     return undefined;
@@ -317,9 +409,12 @@ export function resolveNumericSettingValue(
   if (parsed.wordPart.length === 0) {
     return undefined;
   }
+  const settingNames = modelSettingNamesLongestFirst(model);
+  const split = splitScaledSettingSuffix(parsed.wordPart, settingNames);
+  const wordPart = split?.baseWord ?? parsed.wordPart;
   const settingVal = getSettings(
     model.settings,
-    parsed.wordPart,
+    wordPart,
     "missing",
     false,
   );
@@ -330,8 +425,20 @@ export function resolveNumericSettingValue(
   if (inner === undefined) {
     return undefined;
   }
-  const mult = parsed.numberPart !== undefined ? parsed.numberPart : 1;
-  return mult * inner;
+  let mult = parsed.numberPart !== undefined ? parsed.numberPart : 1;
+  mult *= inner;
+  if (split !== undefined) {
+    const suffixInner = resolveNumericSettingValue(
+      split.suffixSetting,
+      model,
+      iterationDepth + 1,
+    );
+    if (suffixInner === undefined) {
+      return undefined;
+    }
+    mult *= suffixInner;
+  }
+  return mult;
 }
 
 export function checkAsset(a: Asset, model: ModelData): string {
@@ -388,21 +495,21 @@ export function checkAsset(a: Asset, model: ModelData): string {
       return `Asset '${a.NAME}' value '${a.VALUE}' may not have nonzero growth`;
     }
     if (!a.CPI_IMMUNE) {
-      return `Asset '${a.NAME}' value '${a.VALUE}' may not grow with CPI`;
+      if (valueIsPlainSettingAlias(a.VALUE)) {
+        return `Asset '${a.NAME}' value '${a.VALUE}' may not grow with CPI`;
+      }
+      if (!isResolvableNumericSettingValue(a.VALUE, model)) {
+        return `Asset '${a.NAME}' value '${a.VALUE}' may not grow with CPI`;
+      }
     }
   }
 
-  const isANumber = isNumberString(a.PURCHASE_PRICE);
-  if (!isANumber) {
-    const setting = getSettings(
-      model.settings,
-      a.PURCHASE_PRICE,
-      "",
-      false, // allow for it not being there
-    );
-    if (setting === "") {
-      return `Asset '${a.NAME}' purchase price '${a.PURCHASE_PRICE}' should be a numerical or setting value`;
-    }
+  if (
+    a.PURCHASE_PRICE.length > 0 &&
+    !isNumberString(a.PURCHASE_PRICE) &&
+    !isValidValue(a.PURCHASE_PRICE, model)
+  ) {
+    return `Asset '${a.NAME}' purchase price '${a.PURCHASE_PRICE}' should be a numerical or setting value`;
   }
 
   const d = checkTriggerDate(
@@ -608,14 +715,27 @@ function checkTransactionFrom(word: string, settings: Setting[]) {
     return "";
   }
 
-  // Also accept "<number><settingName>" (multiplied setting), e.g. "0.25mySetting".
+  // Also accept "<number><settingName>" (multiplied setting), e.g. "0.25mySetting"
+  // and scaled suffix forms such as "2xOne".
   const parts = getNumberAndWordParts(word);
-  if (
-    parts.numberPart !== undefined &&
-    parts.wordPart.length > 0 &&
-    settings.find((s) => s.NAME === parts.wordPart) !== undefined
-  ) {
-    return "";
+  if (parts.numberPart !== undefined && parts.wordPart.length > 0) {
+    const settingNames = modelSettingNamesLongestFirst({ settings });
+    const split = splitScaledSettingSuffix(parts.wordPart, settingNames);
+    const baseWord = split?.baseWord ?? parts.wordPart;
+    if (settings.find((s) => s.NAME === baseWord) !== undefined) {
+      if (split === undefined) {
+        return "";
+      }
+      if (
+        settings.find((s) => s.NAME === split.suffixSetting) !== undefined
+      ) {
+        return "";
+      }
+      return (
+        `'from' value suffix '${split.suffixSetting}' must name a setting ` +
+        `in '${word}'`
+      );
+    }
   }
 
   return `'from' value must be numbers or a setting, not '${word}'`;
@@ -1213,6 +1333,21 @@ function checkAdjustableSettingNumericReferences(
   const skipPlainIdentifier = new Set([monitorStart, monitorEnd]);
 
   for (const s of model.settings) {
+    if (s.TYPE === viewType) {
+      continue;
+    }
+    if (parseNumericExpression(s.VALUE) !== undefined) {
+      if (!isResolvableNumericSettingValue(s.VALUE, model)) {
+        return {
+          type: undefined,
+          itemName: undefined,
+          message:
+            `Setting '${s.NAME}' has value '${s.VALUE}' that does not ` +
+            `resolve to a number (missing or non-numeric setting reference)`,
+        };
+      }
+      continue;
+    }
     if (isScaledNumericSettingReference(s.VALUE)) {
       if (!isResolvableNumericSettingValue(s.VALUE, model)) {
         return {
@@ -1609,8 +1744,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       return a.NAME === t.TO;
     });
     if (targetAsset) {
-      const wordsAndNum = getNumberAndWordParts(targetAsset.VALUE);
-      if (wordsAndNum.wordPart !== "") {
+      if (valueIsPlainSettingAlias(targetAsset.VALUE)) {
         return `Transaction '${getDisplayName(
           t.NAME,
           t.TYPE,
@@ -1621,8 +1755,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       return i.NAME === t.TO;
     });
     if (targetIncome) {
-      const wordsAndNum = getNumberAndWordParts(targetIncome.VALUE);
-      if (wordsAndNum.wordPart !== "") {
+      if (valueIsPlainSettingAlias(targetIncome.VALUE)) {
         return `Transaction '${getDisplayName(
           t.NAME,
           t.TYPE,
@@ -1633,8 +1766,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
       return i.NAME === t.TO;
     });
     if (targetExpense) {
-      const wordsAndNum = getNumberAndWordParts(targetExpense.VALUE);
-      if (wordsAndNum.wordPart !== "") {
+      if (valueIsPlainSettingAlias(targetExpense.VALUE)) {
         return `Transaction '${getDisplayName(
           t.NAME,
           t.TYPE,

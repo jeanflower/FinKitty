@@ -1,4 +1,4 @@
-import { isSetting } from "../models/modelQueries";
+import { isNumberString, isSetting } from "../models/modelQueries";
 import {
   separator,
   incomeTax,
@@ -86,6 +86,355 @@ export function getNumberAndWordParts(input: string): {
     numberPart: numberPart,
     wordPart: wordPart,
   };
+}
+
+/** A term is a plain number, a word (setting/asset name), or numberPart+wordPart (e.g. 2x). */
+export function isNumericExpressionTerm(term: string): boolean {
+  const t = term.trim();
+  if (t.length === 0) {
+    return false;
+  }
+  if (isNumberString(t)) {
+    return true;
+  }
+  for (let i = 1; i < t.length; i += 1) {
+    if (t[i] === "+" || t[i] === "-") {
+      return false;
+    }
+  }
+  const parts = getNumberAndWordParts(t);
+  return (
+    parts.wordPart.length > 0 &&
+    parts.wordPart !== "+" &&
+    parts.wordPart !== "-"
+  );
+}
+
+export type BinaryNumericExpression = {
+  left: string;
+  op: "+" | "-";
+  right: string;
+};
+
+export type NumericExpression = {
+  terms: string[];
+  ops: ("+" | "-")[];
+};
+
+function takeLeadingNumericExpressionTerm(
+  input: string,
+): { term: string; rest: string } | undefined {
+  const s = input.trim();
+  if (s.length === 0) {
+    return undefined;
+  }
+  for (let i = 1; i <= s.length; i += 1) {
+    const candidate = s.substring(0, i).trim();
+    if (!isNumericExpressionTerm(candidate)) {
+      continue;
+    }
+    const rest = s.substring(i);
+    if (rest.length === 0 || rest[0] === "+" || rest[0] === "-") {
+      return { term: candidate, rest };
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Parse a (+|-) b (+|- c ...)* where each term is a number, word, or numberPart+wordPart.
+ * Returns undefined for a single term with no operator.
+ */
+export function parseNumericExpression(
+  input: string,
+): NumericExpression | undefined {
+  const first = takeLeadingNumericExpressionTerm(input);
+  if (first === undefined) {
+    return undefined;
+  }
+  const terms: string[] = [first.term];
+  const ops: ("+" | "-")[] = [];
+  let remaining = first.rest.trim();
+  while (remaining.length > 0) {
+    const op = remaining[0];
+    if (op !== "+" && op !== "-") {
+      return undefined;
+    }
+    remaining = remaining.substring(1).trim();
+    const next = takeLeadingNumericExpressionTerm(remaining);
+    if (next === undefined) {
+      return undefined;
+    }
+    ops.push(op);
+    terms.push(next.term);
+    remaining = next.rest.trim();
+  }
+  if (ops.length === 0) {
+    return undefined;
+  }
+  return { terms, ops };
+}
+
+/**
+ * Parse a + b or a - b where each side is a numeric expression term.
+ * Returns undefined if the string is not exactly one such binary expression.
+ */
+export function splitBinaryNumericExpression(
+  input: string,
+): BinaryNumericExpression | undefined {
+  const expr = parseNumericExpression(input);
+  if (expr === undefined || expr.terms.length !== 2) {
+    return undefined;
+  }
+  return {
+    left: expr.terms[0],
+    op: expr.ops[0],
+    right: expr.terms[1],
+  };
+}
+
+/** Terms to resolve for a stored value (one term, or each part of a + / - expression). */
+export function getNumericExpressionTerms(value: string): string[] {
+  const expr = parseNumericExpression(value);
+  if (expr !== undefined) {
+    return expr.terms;
+  }
+  return [value];
+}
+
+/** True when a model item name field equals a setting (or lists it with separator). */
+export function modelNameReferencesSetting(
+  field: string,
+  settingName: string,
+): boolean {
+  if (field === settingName) {
+    return true;
+  }
+  if (field.includes(separator)) {
+    return field.split(separator).some((w) => {
+      return w === settingName;
+    });
+  }
+  return false;
+}
+
+function termReferencesName(
+  term: string,
+  name: string,
+  settingNames?: string[],
+  assetNames?: string[],
+): boolean {
+  if (term === name) {
+    return true;
+  }
+  const parts = getNumberAndWordParts(term);
+  if (parts.wordPart === name) {
+    return true;
+  }
+  if (parts.wordPart.length === 0 || settingNames === undefined) {
+    return false;
+  }
+  const split = splitScaledValueSuffix(
+    parts.wordPart,
+    settingNames,
+    assetNames,
+  );
+  if (split !== undefined) {
+    return split.baseWord === name || split.suffixSetting === name;
+  }
+  return false;
+}
+
+/** True when a stored value references a setting/asset name (not a plain number). */
+export function numericExpressionReferencesName(
+  value: string,
+  name: string,
+  model?: ModelData,
+): boolean {
+  const settingNames =
+    model !== undefined ? modelSettingNamesLongestFirst(model) : undefined;
+  const assetNames =
+    model !== undefined ? modelAssetNames(model) : undefined;
+  return getNumericExpressionTerms(value).some((term) => {
+    return termReferencesName(term, name, settingNames, assetNames);
+  });
+}
+
+/** True when a model text field names or embeds a setting (not substring .includes). */
+export function fieldReferencesSettingName(
+  field: string,
+  name: string,
+  model?: ModelData,
+): boolean {
+  if (field.length === 0) {
+    return false;
+  }
+  if (field === name) {
+    return true;
+  }
+  if (numericExpressionReferencesName(field, name, model)) {
+    return true;
+  }
+  if (modelNameReferencesSetting(field, name)) {
+    return true;
+  }
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const dateRef = new RegExp(`[+\\-?]${escaped}(?:[0-9]*[dmwy])?`);
+  return dateRef.test(field);
+}
+
+/** True when value is not a plain number and contains a word reference (any term). */
+export function valueReferencesWord(value: string): boolean {
+  if (isNumberString(value)) {
+    return false;
+  }
+  const expr = parseNumericExpression(value);
+  if (expr !== undefined) {
+    return expr.terms.some((term) => {
+      return valueReferencesWord(term);
+    });
+  }
+  return getNumberAndWordParts(value).wordPart.length > 0;
+}
+
+/**
+ * True when the whole value is a single symbolic reference (setting name or
+ * scaled setting like 2x), not a plain number or a + / - expression.
+ * Used to block proportional transactions to assets whose value is an alias
+ * for a live setting, while still allowing expressions such as 222+X.
+ */
+export function valueIsPureSymbolicValue(value: string): boolean {
+  if (isNumberString(value)) {
+    return false;
+  }
+  if (parseNumericExpression(value) !== undefined) {
+    return false;
+  }
+  return getNumberAndWordParts(value).wordPart.length > 0;
+}
+
+/** Bare setting name (e.g. MyCarValue), not a scaled reference (e.g. 2x or 50One). */
+export function valueIsPlainSettingAlias(value: string): boolean {
+  if (!valueIsPureSymbolicValue(value)) {
+    return false;
+  }
+  return getNumberAndWordParts(value).numberPart === undefined;
+}
+
+/**
+ * When wordPart ends with a setting name (e.g. xOne → x + One), return the split.
+ * Pass settingNames longest-first so twoUSD wins over USD.
+ */
+export function splitScaledSettingSuffix(
+  wordPart: string,
+  settingNames: string[],
+): { baseWord: string; suffixSetting: string } | undefined {
+  const settingNameSet = new Set(settingNames);
+  const candidates: { baseWord: string; suffixSetting: string }[] = [];
+  for (const name of settingNames) {
+    if (name.length === 0 || wordPart.length <= name.length) {
+      continue;
+    }
+    if (wordPart.endsWith(name)) {
+      const baseWord = wordPart.substring(0, wordPart.length - name.length);
+      if (baseWord.length > 0 && settingNameSet.has(baseWord)) {
+        candidates.push({ baseWord, suffixSetting: name });
+      }
+    }
+  }
+  if (candidates.length === 0) {
+    return undefined;
+  }
+  if (candidates.length === 1) {
+    return candidates[0];
+  }
+  const identitySuffix = candidates.filter((c) => {
+    return c.suffixSetting === "Zero" || c.suffixSetting === "One";
+  });
+  if (identitySuffix.length === 1) {
+    return identitySuffix[0];
+  }
+  if (identitySuffix.length > 1) {
+    return identitySuffix.sort((a, b) => {
+      return b.suffixSetting.length - a.suffixSetting.length;
+    })[0];
+  }
+  return candidates.sort((a, b) => {
+    return b.baseWord.length - a.baseWord.length;
+  })[0];
+}
+
+export function modelSettingNamesLongestFirst(model: {
+  settings: { NAME: string }[];
+}): string[] {
+  return model.settings
+    .map((s) => {
+      return s.NAME;
+    })
+    .sort((a, b) => {
+      return b.length - a.length;
+    });
+}
+
+export function modelAssetNames(model: { assets: { NAME: string }[] }): string[] {
+  return model.assets
+    .map((a) => {
+      return a.NAME;
+    })
+    .sort((a, b) => {
+      return b.length - a.length;
+    });
+}
+
+/**
+ * Split wordPart into base (setting or asset) + trailing setting suffix (e.g. xOne, NSIOne).
+ * Setting+setting splits (twoUSD) are handled first via splitScaledSettingSuffix.
+ */
+export function splitScaledValueSuffix(
+  wordPart: string,
+  settingNames: string[],
+  assetNames?: string[],
+): { baseWord: string; suffixSetting: string } | undefined {
+  const settingSplit = splitScaledSettingSuffix(wordPart, settingNames);
+  if (settingSplit !== undefined) {
+    return settingSplit;
+  }
+  if (assetNames === undefined || assetNames.length === 0) {
+    return undefined;
+  }
+  const assetNameSet = new Set(assetNames);
+  const candidates: { baseWord: string; suffixSetting: string }[] = [];
+  for (const name of settingNames) {
+    if (name.length === 0 || wordPart.length <= name.length) {
+      continue;
+    }
+    if (wordPart.endsWith(name)) {
+      const baseWord = wordPart.substring(0, wordPart.length - name.length);
+      if (baseWord.length > 0 && assetNameSet.has(baseWord)) {
+        candidates.push({ baseWord, suffixSetting: name });
+      }
+    }
+  }
+  if (candidates.length === 0) {
+    return undefined;
+  }
+  if (candidates.length === 1) {
+    return candidates[0];
+  }
+  const identitySuffix = candidates.filter((c) => {
+    return c.suffixSetting === "Zero" || c.suffixSetting === "One";
+  });
+  if (identitySuffix.length === 1) {
+    return identitySuffix[0];
+  }
+  if (identitySuffix.length > 1) {
+    return identitySuffix.sort((a, b) => {
+      return b.suffixSetting.length - a.suffixSetting.length;
+    })[0];
+  }
+  return candidates.sort((a, b) => {
+    return b.suffixSetting.length - a.suffixSetting.length;
+  })[0];
 }
 
 // if there's no leading number part, this returns undefined
@@ -336,6 +685,12 @@ export function makeValueAbsPropFromString(
   }
   if (settings !== undefined && isSetting(input, settings).numFound === 1) {
     // a plain setting name is an absolute value, resolved at evaluation time
+    result.absolute = true;
+    result.value = input;
+    result.checksOK = true;
+    return result;
+  }
+  if (parseNumericExpression(input) !== undefined) {
     result.absolute = true;
     result.value = input;
     result.checksOK = true;
@@ -931,12 +1286,15 @@ function usesWholeWord(existing: string, checkWord: string) {
   }
   return false;
 }
-function usesNumberValueWord(existing: string, checkWord: string) {
-  const parsed = getNumberAndWordParts(existing);
-  if (parsed.wordPart && parsed.wordPart === checkWord) {
-    return true;
+function usesNumberValueWord(
+  existing: string,
+  checkWord: string,
+  model: ModelData,
+) {
+  if (checkWord.length === 0) {
+    return false;
   }
-  return false;
+  return numericExpressionReferencesName(existing, checkWord, model);
 }
 function usesSeparatedString(existing: string, checkWord: string) {
   const parts = existing.split(separator);
@@ -1153,7 +1511,7 @@ export function checkForWordClashInModel(
           `name ${messageWord} called ${replacement}`
         );
       }
-      if (usesNumberValueWord(obj.VALUE, replacement)) {
+      if (usesNumberValueWord(obj.VALUE, replacement, model)) {
         return (
           `Setting '${obj.NAME}' has ` +
           `value ${messageWord} called ${replacement}`
@@ -1191,7 +1549,7 @@ export function checkForWordClashInModel(
           `start ${messageWord} called ${replacement}`
         );
       }
-      if (usesNumberValueWord(obj.VALUE, replacement)) {
+      if (usesNumberValueWord(obj.VALUE, replacement, model)) {
         return (
           `Asset '${obj.NAME}' has ` +
           `value ${messageWord} called ${replacement}`
@@ -1215,7 +1573,7 @@ export function checkForWordClashInModel(
           `liability ${messageWord} called ${replacement}`
         );
       }
-      if (usesNumberValueWord(obj.PURCHASE_PRICE, replacement)) {
+      if (usesNumberValueWord(obj.PURCHASE_PRICE, replacement, model)) {
         return (
           `Asset '${obj.NAME}' has ` +
           `purchase price ${messageWord} called ${replacement}`
@@ -1252,7 +1610,7 @@ export function checkForWordClashInModel(
           `end ${messageWord} called ${replacement}`
         );
       }
-      if (usesNumberValueWord(obj.VALUE, replacement)) {
+      if (usesNumberValueWord(obj.VALUE, replacement, model)) {
         return (
           `Income '${obj.NAME}' has ` +
           `value ${messageWord} called ${replacement}`
@@ -1307,7 +1665,7 @@ export function checkForWordClashInModel(
           `end ${messageWord} called ${replacement}`
         );
       }
-      if (usesNumberValueWord(obj.VALUE, replacement)) {
+      if (usesNumberValueWord(obj.VALUE, replacement, model)) {
         return (
           `Expense '${obj.NAME}' has ` +
           `value ${messageWord} called ${replacement}`
@@ -1338,7 +1696,7 @@ export function checkForWordClashInModel(
           `from ${messageWord} called ${replacement}`
         );
       }
-      if (usesNumberValueWord(obj.FROM_VALUE, replacement)) {
+      if (usesNumberValueWord(obj.FROM_VALUE, replacement, model)) {
         return (
           `Transaction '${obj.NAME}' has ` +
           `from value ${messageWord} called ${replacement}`
@@ -1350,7 +1708,7 @@ export function checkForWordClashInModel(
           `to ${messageWord} called ${replacement}`
         );
       }
-      if (usesNumberValueWord(obj.TO_VALUE, replacement)) {
+      if (usesNumberValueWord(obj.TO_VALUE, replacement, model)) {
         return (
           `Transaction '${obj.NAME}' has ` +
           `to value ${messageWord} called ${replacement}`
@@ -1403,15 +1761,47 @@ export function replaceNumberValueString(
   value: string,
   old: string,
   replacement: string,
+  model?: ModelData,
 ) {
+  const expr = parseNumericExpression(value);
+  if (expr !== undefined) {
+    let rebuilt = replaceNumberValueString(
+      expr.terms[0],
+      old,
+      replacement,
+      model,
+    );
+    for (let i = 0; i < expr.ops.length; i += 1) {
+      rebuilt += `${expr.ops[i]}${replaceNumberValueString(
+        expr.terms[i + 1],
+        old,
+        replacement,
+        model,
+      )}`;
+    }
+    return rebuilt;
+  }
   const parsed = getNumberAndWordParts(value);
   if (parsed.wordPart === "") {
     return value;
-  } else if (parsed.wordPart === old) {
-    return value.substring(0, value.length - old.length) + replacement;
-  } else {
-    return value;
   }
+  if (parsed.wordPart === old) {
+    return value.substring(0, value.length - old.length) + replacement;
+  }
+  if (model !== undefined) {
+    const split = splitScaledValueSuffix(
+      parsed.wordPart,
+      modelSettingNamesLongestFirst(model),
+      modelAssetNames(model),
+    );
+    if (split?.baseWord === old) {
+      const newWordPart = replacement + split.suffixSetting;
+      const numberPrefix =
+        parsed.numberPart !== undefined ? String(parsed.numberPart) : "";
+      return numberPrefix + newWordPart;
+    }
+  }
+  return value;
 }
 
 export function replaceSeparatedString(

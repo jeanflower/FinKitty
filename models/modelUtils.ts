@@ -290,7 +290,7 @@ function attemptRenameLongInternal(
   // log(`making changes to nodel... `);
   model.settings.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
-    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
+    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement, model);
   });
   model.triggers.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
@@ -298,7 +298,7 @@ function attemptRenameLongInternal(
   model.assets.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.START = replaceWholeString(obj.START, old, replacement);
-    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
+    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement, model);
     obj.QUANTITY = replaceWholeString(obj.QUANTITY, old, replacement);
     obj.GROWTH = replaceWholeString(obj.GROWTH, old, replacement);
     obj.LIABILITY = replaceSeparatedString(obj.LIABILITY, old, replacement);
@@ -306,13 +306,14 @@ function attemptRenameLongInternal(
       obj.PURCHASE_PRICE,
       old,
       replacement,
+      model,
     );
   });
   model.incomes.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.START = replaceWholeString(obj.START, old, replacement);
     obj.END = replaceWholeString(obj.END, old, replacement);
-    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
+    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement, model);
     obj.VALUE_SET = replaceWholeString(obj.VALUE_SET, old, replacement);
     obj.LIABILITY = replaceSeparatedString(obj.LIABILITY, old, replacement);
   });
@@ -320,15 +321,25 @@ function attemptRenameLongInternal(
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.START = replaceWholeString(obj.START, old, replacement);
     obj.END = replaceWholeString(obj.END, old, replacement);
-    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement);
+    obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement, model);
     obj.VALUE_SET = replaceWholeString(obj.VALUE_SET, old, replacement);
   });
   model.transactions.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
     obj.FROM = replaceSeparatedString(obj.FROM, old, replacement);
-    obj.FROM_VALUE = replaceNumberValueString(obj.FROM_VALUE, old, replacement);
+    obj.FROM_VALUE = replaceNumberValueString(
+      obj.FROM_VALUE,
+      old,
+      replacement,
+      model,
+    );
     obj.TO = replaceSeparatedString(obj.TO, old, replacement);
-    obj.TO_VALUE = replaceNumberValueString(obj.TO_VALUE, old, replacement);
+    obj.TO_VALUE = replaceNumberValueString(
+      obj.TO_VALUE,
+      old,
+      replacement,
+      model,
+    );
     obj.DATE = replaceWholeString(obj.DATE, old, replacement);
     obj.STOP_DATE = replaceWholeString(obj.STOP_DATE, old, replacement);
   });  

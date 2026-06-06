@@ -93,7 +93,14 @@ import {
   makeTwoDP,
   getDisplayName,
   makeBooleanFromYesNo,
+  numericExpressionReferencesName,
+  parseNumericExpression,
   makeIncomeLiabilityFromNameAndNI,
+  modelNameReferencesSetting,
+  modelAssetNames,
+  modelSettingNamesLongestFirst,
+  splitScaledSettingSuffix,
+  splitScaledValueSuffix,
 } from "../utils/stringUtils";
 import { getTodaysDate, getROI } from "./modelUtils";
 import {
@@ -513,6 +520,41 @@ class ValuesContainer {
   public keys() {
     return this.reportValues.keys();
   }
+
+  public isSettingName(name: string): boolean {
+    return this.model.settings.some((s) => {
+      return s.NAME === name;
+    });
+  }
+
+  public getModel(): ModelData {
+    return this.model;
+  }
+
+  public getSettingDefinitionValue(name: string): string | undefined {
+    const match = this.model.settings.find((s) => {
+      return s.NAME === name;
+    });
+    return match?.VALUE;
+  }
+}
+
+function resolveStoredNumericValue(
+  stored: string | number | undefined,
+  name: string,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+): number | undefined {
+  if (stored === undefined) {
+    return undefined;
+  }
+  if (typeof stored === "number") {
+    return stored;
+  }
+  if (isNumberString(stored)) {
+    return parseFloat(stored);
+  }
+  return traceEvaluation(stored, values, growths, name);
 }
 
 function getNumberValue(
@@ -520,6 +562,7 @@ function getNumberValue(
   name: string,
   expectValue = true,
   printLogs = false,
+  growths?: Map<string, GrowthData>,
 ): number | undefined {
   let result = values.get(name);
   /* istanbul ignore if  */ //debug
@@ -532,6 +575,8 @@ function getNumberValue(
     /* istanbul ignore else  */ //error
     if (isNumberString(result)) {
       result = parseFloat(result);
+    } else if (growths !== undefined) {
+      result = traceEvaluation(result, values, growths, name);
     } else {
       log(`Error: expected ${name} to have a number value`);
       const val = getNumberValue(values, result, expectValue);
@@ -631,7 +676,13 @@ function growthData(
     //throw new Error();
   }
 
-  const baseVal = getNumberValue(values, getBaseForCPI(g.annualCPI));
+  const baseVal = getNumberValue(
+    values,
+    getBaseForCPI(g.annualCPI),
+    true,
+    false,
+    growths,
+  );
   /* istanbul ignore if  */ //error
   if (baseVal === undefined) {
     log("Error: baseVal undefined for growth data!");
@@ -682,16 +733,63 @@ function traceEvaluation(
     const debug = false;
     if (isNumberString(value)) {
       result = parseFloat(value);
-    //} else if(value.includes(' - ')) {
-    //  throw new Error(`expression '${value}' has - sign in it`);
     } else {
+      const expr = parseNumericExpression(value);
+      if (expr !== undefined) {
+        let exprResult = traceEvaluation(
+          expr.terms[0],
+          values,
+          growths,
+          source,
+        );
+        if (exprResult === undefined) {
+          return undefined;
+        }
+        for (let i = 0; i < expr.ops.length; i += 1) {
+          const nextVal = traceEvaluation(
+            expr.terms[i + 1],
+            values,
+            growths,
+            source,
+          );
+          if (nextVal === undefined) {
+            return undefined;
+          }
+          exprResult =
+            expr.ops[i] === "+" ? exprResult + nextVal : exprResult - nextVal;
+        }
+        return exprResult;
+      }
       const parts = getNumberAndWordParts(value);
       let numberPart = 1.0;
       if (parts.numberPart !== undefined) {
         numberPart = parts.numberPart;
       }
       const wordPart = parts.wordPart;
-      let valueForWordPart = values.get(wordPart);
+      const evalModel = values.getModel();
+      const suffixSplit = splitScaledValueSuffix(
+        wordPart,
+        modelSettingNamesLongestFirst(evalModel),
+        modelAssetNames(evalModel),
+      );
+      const traceWordPart = suffixSplit?.baseWord ?? wordPart;
+      let valueForWordPart = values.get(traceWordPart);
+      if (values.isSettingName(traceWordPart)) {
+        const settingDef = values.getSettingDefinitionValue(traceWordPart);
+        const containerPollutedBySameNamedItem =
+          typeof valueForWordPart === "string" &&
+          parseNumericExpression(valueForWordPart) !== undefined &&
+          numericExpressionReferencesName(
+            valueForWordPart,
+            traceWordPart,
+            evalModel,
+          );
+        if (containerPollutedBySameNamedItem && settingDef !== undefined) {
+          // An income/expense/asset with the same name as this setting stored an
+          // expression in the container; use the setting definition instead.
+          valueForWordPart = settingDef;
+        }
+      }
       /* istanbul ignore if  */ //debug
       if (debug) {
         log(`valueForWordPart ${wordPart} = ${valueForWordPart}`);
@@ -730,19 +828,32 @@ function traceEvaluation(
           // A stored string reference (e.g. a CPI-normalised setting name on
           // an income) must be scaled to nominal the same way as when the
           // container holds a numeric real value directly.
-          const gd = growthData(wordPart, growths, values);
+          const gd = growthData(traceWordPart, growths, values);
           if (gd.adjustForCPI) {
             result *= gd.baseVal;
           }
         }
       } else {
         //log(`calculate ${numberPart} * ${settingForWordPart} = ${numberPart * settingForWordPart}`);
-        const gd = growthData(wordPart, growths, values);
+        const gd = growthData(traceWordPart, growths, values);
         if (gd.adjustForCPI) {
           const baseVal = gd.baseVal;
           valueForWordPart *= baseVal;
         }
         result = numberPart * valueForWordPart;
+      }
+      if (result !== undefined && suffixSplit !== undefined) {
+        const suffixVal = traceEvaluation(
+          suffixSplit.suffixSetting,
+          values,
+          growths,
+          source,
+        );
+        if (suffixVal === undefined) {
+          result = undefined;
+        } else {
+          result *= suffixVal;
+        }
       }
     }
   }
@@ -890,7 +1001,15 @@ function setValue(
     callerID,
   );
   // log(`Go to find unit val for ${name}'s, we have value = some of ${newValue}`);
-  const numberVal = traceEvaluation(newValue, values, growths, name);
+  let numberVal = traceEvaluation(newValue, values, growths, name);
+  if (
+    numberVal === undefined &&
+    typeof newValue === "string" &&
+    values.isSettingName(name) &&
+    parseNumericExpression(newValue) !== undefined
+  ) {
+    numberVal = resolveNumericSettingValue(newValue, model);
+  }
   // log(`Unit val of ${name} is ${unitVal}`);
   if (numberVal === undefined) {
     // this is not necessarily an error - just means
@@ -1709,7 +1828,13 @@ function adjustAsset(
   targetAssetName: string, // which asset to adjust (e.g. Cash
 ) {
   // log(`adjustCash by amount = ${amount} at ${dateAsString(DateFormatType.Debug,d)}`);
-  let assetValue = getNumberValue(values, targetAssetName, false);
+  let assetValue = getNumberValue(
+    values,
+    targetAssetName,
+    false,
+    false,
+    growths,
+  );
   // log(`current stored value = ${assetValue}`);
   if (assetValue === undefined) {
     // log('don't adjust undefined asset');
@@ -2115,7 +2240,13 @@ function OptimizeIncomeTax(
         // log(`valueKey = ${valueKey}`);
 
         let amountToTransfer = unusedAllowance;
-        const pensionVal = getNumberValue(values, valueKey);
+        const pensionVal = getNumberValue(
+          values,
+          valueKey,
+          true,
+          false,
+          growths,
+        );
         /* istanbul ignore if */
         if (pensionVal === undefined) {
           log("BUG!!! pension has no value");
@@ -2132,7 +2263,13 @@ function OptimizeIncomeTax(
           log("BUG!!! person has no liability");
           return;
         }
-        const cashVal = getNumberValue(values, CASH_ASSET_NAME);
+        const cashVal = getNumberValue(
+          values,
+          CASH_ASSET_NAME,
+          true,
+          false,
+          growths,
+        );
         /* istanbul ignore if */
         if (cashVal === undefined) {
           log("BUG!!! cash has no value");
@@ -2178,7 +2315,13 @@ function OptimizeIncomeTax(
 
           const gd = growthData(valueKey, growths, values);
           if (gd.adjustForCPI) {
-            const baseVal = getNumberValue(values, getBaseForCPI(true));
+            const baseVal = getNumberValue(
+              values,
+              getBaseForCPI(true),
+              true,
+              false,
+              growths,
+            );
             if (baseVal !== undefined) {
               amountToTransfer = amountToTransfer / baseVal;
             }
@@ -2891,7 +3034,13 @@ function payTaxEstimate(
 
             let taxPaidFrom = CASH_ASSET_NAME;
             if (flexEstimate.sourceDescription.startsWith(crystallizedPension)){
-              let assetValue = getNumberValue(values, t.targetDescription, false);
+              let assetValue = getNumberValue(
+                values,
+                t.targetDescription,
+                false,
+                false,
+                growths,
+              );
               if(assetValue !== undefined && assetValue >= estimateMonthTaxDueFlex * proportion){
                 taxPaidFrom = t.targetDescription;
               }
@@ -3386,7 +3535,7 @@ function handleIncome(
       amountForPension = tToValue * amountFrom;
     }
 
-    let pensionValue = getNumberValue(values, pt.TO, false);
+    let pensionValue = getNumberValue(values, pt.TO, false, false, growths);
     
     if (pt.TO === "") {
       /* istanbul ignore if  */ //debug
@@ -3406,7 +3555,13 @@ function handleIncome(
 
         // log(`stored pensionValue before contribution at ${moment.date.toDateString()} is ${pensionValue}`);
 
-        const baseVal = getNumberValue(values, getBaseForCPI(true));
+        const baseVal = getNumberValue(
+          values,
+          getBaseForCPI(true),
+          true,
+          false,
+          growths,
+        );
 
         /* istanbul ignore else */ //error
         const gd = growthData(pt.TO, growths, values);
@@ -3661,6 +3816,22 @@ function logAssetValueString(
     return true;
   }
 
+  const expr = parseNumericExpression(assetVal);
+  if (expr !== undefined) {
+    return expr.terms.every((term) => {
+      return logAssetValueString(
+        term,
+        assetStart,
+        term,
+        values,
+        growths,
+        evaluations,
+        model,
+        level + 1,
+      );
+    });
+  }
+
   /* istanbul ignore if  */ //debug
   if (debug) {
     // log(`look for a value of ${assetVal} in the settings`);
@@ -3756,8 +3927,8 @@ function logAssetValueString(
       );
     }
   }
-  if (parsedOK && level > 1) {
-    if (assetName !== assetVal) {
+  if (parsedOK) {
+    if (level > 1 && assetName !== assetVal) {
       /* istanbul ignore if  */ //debug
       if (debug) {
         log(
@@ -3782,13 +3953,12 @@ function logAssetValueString(
       log(`level${level}: return true`);
     }
     return true;
-  } else {
-    /* istanbul ignore if  */ //debug
-    if (debug) {
-      log(`level${level}: return false`);
-    }
-    return false;
   }
+  /* istanbul ignore if  */ //debug
+  if (debug) {
+    log(`level${level}: return false`);
+  }
+  return false;
 }
 
 function getRecurrentMoments(
@@ -3875,6 +4045,72 @@ function getRecurrentMoments(
   return newMoments;
 }
 
+function identitySettingSuffixName(
+  wordPart: string,
+  settingNames: string[],
+): string {
+  const split = splitScaledSettingSuffix(wordPart, settingNames);
+  return split?.suffixSetting ?? wordPart;
+}
+
+function termUsesOnlyIdentitySettings(
+  term: string,
+  settingNames: string[],
+): boolean {
+  if (isNumberString(term)) {
+    return true;
+  }
+  const parts = getNumberAndWordParts(term);
+  if (parts.wordPart.length === 0) {
+    return false;
+  }
+  const suffixName = identitySettingSuffixName(parts.wordPart, settingNames);
+  return suffixName === "Zero" || suffixName === "One";
+}
+
+/**
+ * Plain numeric identity wraps (68One, Zero+68One) resolve to the same number as
+ * the unwrapped value; store that number at asset start like a literal VALUE.
+ * Productive scales (2x), setting aliases (mini), and live expressions
+ * (MySetting+X) keep their formula string.
+ */
+function assetStartValueForMoment(
+  assetVal: string,
+  model: ModelData,
+): number | string {
+  if (isNumberString(assetVal)) {
+    return parseFloat(assetVal);
+  }
+  const settingNames = modelSettingNamesLongestFirst(model);
+  const expr = parseNumericExpression(assetVal);
+  if (expr !== undefined) {
+    if (
+      expr.terms.every((term) => {
+        return termUsesOnlyIdentitySettings(term, settingNames);
+      })
+    ) {
+      const resolved = resolveNumericSettingValue(assetVal, model);
+      if (resolved !== undefined) {
+        return resolved;
+      }
+    }
+    return assetVal;
+  }
+  const parts = getNumberAndWordParts(assetVal);
+  if (parts.numberPart === undefined || parts.wordPart.length === 0) {
+    return assetVal;
+  }
+  // Plain numeric + identity suffix only (68One), not productive scales (10fourUSD).
+  if (parts.wordPart !== "Zero" && parts.wordPart !== "One") {
+    return assetVal;
+  }
+  const resolved = resolveNumericSettingValue(assetVal, model);
+  if (resolved === undefined) {
+    return assetVal;
+  }
+  return resolved;
+}
+
 function getAssetMoments(
   asset: Asset,
   model: ModelData,
@@ -3920,12 +4156,7 @@ function getAssetMoments(
   });
   if (newMoments.length > 0 && !trackingOnly) {
     newMoments[0].type = momentType.assetStart;
-    if (isNumberString(asset.VALUE)) {
-      newMoments[0].setValue = parseFloat(asset.VALUE);
-    } else {
-      //log(`start of asset, storing value '${asset.VALUE}'`);
-      newMoments[0].setValue = asset.VALUE;
-    }
+    newMoments[0].setValue = assetStartValueForMoment(asset.VALUE, model);
   }
   return newMoments;
 }
@@ -4200,58 +4431,45 @@ function revalueApplied(
       throw new Error(
         `proportional change to an undefined value not implemented, ${t.NAME}`,
       );
-    } else if (typeof wValue !== "string") {
-      // log(`${wValue} is a number`);
-      prevValue = wValue;
-    } else if (isNumberString(wValue)) {
-      // log(`${wValue} is a number-string`);
-      prevValue = parseFloat(wValue);
-    } else {
-      if (!t.TO_ABSOLUTE) {
-        // log(`${wValue} is a not-number-string`);
-        const parts = getNumberAndWordParts(wValue);
-        if (parts.numberPart !== undefined && parts.wordPart !== undefined) {
-          if (tToValue !== undefined && typeof tToValue !== "string") {
-            const newNumberPart = parts.numberPart * tToValue;
-            // log(`tToValue = '' + ${newNumberPart} + ${parts.wordPart};`);
-            tToValue = "" + newNumberPart + parts.wordPart;
-            scaledNumberWordParts = true;
-          } else {
-            /* istanbul ignore next */
-            //throw new Error(
-            //  `proportional change to a not-number value ${wValue} not implemented`,
-            //);
-            log(
-              `ERROR: proportional change to a not-number value ${wValue} not implemented`,
-            );
-            /* istanbul ignore next */
-            tToValue = 999999; // TODO  make this fail the checker
-          }
+    } else if (
+      !t.TO_ABSOLUTE &&
+      typeof wValue === "string" &&
+      !isNumberString(wValue) &&
+      parseNumericExpression(wValue) === undefined
+    ) {
+      const parts = getNumberAndWordParts(wValue);
+      if (parts.numberPart !== undefined && parts.wordPart.length > 0) {
+        if (toVal !== undefined) {
+          const newNumberPart = parts.numberPart * toVal;
+          tToValue = "" + newNumberPart + parts.wordPart;
+          scaledNumberWordParts = true;
         } else {
-          /* istanbul ignore next */
-          //throw new Error(
-          //  `proportional change to a not-number value ${wValue} not implemented`,
-          //);
           log(
             `ERROR: proportional change to a not-number value ${wValue} not implemented`,
           );
-          /* istanbul ignore next */
-          tToValue = 999999; // TODO  make this fail the checker
+          tToValue = 999999;
         }
+      } else {
+        log(
+          `ERROR: proportional change to a not-number value ${wValue} not implemented`,
+        );
+        tToValue = 999999;
       }
+    } else {
+      prevValue = resolveStoredNumericValue(wValue, w, values, growths);
     }
     if (!t.TO_ABSOLUTE) {
       // this is a proportional change
       // log(`previous value was ${prevValue}`);
-      if (prevValue === undefined) {
+      if (scaledNumberWordParts) {
+        // keep formula string (e.g. 1twoUSD) so downstream settings stay linked
+      } else if (prevValue === undefined) {
         /* istanbul ignore if */
-        if (!scaledNumberWordParts) {
-          log(
-            "WARNING : proportional value supplied" +
-              " for a revaluation transaction" +
-              ` with no prev value ${showObj(t)}`,
-          );
-        }
+        log(
+          "WARNING : proportional value supplied" +
+            " for a revaluation transaction" +
+            ` with no prev value ${showObj(t)}`,
+        );
       } else {
         if (toVal === undefined) {
           /* istanbul ignore next */
@@ -4337,7 +4555,6 @@ function revalueApplied(
         "10", //callerID
       );
     } else {
-      // log(`revalue ${w} to ${t.TO_VALUE}`);
       setValue(
         values,
         growths,
@@ -4458,7 +4675,7 @@ function calculateFromChange(
         'bondgenerator'
       );
       // log(`bondInterestRate = ${bondInterestRate}`);
-      const cpiVal = getNumberValue(values, cpi);
+      const cpiVal = getNumberValue(values, cpi, true, false, growths);
       // log(`cpiVal = ${cpiVal}`);
       let bondScale = 1.0;
       if (bondInterestRate !== undefined && cpiVal !== undefined) {
@@ -4759,12 +4976,16 @@ function calculateToChange(
           const oldPurchaseVal = getNumberValue(
             values,
             `${purchase}${matchedAsset.NAME}`,
-            false, // don't expect the value to necessarily be there
+            false,
+            false,
+            growths,
           );
           const purchasePrice = getNumberValue(
             values,
             matchedAsset.PURCHASE_PRICE,
             false,
+            false,
+            growths,
           );
           if (oldPurchaseVal !== undefined && purchasePrice !== undefined) {
             const newPurchaseVal = oldPurchaseVal + purchasePrice * numUnits;
@@ -4832,7 +5053,13 @@ function handleCGTLiability(
 
   const proportionSale = fromChange / preFromValue;
   // log(`proportionSale = ${fromChange} / ${preFromValue} = ${proportionSale}`);
-  const purchasePrice = getNumberValue(values, `${purchase}${fromWord}`);
+  const purchasePrice = getNumberValue(
+    values,
+    `${purchase}${fromWord}`,
+    true,
+    false,
+    growths,
+  );
   // log(`purchasePrice = ${purchasePrice}`);
 
   if (purchasePrice === undefined) {
@@ -5368,8 +5595,9 @@ function logPurchaseValues(
 ) {
   if (a.LIABILITY.includes(cgt)) {
     let purchaseValue = 0.0;
-    if (isNumberString(a.PURCHASE_PRICE)) {
-      purchaseValue = parseFloat(a.PURCHASE_PRICE);
+    const coerced = assetStartValueForMoment(a.PURCHASE_PRICE, model);
+    if (typeof coerced === "number") {
+      purchaseValue = coerced;
     } else {
       const tracedValue = traceEvaluation(
         a.PURCHASE_PRICE,
@@ -5686,17 +5914,19 @@ function generateMoments(
         return a.PURCHASE_PRICE === setting.NAME;
       });
       const referencingExpenses = model.expenses.filter((e) => {
-        const parts = getNumberAndWordParts(e.VALUE);
-        return parts.wordPart === setting.NAME;
+        return numericExpressionReferencesName(e.VALUE, setting.NAME, model);
       });
       const referencingIncomes = model.incomes.filter((i) => {
-        const parts = getNumberAndWordParts(i.VALUE);
-        return parts.wordPart === setting.NAME;
+        return numericExpressionReferencesName(i.VALUE, setting.NAME, model);
+      });
+      const referencingAssetValues = model.assets.filter((a) => {
+        return numericExpressionReferencesName(a.VALUE, setting.NAME, model);
       });
       if (
         (referencingPrices.length > 0 ||
           referencingExpenses.length > 0 ||
-          referencingIncomes.length > 0) &&
+          referencingIncomes.length > 0 ||
+          referencingAssetValues.length > 0) &&
         values.get(setting.NAME) === undefined
       ) {
         setValue(
@@ -5740,17 +5970,12 @@ function generateMoments(
     }
 
     const referencingTransactions = model.transactions.filter((t) => {
-      // log(`is setting ${setting.NAME} in t.TO  = ${t.TO}?`);
-      // does the setting name appear as part of the transaction TO value?
-      if (
+      return (
         t.TO_VALUE.includes(setting.NAME) ||
         t.TO.includes(setting.NAME) ||
         t.FROM_VALUE.includes(setting.NAME) ||
         t.FROM.includes(setting.NAME)
-      ) {
-        return true;
-      }
-      return false;
+      );
     });
 
     let referencingDates: {
@@ -5767,6 +5992,9 @@ function generateMoments(
 
     const referencingAssets = model.assets.filter((a) => {
       if (a.GROWTH === setting.NAME) {
+        return true;
+      }
+      if (numericExpressionReferencesName(a.VALUE, setting.NAME, model)) {
         return true;
       }
       return false;
@@ -5841,9 +6069,7 @@ function generateMoments(
       // We need it if something in setSettingsData
       // builds on it
       const match = setSettingsData.find((ss) => {
-        const nameIncluded = ss.settingVal.includes(s.NAME);
-        // log(`${ss.settingVal} ? includes ${s.NAME} = ${nameIncluded}`);
-        return nameIncluded;
+        return numericExpressionReferencesName(ss.settingVal, s.NAME, model);
       });
       if (match) {
         // ok, add this too
@@ -6106,8 +6332,8 @@ function handleInflationStep(
   // increment base (which started as 1.0) according to inflation value
   // at this moment in time
 
-  const baseVal = getNumberValue(values, baseForCPI);
-  const infObj = getNumberValue(values, cpi);
+  const baseVal = getNumberValue(values, baseForCPI, true, false, growths);
+  const infObj = getNumberValue(values, cpi, true, false, growths);
   /* istanbul ignore else  */ //error
   if (baseVal !== undefined && infObj !== undefined) {
     const newValue = baseVal * (1.0 + getMonthlyGrowth(infObj));
@@ -6136,7 +6362,7 @@ function handleAnnualInflationStep(
   // increment base (which started as 1.0) according to inflation value
   // at this moment in time
 
-  const baseVal = getNumberValue(values, baseForCPI);
+  const baseVal = getNumberValue(values, baseForCPI, true, false, growths);
   if (baseVal !== undefined) {
     // log(`at ${date.toDateString()}, update annual base using to ${baseVal}`);
     values.set(
@@ -6158,7 +6384,7 @@ function captureLastTaxBands(
 ) {
   // log(`at ${dateAsString(DateFormatType.Debug,moment.date)}, go log tax band values to get inflated values later`);
   const resultFromMap = TAX_MAP[`${highestTaxYearInMap}`];
-  const baseVal = getNumberValue(values, baseForCPI);
+  const baseVal = getNumberValue(values, baseForCPI, true, false, growths);
 
   /* istanbul ignore else  */ //error
   if (resultFromMap !== undefined && baseVal !== undefined) {
@@ -6283,9 +6509,24 @@ function handleStartMoment(
       // but fold the CPI base at this (VALUE_SET) moment into a leading
       // coefficient so the value is normalised into "real" terms the same way
       // a numeric value would be.  Resolution later multiplies by the live base.
-      const parts = getNumberAndWordParts(valueToStore);
-      const coeff = (parts.numberPart ?? 1.0) / gd.baseVal;
-      valueToStore = `${coeff}${parts.wordPart}`;
+      const scaleTermForCPI = (term: string): string => {
+        if (isNumberString(term)) {
+          return `${parseFloat(term) / gd.baseVal}`;
+        }
+        const parts = getNumberAndWordParts(term);
+        const coeff = (parts.numberPart ?? 1.0) / gd.baseVal;
+        return `${coeff}${parts.wordPart}`;
+      };
+      const expr = parseNumericExpression(valueToStore);
+      if (expr !== undefined) {
+        let rebuilt = scaleTermForCPI(expr.terms[0]);
+        for (let i = 0; i < expr.ops.length; i += 1) {
+          rebuilt += `${expr.ops[i]}${scaleTermForCPI(expr.terms[i + 1])}`;
+        }
+        valueToStore = rebuilt;
+      } else {
+        valueToStore = scaleTermForCPI(valueToStore);
+      }
     } else {
       log(`Error: don't scale something that's not a number`);
     }
@@ -6619,6 +6860,20 @@ export class EvaluationHelper {
   }
 }
 
+/** CPI setting may use +/− expressions and identity suffixes (e.g. Zero+0, 0One). */
+function cpiInitialValue(model: ModelData): number {
+  const raw = getSettings(model.settings, cpi, "0.0");
+  const resolved = resolveNumericSettingValue(raw, model);
+  if (resolved !== undefined) {
+    return resolved;
+  }
+  const parsed = parseFloat(raw);
+  if (Number.isNaN(parsed)) {
+    return 0;
+  }
+  return parsed;
+}
+
 function getEvaluationsInternal(
   model: ModelData,
   helper: EvaluationHelper | undefined,
@@ -6686,9 +6941,7 @@ function getEvaluationsInternal(
   // refer to this map for each individual moment.
   const growths = new Map<string, GrowthData>();
 
-  const cpiInitialVal: number = parseFloat(
-    getSettings(model.settings, cpi, "0.0"),
-  );
+  const cpiInitialVal: number = cpiInitialValue(model);
 
   const viewRange = getEvaluationsROI(model);
   // We set a start date to set, for example, our CPI base value to 1.0.
