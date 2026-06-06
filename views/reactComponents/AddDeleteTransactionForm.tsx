@@ -517,7 +517,10 @@ export class AddDeleteTransactionForm extends Component<
 
   private handleFromValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
-    const parseResult = makeValueAbsPropFromString(value);
+    const parseResult = makeValueAbsPropFromString(
+      value,
+      this.props.model.settings,
+    );
     this.setState({
       FROM_ABSOLUTE: makeStringFromBoolean(parseResult.absolute),
     });
@@ -530,7 +533,10 @@ export class AddDeleteTransactionForm extends Component<
   }
   private handleToValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
-    const parseResult = makeValueAbsPropFromString(value);
+    const parseResult = makeValueAbsPropFromString(
+      value,
+      this.props.model.settings,
+    );
     this.setState({
       TO_ABSOLUTE: makeStringFromBoolean(parseResult.absolute),
     });

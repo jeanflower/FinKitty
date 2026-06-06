@@ -231,7 +231,10 @@ export class AddDeleteDebtForm extends Component<
   private async revalue(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-    const parseVal = makeValueAbsPropFromString(`-${this.state.VALUE}`);
+    const parseVal = makeValueAbsPropFromString(
+      `-${this.state.VALUE}`,
+      this.props.model.settings,
+    );
     if (!parseVal.checksOK) {
       this.props.showAlert(
         `Debt value ${this.state.VALUE} should be a numerical or % value`,

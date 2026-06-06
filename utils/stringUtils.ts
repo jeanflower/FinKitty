@@ -321,7 +321,10 @@ export function makeQuantityFromString(input: string) {
   return result;
 }
 
-export function makeValueAbsPropFromString(input: string) {
+export function makeValueAbsPropFromString(
+  input: string,
+  settings?: Setting[],
+) {
   const result = {
     absolute: true,
     value: input,
@@ -329,6 +332,13 @@ export function makeValueAbsPropFromString(input: string) {
   };
   if (input === "") {
     result.value = "0.0";
+    return result;
+  }
+  if (settings !== undefined && isSetting(input, settings).numFound === 1) {
+    // a plain setting name is an absolute value, resolved at evaluation time
+    result.absolute = true;
+    result.value = input;
+    result.checksOK = true;
     return result;
   }
   const lastPartForUnits = input.substring(input.length - 6, input.length);

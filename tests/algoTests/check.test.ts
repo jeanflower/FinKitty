@@ -477,12 +477,12 @@ describe("checks tests", () => {
         {
           ...simpleIncome,
           NAME: "a",
-          VALUE: "x",
+          VALUE: "x", // a setting-resolvable value may now grow with CPI
           CPI_IMMUNE: false,
         },
         model,
       ),
-    ).toEqual(`Income 'a' value 'x' may not grow with CPI`);
+    ).toEqual(``);
     expect(
       checkIncome(
         {
@@ -510,12 +510,12 @@ describe("checks tests", () => {
         {
           ...simpleIncome,
           NAME: "a",
-          VALUE: "cpi",
-          CPI_IMMUNE: false,
+          VALUE: CASH_ASSET_NAME, // an asset name: not setting-resolvable
+          CPI_IMMUNE: false, // a non-setting value still may not grow with CPI
         },
         model,
       ),
-    ).toEqual(`Income 'a' value 'cpi' may not grow with CPI`);
+    ).toEqual(`Income 'a' value 'Cash' may not grow with CPI`);
     expect(
       checkIncome(
         {
@@ -934,11 +934,21 @@ describe("checks tests", () => {
         {
           ...simpleExpense,
           VALUE: "x", // this is a setting name
-          CPI_IMMUNE: false, // defined by setting => can't directly grow by CPI
+          CPI_IMMUNE: false, // a setting-resolvable value may now grow with CPI
         },
         model,
       ),
-    ).toEqual(`Expense 'NoName' value 'x' may not grow with CPI`);
+    ).toEqual(``);
+    expect(
+      checkExpense(
+        {
+          ...simpleExpense,
+          VALUE: CASH_ASSET_NAME, // an asset name: not setting-resolvable
+          CPI_IMMUNE: false, // a non-setting value still may not grow with CPI
+        },
+        model,
+      ),
+    ).toEqual(`Expense 'NoName' value 'Cash' may not grow with CPI`);
     expect(
       checkExpense(
         {

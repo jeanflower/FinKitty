@@ -727,6 +727,13 @@ function traceEvaluation(
             );
           }
           result = numberPart * nextLevel;
+          // A stored string reference (e.g. a CPI-normalised setting name on
+          // an income) must be scaled to nominal the same way as when the
+          // container holds a numeric real value directly.
+          const gd = growthData(wordPart, growths, values);
+          if (gd.adjustForCPI) {
+            result *= gd.baseVal;
+          }
         }
       } else {
         //log(`calculate ${numberPart} * ${settingForWordPart} = ${numberPart * settingForWordPart}`);
@@ -3317,8 +3324,20 @@ function handleIncome(
       return;
     }
 
-    const tFromValue = parseFloat(pt.FROM_VALUE);
-    const tToValue = parseFloat(pt.TO_VALUE);
+    const tFromValue = traceEvaluation(pt.FROM_VALUE, values, growths, pt.FROM);
+    /* istanbul ignore if  */ //error
+    if (tFromValue === undefined) {
+      throw new Error(`Error: can't interpret from value ${pt.FROM_VALUE} for transaction ${pt.NAME}`);
+    }
+    let tToValue = 0;
+    if (pt.TO !== "" && pt.TO_VALUE !== "") {
+      const resolvedToValue = traceEvaluation(pt.TO_VALUE, values, growths, pt.TO);
+      /* istanbul ignore if  */ //error
+      if (resolvedToValue === undefined) {
+        throw new Error(`Error: can't interpret to value ${pt.TO_VALUE} for transaction ${pt.NAME}`);
+      }
+      tToValue = resolvedToValue;
+    }
     // log(`pension transaction ${pt.NAME}`)
     // log(`see if ${showObj(pt)} should affect `
     //    +`this handleIncome moment ${showObj(moment)}`);
@@ -4384,7 +4403,20 @@ function calculateFromChange(
     log(`ERROR : can't interpret from value ${t.FROM_VALUE}`);
     return `ERROR : can't interpret from value ${t.FROM_VALUE}`;
   }
-  const tToValue = parseFloat(t.TO_VALUE);
+  // TO_VALUE may be empty when TO is empty (a from-only transaction such as
+  // a regular cash outflow with no destination asset).  parseFloat("") used
+  // to yield NaN which was never used in that case; traceEvaluation("") is
+  // undefined and must not be treated as an error here.
+  let tToValue = 0;
+  if (t.TO !== "" && t.TO_VALUE !== "") {
+    const resolvedToValue = traceEvaluation(t.TO_VALUE, values, growths, t.TO);
+    /* istanbul ignore if */
+    if (resolvedToValue === undefined) {
+      log(`ERROR : can't interpret to value ${t.TO_VALUE} for transaction ${t.NAME}`);
+      return `ERROR : can't interpret to value ${t.TO_VALUE} for transaction ${t.NAME}`;
+    }
+    tToValue = resolvedToValue;
+  }
 
   const q = getQuantity(fromWord, values, model);
   const fromHasQuantity = q !== undefined;
@@ -4680,12 +4712,16 @@ function calculateToChange(
     );
     return toChange;
   }
-  const tToValue = parseFloat(t.TO_VALUE);
+  const tToValue = traceEvaluation(t.TO_VALUE, values, growths, t.TO);
   // log(`t.TO = ${t.TO}`)
   // log(`before transaction, toValue = ${tToValue}`)
   /* istanbul ignore if  */ //error
   if (preToValue === undefined) {
     throw new Error(`Error: transacting to unvalued asset ${showObj(moment)}`);
+  }
+  /* istanbul ignore if  */ //error
+  if (tToValue === undefined) {
+    throw new Error(`Error: can't interpret to value ${t.TO_VALUE} for transaction ${t.NAME}`);
   }
   // log(`t.TO_VALUE = ${t.TO_VALUE}`);
   if (t.TO_ABSOLUTE) {
@@ -5120,7 +5156,7 @@ function processTransactionTo(
   evaluations: Evaluation[],
   model: ModelData,
 ) {
-  const tToValue = parseFloat(t.TO_VALUE);
+  const tToValue = traceEvaluation(t.TO_VALUE, values, growths, t.TO);
   const fromChange = parseFloat(t.FROM_VALUE);
   // Determine how much to add to the To asset.
   // Set the increased value of the To asset accordingly.
@@ -5129,6 +5165,10 @@ function processTransactionTo(
   let q = getQuantity(t.TO, values, model);
   // log(`before transaction, value = ${value}, quantity = ${quantity}`);
   // log(`t = ${showObj(t)}`);
+  /* istanbul ignore if  */ //error
+  if (tToValue === undefined) {
+    throw new Error(`Error: can't interpret to value ${t.TO_VALUE} for transaction ${t.NAME}`);
+  }
   if (value === undefined) {
     /* istanbul ignore next */
     throw new Error(
@@ -5639,7 +5679,7 @@ function generateMoments(
       return;
     }
 
-    // settings for purchase prices or expense values
+    // settings for purchase prices, expense values or income values
     // are set at the start
     {
       const referencingPrices = model.assets.filter((a) => {
@@ -5649,8 +5689,14 @@ function generateMoments(
         const parts = getNumberAndWordParts(e.VALUE);
         return parts.wordPart === setting.NAME;
       });
+      const referencingIncomes = model.incomes.filter((i) => {
+        const parts = getNumberAndWordParts(i.VALUE);
+        return parts.wordPart === setting.NAME;
+      });
       if (
-        (referencingPrices.length > 0 || referencingExpenses.length > 0) &&
+        (referencingPrices.length > 0 ||
+          referencingExpenses.length > 0 ||
+          referencingIncomes.length > 0) &&
         values.get(setting.NAME) === undefined
       ) {
         setValue(
@@ -6230,6 +6276,16 @@ function handleStartMoment(
       // log(`divide ${valueToStore} by base value ${scaleBy} to store ${valueToScale / scaleBy}`);
       valueToStore = valueToScale / baseVal;
       // log(`divided result is ${valueToStore}`);
+    } else if (typeof valueToStore === "string") {
+      // The value is a setting-named reference (e.g. "mySetting" or
+      // "2 mySetting") rather than a number.  We keep it as a live reference
+      // so that revaluing the setting continues to affect this income/expense,
+      // but fold the CPI base at this (VALUE_SET) moment into a leading
+      // coefficient so the value is normalised into "real" terms the same way
+      // a numeric value would be.  Resolution later multiplies by the live base.
+      const parts = getNumberAndWordParts(valueToStore);
+      const coeff = (parts.numberPart ?? 1.0) / gd.baseVal;
+      valueToStore = `${coeff}${parts.wordPart}`;
     } else {
       log(`Error: don't scale something that's not a number`);
     }

@@ -490,7 +490,9 @@ export function checkIncome(i: Income, model: ModelData): string {
     return `Income '${i.NAME}' value '${i.VALUE}' does not make sense`;
   }
   if (!isNumberString(i.VALUE)) {
-    if (!i.CPI_IMMUNE) {
+    // A non-numeric value may grow with CPI only when it resolves through
+    // settings to a number; such a value is normalised at evaluation time.
+    if (!i.CPI_IMMUNE && !isResolvableNumericSettingValue(i.VALUE, model)) {
       return `Income '${i.NAME}' value '${i.VALUE}' may not grow with CPI`;
     }
   }
@@ -551,7 +553,9 @@ export function checkExpense(e: Expense, model: ModelData): string {
     return `Expense '${e.NAME}' value '${e.VALUE}' is not a number`;
   }
   if (!isNumberString(e.VALUE)) {
-    if (!e.CPI_IMMUNE) {
+    // A non-numeric value may grow with CPI only when it resolves through
+    // settings to a number; such a value is normalised at evaluation time.
+    if (!e.CPI_IMMUNE && !isResolvableNumericSettingValue(e.VALUE, model)) {
       return `Expense '${e.NAME}' value '${e.VALUE}' may not grow with CPI`;
     }
   }

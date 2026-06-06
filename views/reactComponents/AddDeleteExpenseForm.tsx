@@ -323,7 +323,10 @@ export class AddDeleteExpenseForm extends Component<
     e.preventDefault();
 
     log("in function revalue");
-    const parseVal = makeValueAbsPropFromString(this.state.VALUE);
+    const parseVal = makeValueAbsPropFromString(
+      this.state.VALUE,
+      this.props.model.settings,
+    );
     if (!parseVal.checksOK) {
       this.props.showAlert(
         `Expense value ${this.state.VALUE} should be a numerical or % value`,

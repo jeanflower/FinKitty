@@ -700,6 +700,31 @@ describe("utils tests", () => {
       checksOK: true,
       value: "2",
     });
+    const settings = [{ ...simpleSetting, NAME: "x", VALUE: "5" }];
+    // a plain setting name is recognised as an absolute value
+    expect(makeValueAbsPropFromString("x", settings)).toEqual({
+      absolute: true,
+      checksOK: true,
+      value: "x",
+    });
+    // a scaled setting reference still parses as a value
+    expect(makeValueAbsPropFromString("2x", settings)).toEqual({
+      absolute: true,
+      checksOK: true,
+      value: "2x",
+    });
+    // without the settings argument a plain setting name is not a value
+    expect(makeValueAbsPropFromString("x")).toEqual({
+      absolute: true,
+      checksOK: false,
+      value: "x",
+    });
+    // an unknown name remains invalid even with settings supplied
+    expect(makeValueAbsPropFromString("notASetting", settings)).toEqual({
+      absolute: true,
+      checksOK: false,
+      value: "notASetting",
+    });
   });
   it("makeStringFromValueAbsProp", () => {
     expect(

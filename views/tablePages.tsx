@@ -1024,7 +1024,10 @@ function handleTransactionGridRowsUpdated(
     if (newRow.FROM_VALUE === undefined) {
       newRow.FROM_VALUE = 0.0;
     }
-    const parseTo = makeValueAbsPropFromString(newRow.TO_VALUE);
+    const parseTo = makeValueAbsPropFromString(
+      newRow.TO_VALUE,
+      model.settings,
+    );
     if (doChecks && newRow.TYPE !== revalueSetting && !parseTo.checksOK) {
       showAlert(
         `To value ${newRow.TO_VALUE} should be a number or a number` +
@@ -1066,10 +1069,13 @@ function handleTransactionGridRowsUpdated(
     newRow.FROM_VALUE = 0.0;
   }
 
-  const parseFrom = makeValueAbsPropFromString(newRow.FROM_VALUE);
+  const parseFrom = makeValueAbsPropFromString(
+    newRow.FROM_VALUE,
+    model.settings,
+  );
 
   const transactionType = newRow.TYPE;
-  const parseTo = makeValueAbsPropFromString(newRow.TO_VALUE);
+  const parseTo = makeValueAbsPropFromString(newRow.TO_VALUE, model.settings);
   if (
     doChecks &&
     transactionType !== revalueSetting &&
@@ -1104,7 +1110,9 @@ function handleTransactionGridRowsUpdated(
       // enable auto-switch of revalue types if TO changes
       if (isADebt(newRow.TO, model)) {
         type = revalueDebt;
-        parseTo.value = `${-parseFloat(parseTo.value)}`;
+        if (isNumberString(parseTo.value)) {
+          parseTo.value = `${-parseFloat(parseTo.value)}`;
+        }
       } else if (isAnAssetOrAssets(newRow.TO, model)) {
         type = revalueAsset;
       } else if (isAnIncome(newRow.TO, model)) {

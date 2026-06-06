@@ -736,7 +736,10 @@ DB_TRANSFERRED_STOP
       return;
     }
 
-    const parseVal = makeValueAbsPropFromString(this.state.VALUE);
+    const parseVal = makeValueAbsPropFromString(
+      this.state.VALUE,
+      this.props.model.settings,
+    );
     if (!parseVal.checksOK) {
       this.props.showAlert(
         `Income value ${this.state.VALUE} should be a numerical or % value`,

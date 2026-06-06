@@ -4,7 +4,7 @@
 # Jest scope
 #   1 = only tests listed in testResults/rebaseline-targets.txt (--watch)
 #   0 = full suite (--watchAll)
-FINKITTY_JEST_ONLY_REBASELINE_TARGETS=1
+FINKITTY_JEST_ONLY_REBASELINE_TARGETS=0
 FINKITTY_REBASELINE_TARGETS_FILE=testResults/rebaseline-targets-copy.txt   # optional
 
 # Browser (Chrome via Selenium)
@@ -22,6 +22,29 @@ FINKITTY_CLEAR_FAILED_TESTS=1        # 0 = keep testResults/failedTests/*.txt at
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR" || exit 1
+
+# ─── quick reminder (what the settings at the top of this file mean) ────────
+cat <<'EOF'
+============================== start4 reminder ===============================
+This runs Jest. Scope is controlled by the settings at the TOP of this file:
+
+  FINKITTY_JEST_ONLY_REBASELINE_TARGETS
+    1 = SCOPED: only the it() titles listed in the rebaseline-targets file run.
+        Jest still LOADS each whole matched .test file, so the summary's
+        "N total" is that file's test count and most show as "skipped".
+        (Expect e.g. "1 passed, 108 skipped, 1 suite" - NOT the full suite.)
+    0 = FULL SUITE: run everything (Jest --watchAll).
+
+  FINKITTY_REBASELINE_TARGETS_FILE   (only used when scoped)
+    Targets list, one "<test-file>::<exact it() title>" per line.
+    Defaults to testResults/rebaseline-targets.txt; the *-copy.txt is optional.
+
+A "1 skipped" suite/test in a FULL run is the gated perf benchmark
+  tests/perf/getEvaluations.perf.test.ts - it self-skips unless you set
+  FINKITTY_PERF_MODEL_PATH=/path/to/model.json. That's expected.
+==============================================================================
+EOF
+echo "[start4] Current: FINKITTY_JEST_ONLY_REBASELINE_TARGETS=${FINKITTY_JEST_ONLY_REBASELINE_TARGETS} (1=scoped, 0=full suite)"
 
 export FINKITTY_JEST_ONLY_REBASELINE_TARGETS
 export FINKITTY_JEST_MAX_WORKERS

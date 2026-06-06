@@ -174,6 +174,66 @@ describe("evaluations tests", () => {
     expect(result.assetData.length).toBe(0);
   });
 
+  it("expense with VALUE_SET long before START deducts CPI-grown value", () => {
+    // Guard against regressions in the expense start path: when VALUE_SET is
+    // well before START, the first expense moment must deduct the CPI-grown
+    // value from cash (not the raw, un-grown VALUE). See the expenseStart vs
+    // regular-expense moment handling in getEvaluations.
+    const roi = {
+      start: "Jan 1, 2020 00:00:00",
+      end: "April 2, 2020 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          START: "February 1 2020",
+          END: "May 2 2020",
+          NAME: "Phon",
+          VALUE: "100",
+          VALUE_SET: "January 1 2018", // two years before START
+          CPI_IMMUNE: false,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          CAN_BE_NEGATIVE: true,
+          START: "January 1 2020",
+          VALUE: "1000",
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "12", constType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(10);
+    expectEvals(evals, 0, "Cash", "Wed Jan 01 2020", 1000, 2);
+    expectEvals(evals, 1, "Cash", "Sat Feb 01 2020", 1009.49, 2);
+    expectEvals(evals, 2, "Phon", "Sat Feb 01 2020", 126.63, 2);
+    expectEvals(evals, 3, "Cash", "Sat Feb 01 2020", 882.86, 2);
+    expectEvals(evals, 4, "Cash", "Sun Mar 01 2020", 891.24, 2);
+    expectEvals(evals, 5, "Phon", "Sun Mar 01 2020", 127.83, 2);
+    expectEvals(evals, 6, "Cash", "Sun Mar 01 2020", 763.4, 2);
+    expectEvals(evals, 7, "Cash", "Wed Apr 01 2020", 770.65, 2);
+    expectEvals(evals, 8, "Phon", "Wed Apr 01 2020", 129.04, 2);
+    expectEvals(evals, 9, "Cash", "Wed Apr 01 2020", 641.6, 2);
+
+    // The cash deducted at START must equal the (CPI-grown) Phon value, not 100.
+    const cashBeforeExpense = evals[1].value; // Cash grown, before expense
+    const phonValue = evals[2].value; // CPI-grown expense value
+    const cashAfterExpense = evals[3].value; // Cash after expense deducted
+    expect(phonValue).toBeCloseTo(126.63, 2);
+    expect(cashBeforeExpense - cashAfterExpense).toBeCloseTo(phonValue, 5);
+  });
+
   it("should apply cpi to next expense", () => {
     const roi = {
       start: "Dec 1, 2017 00:00:00",
@@ -1531,6 +1591,388 @@ describe("evaluations tests", () => {
     }
 
     expect(result.assetData.length).toBe(0);
+  });
+
+  it("should use a setting as an income value", () => {
+    const roi = {
+      start: "Dec 1, 2018 00:00:00",
+      end: "March 1, 2019 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          START: "January 1 2019",
+          END: "July 1 2019",
+          NAME: "PRnd",
+          VALUE: "x", // this is a setting name
+          VALUE_SET: "January 1 2018",
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "12.0", constType);
+    setSetting(model.settings, "x", "5", adjustableType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(3);
+    expectEvals(evals, 0, "x", "Mon Jan 01 2018", 5, -1);
+    expectEvals(evals, 1, "PRnd", "Tue Jan 01 2019", 5, -1);
+    expectEvals(evals, 2, "PRnd", "Fri Feb 01 2019", 5, -1);
+  });
+
+  it("should use a scaled setting as an income value", () => {
+    const roi = {
+      start: "Dec 1, 2018 00:00:00",
+      end: "March 1, 2019 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          START: "January 1 2019",
+          END: "July 1 2019",
+          NAME: "PRnd",
+          VALUE: "2x", // twice the value of setting x
+          VALUE_SET: "January 1 2018",
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "12.0", constType);
+    setSetting(model.settings, "x", "5", adjustableType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(3);
+    expectEvals(evals, 0, "x", "Mon Jan 01 2018", 5, -1);
+    expectEvals(evals, 1, "PRnd", "Tue Jan 01 2019", 10, -1);
+    expectEvals(evals, 2, "PRnd", "Fri Feb 01 2019", 10, -1);
+  });
+
+  it("should use a setting as a cpi-affected income value", () => {
+    // A setting-named income value (not CPI immune) is normalised against the
+    // CPI base at VALUE_SET and then grows with CPI, matching a numeric value.
+    const roi = {
+      start: "Dec 1, 2018 00:00:00",
+      end: "June 1, 2020 00:00:00",
+    };
+    const makeModel = (val: string, asSetting: boolean): ModelData => {
+      const model: ModelData = {
+        ...emptyModel,
+        incomes: [
+          {
+            ...simpleIncome,
+            START: "January 1 2019",
+            END: "July 1 2021",
+            NAME: "PRnd",
+            VALUE: val,
+            VALUE_SET: "January 1 2018",
+            CPI_IMMUNE: false,
+          },
+        ],
+        settings: [...defaultModelSettings(roi)],
+      };
+      setSetting(model.settings, cpi, "12", constType);
+      if (asSetting) {
+        setSetting(model.settings, "x", "5", adjustableType);
+      }
+      return model;
+    };
+
+    const evals = getTestEvaluations(makeModel("x", true)).evaluations;
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(18);
+    expectEvals(evals, 0, "x", "Mon Jan 01 2018", 5, -1);
+    expectEvals(evals, 1, "PRnd", "Tue Jan 01 2019", 5.6, 2);
+    expectEvals(evals, 2, "PRnd", "Fri Feb 01 2019", 5.6, 2);
+    expectEvals(evals, 3, "PRnd", "Fri Mar 01 2019", 5.6, 2);
+    expectEvals(evals, 4, "PRnd", "Mon Apr 01 2019", 5.6, 2);
+    expectEvals(evals, 5, "PRnd", "Wed May 01 2019", 6.27, 2);
+    expectEvals(evals, 6, "PRnd", "Sat Jun 01 2019", 6.27, 2);
+    expectEvals(evals, 7, "PRnd", "Mon Jul 01 2019", 6.27, 2);
+    expectEvals(evals, 8, "PRnd", "Thu Aug 01 2019", 6.27, 2);
+    expectEvals(evals, 9, "PRnd", "Sun Sep 01 2019", 6.27, 2);
+    expectEvals(evals, 10, "PRnd", "Tue Oct 01 2019", 6.27, 2);
+    expectEvals(evals, 11, "PRnd", "Fri Nov 01 2019", 6.27, 2);
+    expectEvals(evals, 12, "PRnd", "Sun Dec 01 2019", 6.27, 2);
+    expectEvals(evals, 13, "PRnd", "Wed Jan 01 2020", 6.27, 2);
+    expectEvals(evals, 14, "PRnd", "Sat Feb 01 2020", 6.27, 2);
+    expectEvals(evals, 15, "PRnd", "Sun Mar 01 2020", 6.27, 2);
+    expectEvals(evals, 16, "PRnd", "Wed Apr 01 2020", 6.27, 2);
+    expectEvals(evals, 17, "PRnd", "Fri May 01 2020", 7.02, 2);
+
+    // The setting-driven income tracks the equivalent numeric income exactly.
+    const numericPRnd = getTestEvaluations(makeModel("5", false))
+      .evaluations.filter((e) => e.name === "PRnd")
+      .map((e) => e.value);
+    const settingPRnd = evals
+      .filter((e) => e.name === "PRnd")
+      .map((e) => e.value);
+    expect(settingPRnd).toEqual(numericPRnd);
+  });
+
+  it("setting income with tax matches numeric income (Main income / A)", () => {
+    // Regression for models like newSimple: Main income VALUE "3500" vs setting
+    // A=3500 with CPI and income tax must evaluate identically.
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "May 10, 2018 00:00:00",
+    };
+    const makeModel = (val: string, asSetting: boolean): ModelData => {
+      const model: ModelData = {
+        ...emptyModel,
+        incomes: [
+          {
+            ...simpleIncome,
+            NAME: "Main income",
+            START: "1 March 2018",
+            END: "StopMainWork",
+            VALUE: val,
+            VALUE_SET: "1 March 2018",
+            CPI_IMMUNE: false,
+            LIABILITY: "Joe" + incomeTax,
+            RECURRENCE: "1m",
+          },
+        ],
+        assets: [
+          {
+            ...simpleAsset,
+            NAME: CASH_ASSET_NAME,
+            CAN_BE_NEGATIVE: true,
+            START: "1 Dec 2017",
+            VALUE: "2000",
+          },
+        ],
+        settings: [...defaultModelSettings(roi)],
+      };
+      setSetting(model.settings, cpi, "2.5", constType);
+      if (asSetting) {
+        setSetting(model.settings, "A", "3500", adjustableType);
+      }
+      return model;
+    };
+
+    const numericEvals = getTestEvaluations(makeModel("3500", false), false)
+      .evaluations;
+    const settingEvals = getTestEvaluations(makeModel("A", true), false)
+      .evaluations;
+
+    const mainIncomeNumeric = numericEvals
+      .filter((e) => e.name === "Main income")
+      .map((e) => e.value);
+    const mainIncomeSetting = settingEvals
+      .filter((e) => e.name === "Main income")
+      .map((e) => e.value);
+    expect(mainIncomeSetting).toEqual(mainIncomeNumeric);
+
+    const cashNumeric = numericEvals
+      .filter((e) => e.name === CASH_ASSET_NAME)
+      .map((e) => e.value);
+    const cashSetting = settingEvals
+      .filter((e) => e.name === CASH_ASSET_NAME)
+      .map((e) => e.value);
+    expect(cashSetting).toEqual(cashNumeric);
+
+    const taxNumeric = numericEvals
+      .filter((e) => e.name === "(incomeTax)")
+      .map((e) => e.value);
+    const taxSetting = settingEvals
+      .filter((e) => e.name === "(incomeTax)")
+      .map((e) => e.value);
+    expect(taxSetting).toEqual(taxNumeric);
+  });
+
+  it("should use a setting as a cpi-affected expense value", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "March 2, 2018 00:00:00",
+    };
+    const makeModel = (val: string, asSetting: boolean): ModelData => {
+      const model: ModelData = {
+        ...emptyModel,
+        expenses: [
+          {
+            ...simpleExpense,
+            START: "January 1 2018",
+            END: "February 2 2018",
+            NAME: "Phon",
+            VALUE: val,
+            VALUE_SET: "January 1 2018",
+            CPI_IMMUNE: false,
+          },
+        ],
+        settings: [...defaultModelSettings(roi)],
+      };
+      setSetting(model.settings, cpi, "12.0", constType);
+      if (asSetting) {
+        setSetting(model.settings, "phonbill", "1", adjustableType);
+      }
+      return model;
+    };
+
+    const evals = getTestEvaluations(makeModel("phonbill", true)).evaluations;
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(3);
+    expectEvals(evals, 0, "phonbill", "Fri Dec 01 2017", 1, -1);
+    expectEvals(evals, 1, "Phon", "Mon Jan 01 2018", 1, -1);
+    expectEvals(evals, 2, "Phon", "Thu Feb 01 2018", 1.01, 2);
+
+    const numericPhon = getTestEvaluations(makeModel("1", false))
+      .evaluations.filter((e) => e.name === "Phon")
+      .map((e) => e.value);
+    const settingPhon = evals
+      .filter((e) => e.name === "Phon")
+      .map((e) => e.value);
+    expect(settingPhon).toEqual(numericPhon);
+  });
+
+  it("revaluing a setting moves a cpi-affected income that uses it", () => {
+    // Live ("throughout evaluation") semantics: revaluing the setting mid-run
+    // moves the income, and CPI continues to apply on top of the new value.
+    const roi = {
+      start: "Dec 1, 2018 00:00:00",
+      end: "June 1, 2020 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          START: "January 1 2019",
+          END: "July 1 2021",
+          NAME: "PRnd",
+          VALUE: "x",
+          VALUE_SET: "January 1 2018",
+          CPI_IMMUNE: false,
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Revalue of x",
+          TO: "x",
+          TO_VALUE: "100",
+          DATE: "Jan 2 2020",
+          TYPE: revalueSetting,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "12", constType);
+    setSetting(model.settings, "x", "5", adjustableType);
+
+    const evals = getTestEvaluations(model).evaluations;
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(19);
+    expectEvals(evals, 0, "x", "Mon Jan 01 2018", 5, -1);
+    expectEvals(evals, 1, "PRnd", "Tue Jan 01 2019", 5.6, 2);
+    expectEvals(evals, 13, "PRnd", "Wed Jan 01 2020", 6.27, 2);
+    // the setting is revalued part way through ...
+    expectEvals(evals, 14, "x", "Thu Jan 02 2020", 100, -1);
+    // ... and the income jumps to the new value (inflated by CPI since
+    // VALUE_SET) and keeps growing with CPI thereafter.
+    expectEvals(evals, 15, "PRnd", "Sat Feb 01 2020", 125.44, 2);
+    expectEvals(evals, 16, "PRnd", "Sun Mar 01 2020", 125.44, 2);
+    expectEvals(evals, 17, "PRnd", "Wed Apr 01 2020", 125.44, 2);
+    expectEvals(evals, 18, "PRnd", "Fri May 01 2020", 140.49, 2);
+  });
+
+  it("should use a setting as a transaction to value", () => {
+    const roi = {
+      start: "Dec 1, 2017",
+      end: "March 1, 2018",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "windfall",
+          TO: CASH_ASSET_NAME,
+          TO_VALUE: "windfallValue", // this is a setting name
+          DATE: "January 2 2018",
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "Dec 1, 2017",
+          VALUE: "500",
+          GROWTH: "0",
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "0.0", constType);
+    setSetting(model.settings, "windfallValue", "1000", adjustableType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(5);
+    expectEvals(evals, 0, "windfallValue", "Tue Jan 02 2018", 1000, -1);
+    expectEvals(evals, 1, "Cash", "Fri Dec 01 2017", 500, -1);
+    expectEvals(evals, 2, "Cash", "Mon Jan 01 2018", 500, -1);
+    expectEvals(evals, 3, "Cash", "Tue Jan 02 2018", 1500, -1);
+    expectEvals(evals, 4, "Cash", "Thu Feb 01 2018", 1500, -1);
+  });
+
+  it("should use a setting as an asset revalue value", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "May 1, 2018 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "savings",
+          START: "January 1 2018",
+          VALUE: "500",
+          GROWTH: "12",
+        },
+      ],
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Revalue of savings",
+          TO: "savings",
+          TO_VALUE: "crashValue", // this is a setting name
+          DATE: "March 5 2018",
+          TYPE: revalueAsset,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, "crashValue", "300", adjustableType);
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(6);
+    expectEvals(evals, 0, "crashValue", "Mon Mar 05 2018", 300, -1);
+    expectEvals(evals, 1, "savings", "Mon Jan 01 2018", 500, -1);
+    expectEvals(evals, 2, "savings", "Thu Feb 01 2018", 504.74, 2);
+    expectEvals(evals, 3, "savings", "Thu Mar 01 2018", 509.53, 2);
+    expectEvals(evals, 4, "savings", "Mon Mar 05 2018", 300, -1);
+    expectEvals(evals, 5, "savings", "Sun Apr 01 2018", 302.85, 2);
   });
 
   it("should understand cpi-impacted expense no growth", () => {
@@ -3147,6 +3589,52 @@ describe("evaluations tests", () => {
     }
   });
 
+  it("from-only transaction may have empty to value", () => {
+    // A from-only cash outflow (no destination asset) is permitted to leave
+    // TO and TO_VALUE empty.  This must not fail evaluation.
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "April 1, 2018 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Each month buy food",
+          FROM: "MyCa",
+          FROM_VALUE: "200",
+          TO: "",
+          TO_VALUE: "",
+          DATE: "January 2 2018",
+          RECURRENCE: "1m",
+          CATEGORY: "living costs",
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "MyCa",
+          START: "January 1 2018",
+          VALUE: "1000",
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(6);
+    expectEvals(evals, 0, "MyCa", "Mon Jan 01 2018", 1000, -1);
+    expectEvals(evals, 1, "MyCa", "Tue Jan 02 2018", 800, -1);
+    expectEvals(evals, 2, "MyCa", "Thu Feb 01 2018", 800, -1);
+    expectEvals(evals, 3, "MyCa", "Fri Feb 02 2018", 600, -1);
+    expectEvals(evals, 4, "MyCa", "Thu Mar 01 2018", 600, -1);
+    expectEvals(evals, 5, "MyCa", "Fri Mar 02 2018", 400, -1);
+  });
+
   it("has regular transaction impacting asset value", () => {
     const roi = {
       start: "Dec 1, 2017 00:00:00",
@@ -4735,7 +5223,7 @@ expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(22);
-    expectEvals(evals, 0, "x", "Mon Feb 05 2018", 1, -1);
+    expectEvals(evals, 0, "x", "Fri Dec 01 2017", 1, -1);
     expectEvals(evals, 1, "Cash", "Fri Dec 01 2017", 0, -1);
     expectEvals(evals, 2, "Cash", "Mon Jan 01 2018", 0, -1);
     expectEvals(evals, 3, "Incm", "Mon Jan 01 2018", 1, -1);
@@ -4859,7 +5347,7 @@ expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(22);
-    expectEvals(evals, 0, "x", "Mon Feb 05 2018", 1, -1);
+    expectEvals(evals, 0, "x", "Fri Dec 01 2017", 1, -1);
     expectEvals(evals, 1, "Cash", "Fri Dec 01 2017", 0, -1);
     expectEvals(evals, 2, "Cash", "Mon Jan 01 2018", 0, -1);
     expectEvals(evals, 3, "Incm", "Mon Jan 01 2018", 2, -1);
