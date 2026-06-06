@@ -1762,7 +1762,7 @@ export function replaceNumberValueString(
   old: string,
   replacement: string,
   model?: ModelData,
-) {
+): string {
   const expr = parseNumericExpression(value);
   if (expr !== undefined) {
     let rebuilt = replaceNumberValueString(
