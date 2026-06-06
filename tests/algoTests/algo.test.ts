@@ -97,6 +97,7 @@ import {
 import { ViewSettings } from "../../utils/viewUtils";
 import { deleteItemsFromModelInternal } from "../../utils/appActions";
 import { isATransaction } from "../../models/modelQueries";
+import { checkTransaction } from "../../models/checks";
 
 /* global it */
 /* global expect */
@@ -1930,6 +1931,90 @@ describe("evaluations tests", () => {
     expectEvals(evals, 2, "Cash", "Mon Jan 01 2018", 500, -1);
     expectEvals(evals, 3, "Cash", "Tue Jan 02 2018", 1500, -1);
     expectEvals(evals, 4, "Cash", "Thu Feb 01 2018", 1500, -1);
+  });
+
+  it("should add to asset using setting as to value with empty from", () => {
+    const roi = {
+      start: "Dec 1, 2017",
+      end: "March 1, 2018",
+    };
+    const makeEstateTx = {
+      ...simpleTransaction,
+      NAME: "makeEstate",
+      DATE: "January 1 2018",
+      FROM: CASH_ASSET_NAME,
+      FROM_VALUE: "1",
+      FROM_ABSOLUTE: false,
+      TO: "Estate",
+      TO_VALUE: "1",
+      TO_ABSOLUTE: false,
+      RECURRENCE: "1m",
+    };
+    const baseModel: ModelData = {
+      ...emptyModel,
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "Dec 1, 2017",
+          VALUE: "500",
+          GROWTH: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: "Estate",
+          START: "Jan 1, 2018",
+          VALUE: "0",
+          GROWTH: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: "ZumaShares",
+          START: "Jan 1, 2018",
+          VALUE: "0",
+          GROWTH: "0",
+        },
+      ],
+      transactions: [makeEstateTx],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(baseModel.settings, cpi, "0.0", constType);
+    setSetting(baseModel.settings, "ZumaToCash", "1000", adjustableType);
+
+    const buySharesAbsolute = {
+      ...simpleTransaction,
+      NAME: "ZumaBuyShares",
+      FROM: "",
+      FROM_VALUE: "",
+      TO: "ZumaShares",
+      TO_VALUE: "ZumaToCash",
+      TO_ABSOLUTE: true,
+      DATE: "January 2 2018",
+    };
+    const buySharesProportional = {
+      ...buySharesAbsolute,
+      TO_ABSOLUTE: false,
+    };
+
+    const absoluteResult = getTestEvaluations({
+      ...baseModel,
+      transactions: [...baseModel.transactions, buySharesAbsolute],
+    });
+    const zumaEval = absoluteResult.evaluations.find(
+      (e) =>
+        e.name === "ZumaShares" &&
+        e.date.getTestDescription() === "Tue Jan 02 2018",
+    );
+    expect(zumaEval).toBeDefined();
+    expect(Number.isNaN(zumaEval!.value as number)).toBe(false);
+    expect(zumaEval!.value).toBeCloseTo(1000, 2);
+
+    expect(
+      checkTransaction(buySharesProportional, {
+        ...baseModel,
+        transactions: [...baseModel.transactions, buySharesProportional],
+      }),
+    ).toContain("must be an absolute value");
   });
 
   it("should use a setting as an asset revalue value", () => {

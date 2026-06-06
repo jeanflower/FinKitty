@@ -1455,6 +1455,17 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     } else if (!isValidValue(t.TO_VALUE, model)) {
       return `Transaction '${getDisplayName(t.NAME, t.TYPE)}' to value '${t.TO_VALUE
         }' isn't a number or setting`;
+    } else if (
+      t.FROM === "" &&
+      !t.TO_ABSOLUTE &&
+      t.TYPE === custom &&
+      !t.NAME.startsWith(revalue) &&
+      isASetting(t.TO_VALUE, model)
+    ) {
+      return (
+        `Transaction '${getDisplayName(t.NAME, t.TYPE)}' has no source asset; ` +
+        `to amount '${t.TO_VALUE}' must be an absolute value, not proportional`
+      );
     }
   }
   if (t.RECURRENCE.length > 0) {

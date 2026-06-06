@@ -5178,7 +5178,7 @@ function processTransactionTo(
     let change = 0;
     // log(`t.TO_VALUE = ${t.TO_VALUE}`);
     /* istanbul ignore else */ //error
-    if (t.TO_ABSOLUTE) {
+    if (t.TO_ABSOLUTE || t.FROM === "") {
       change = tToValue;
     } else {
       if (tToValue > 1.0) {
@@ -8181,7 +8181,11 @@ export function getEvaluations(
 
       if(pdForYear){
         // console.log(`for ${t.NAME}, pd.SURPLUS = ${pdForYear.SURPLUS}`);
-        t.FROM_VALUE = `${-parseFloat(pdForYear.SURPLUS)}`;
+        // Invest only to cover a deficit (surplus < 0). A non-negative surplus
+        // must not produce a negative invest (bond assets are not negative).
+        const surplus = parseFloat(pdForYear.SURPLUS);
+        const investAmount = surplus < 0 ? -surplus : 0;
+        t.FROM_VALUE = `${investAmount}`;
       } else {
         // console.log(`for ${t.NAME}, no pd found`);
         t.FROM_VALUE = '0';

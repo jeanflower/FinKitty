@@ -583,8 +583,12 @@ export class AddDeleteTransactionForm extends Component<
 
       const fromAbsolute = this.state.FROM_ABSOLUTE;
       const fromValue = this.state.FROM_VALUE;
-      const toAbsolute = this.state.TO_ABSOLUTE;
-      const toValue = this.state.TO_VALUE;
+      const parseTo = makeValueAbsPropFromString(
+        this.state.TO_INPUT_VALUE,
+        this.props.model.settings,
+      );
+      const toAbsolute = makeStringFromBoolean(parseTo.absolute);
+      const toValue = parseTo.value;
       if (fromAbsolute === "") {
         this.props.showAlert(
           "From absolute should be T (absolute value) or F (relative value",
