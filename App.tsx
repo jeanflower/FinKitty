@@ -2204,7 +2204,7 @@ class AppContent extends Component<AppProps, AppState> {
       checkOverwrite: true,
       evalMode: true,
       checkModelOnEdit: true,
-      checkOnLoad: true,
+      checkOnLoad: false,
       favouritesOnly: false,
       uiMode: "advancedUI",
       showHistorical: false,
