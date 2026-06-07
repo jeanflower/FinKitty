@@ -268,7 +268,25 @@ export async function clickButton(driver: ThenableWebDriver, id: string) {
       continue; // try again
     }
     await sleep(100, `let button with id ${id} be ready`); // used to say 1000
-    await btn[0].click();
+    await driver.executeScript(
+      `arguments[0].scrollIntoView({ block: 'center' });`,
+      btn[0],
+    );
+    await sleep(100, `after scroll into view for button ${id}`);
+    try {
+      await btn[0].click();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.includes("element click intercepted") ||
+        msg.includes("not clickable")
+      ) {
+        // CSS zoom (FINKITTY_BROWSER_PAGE_ZOOM) can misalign native Selenium clicks.
+        await driver.executeScript("arguments[0].click();", btn[0]);
+      } else {
+        throw err;
+      }
+    }
     return;
   }
   if (btn.length !== 1) {

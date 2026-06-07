@@ -191,7 +191,8 @@ describe(testName, () => {
     await revalueAsset(driver, {
       ...revalueInputs,
       revalue: "junk",
-      message: "Asset value junk should be a numerical or % value",
+      message:
+        "Asset value junk should be a number, % value, setting, expression, or CurrentAssetValue +/- terms",
     });
 
     await clearRevalueAssetFields(driver);
