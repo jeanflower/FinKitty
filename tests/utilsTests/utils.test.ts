@@ -22,6 +22,7 @@ import {
   makeStringFromValueAbsProp,
   makeValueAbsPropFromString,
   makeYesNoFromBoolean,
+  mayContainBinaryNumericExpression,
   removeNumberPart,
   parseNumericExpression,
   splitBinaryNumericExpression,
@@ -33,6 +34,7 @@ import {
   valueIsPlainSettingAlias,
   valueIsPureSymbolicValue,
   splitScaledSettingSuffix,
+  wordPartMayHaveScaledSuffix,
   splitScaledValueSuffix,
   modelAssetNames,
 } from "../../utils/stringUtils";
@@ -772,6 +774,28 @@ describe("utils tests", () => {
     });
     expect(parseNumericExpression("x")).toBeUndefined();
     expect(parseNumericExpression("2x")).toBeUndefined();
+  });
+  it("mayContainBinaryNumericExpression", () => {
+    expect(mayContainBinaryNumericExpression("A+700+A")).toBe(true);
+    expect(mayContainBinaryNumericExpression("100-mySetting")).toBe(true);
+    expect(mayContainBinaryNumericExpression("-50+10")).toBe(true);
+    expect(mayContainBinaryNumericExpression("cpi")).toBe(false);
+    expect(mayContainBinaryNumericExpression("2x")).toBe(false);
+    expect(mayContainBinaryNumericExpression("0.0")).toBe(false);
+  });
+  it("wordPartMayHaveScaledSuffix", () => {
+    const settings = ["cpi", "USD", "two", "One", "Zero"];
+    const assets = ["Cash", "NSI"];
+    expect(wordPartMayHaveScaledSuffix("cpi", settings, assets)).toBe(false);
+    expect(wordPartMayHaveScaledSuffix("Cash", settings, assets)).toBe(false);
+    expect(wordPartMayHaveScaledSuffix("2xNSI", settings, assets)).toBe(true);
+    expect(wordPartMayHaveScaledSuffix("68One", settings, assets)).toBe(true);
+    expect(wordPartMayHaveScaledSuffix("CashOne", settings, assets)).toBe(
+      true,
+    );
+    expect(wordPartMayHaveScaledSuffix("twoUSD", settings, assets)).toBe(
+      true,
+    );
   });
   it("splitBinaryNumericExpression", () => {
     expect(splitBinaryNumericExpression("2x + 3y")).toEqual({

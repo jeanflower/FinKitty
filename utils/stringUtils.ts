@@ -142,12 +142,72 @@ function takeLeadingNumericExpressionTerm(
 }
 
 /**
+ * True when the string may contain a binary +/- numeric expression (not a lone
+ * leading sign). Skips expensive parsing for plain words and scaled terms.
+ */
+export function mayContainBinaryNumericExpression(value: string): boolean {
+  const s = value.trim();
+  for (let i = 1; i < s.length; i += 1) {
+    if (s[i] === "+" || s[i] === "-") {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * True when wordPart may need splitScaledValueSuffix (scaled term, identity
+ * suffix, setting+setting, or asset+setting). Plain setting/asset aliases skip.
+ * Pass pre-parsed parts and name sets when calling in a hot loop.
+ */
+export function wordPartMayHaveScaledSuffix(
+  wordPart: string,
+  settingNames: string[],
+  assetNames: string[],
+  parts?: { numberPart: number | undefined; wordPart: string },
+  settingSet?: Set<string>,
+  assetSet?: Set<string>,
+): boolean {
+  if (wordPart.length === 0) {
+    return false;
+  }
+  const parsed = parts ?? getNumberAndWordParts(wordPart);
+  if (parsed.numberPart !== undefined && parsed.wordPart.length > 0) {
+    return true;
+  }
+  const sSet = settingSet ?? new Set(settingNames);
+  const aSet = assetSet ?? new Set(assetNames);
+  if (sSet.has(wordPart) || aSet.has(wordPart)) {
+    return false;
+  }
+  if (wordPart.endsWith("One") || wordPart.endsWith("Zero")) {
+    return true;
+  }
+  for (const suffix of settingNames) {
+    if (suffix.length === 0 || wordPart.length <= suffix.length) {
+      continue;
+    }
+    if (!wordPart.endsWith(suffix)) {
+      continue;
+    }
+    const base = wordPart.substring(0, wordPart.length - suffix.length);
+    if (base.length > 0 && (sSet.has(base) || aSet.has(base))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Parse a (+|-) b (+|- c ...)* where each term is a number, word, or numberPart+wordPart.
  * Returns undefined for a single term with no operator.
  */
 export function parseNumericExpression(
   input: string,
 ): NumericExpression | undefined {
+  if (!mayContainBinaryNumericExpression(input)) {
+    return undefined;
+  }
   const first = takeLeadingNumericExpressionTerm(input);
   if (first === undefined) {
     return undefined;

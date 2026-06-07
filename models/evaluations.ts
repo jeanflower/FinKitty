@@ -93,6 +93,7 @@ import {
   makeTwoDP,
   getDisplayName,
   makeBooleanFromYesNo,
+  mayContainBinaryNumericExpression,
   numericExpressionReferencesName,
   parseNumericExpression,
   makeIncomeLiabilityFromNameAndNI,
@@ -101,6 +102,7 @@ import {
   modelSettingNamesLongestFirst,
   splitScaledSettingSuffix,
   splitScaledValueSuffix,
+  wordPartMayHaveScaledSuffix,
 } from "../utils/stringUtils";
 import { getTodaysDate, getROI } from "./modelUtils";
 import {
@@ -379,6 +381,18 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
 
 class ValuesContainer {
   private model: ModelData;
+  private settingNamesLongestFirst: string[] | undefined;
+  private assetNamesLongestFirst: string[] | undefined;
+  private settingNameSet: Set<string> | undefined;
+  private assetNameSet: Set<string> | undefined;
+  private traceWordResolutionCache = new Map<
+    string,
+    {
+      traceWordPart: string;
+      suffixSplit: { baseWord: string; suffixSetting: string } | undefined;
+    }
+  >();
+  private numericReferenceCache = new Map<string, Map<string, boolean>>();
 
   constructor(model: ModelData) {
     this.model = model;
@@ -522,9 +536,93 @@ class ValuesContainer {
   }
 
   public isSettingName(name: string): boolean {
-    return this.model.settings.some((s) => {
-      return s.NAME === name;
-    });
+    return this.getSettingNameSet().has(name);
+  }
+
+  public getSettingNamesLongestFirst(): string[] {
+    if (this.settingNamesLongestFirst === undefined) {
+      this.settingNamesLongestFirst = modelSettingNamesLongestFirst(this.model);
+    }
+    return this.settingNamesLongestFirst;
+  }
+
+  public getAssetNamesLongestFirst(): string[] {
+    if (this.assetNamesLongestFirst === undefined) {
+      this.assetNamesLongestFirst = modelAssetNames(this.model);
+    }
+    return this.assetNamesLongestFirst;
+  }
+
+  private getSettingNameSet(): Set<string> {
+    if (this.settingNameSet === undefined) {
+      this.settingNameSet = new Set(
+        this.model.settings.map((s) => {
+          return s.NAME;
+        }),
+      );
+    }
+    return this.settingNameSet;
+  }
+
+  public getAssetNameSet(): Set<string> {
+    if (this.assetNameSet === undefined) {
+      this.assetNameSet = new Set(this.getAssetNamesLongestFirst());
+    }
+    return this.assetNameSet;
+  }
+
+  public cachedNumericExpressionReferencesName(
+    value: string,
+    settingName: string,
+  ): boolean {
+    let bySetting = this.numericReferenceCache.get(value);
+    if (bySetting === undefined) {
+      bySetting = new Map<string, boolean>();
+      this.numericReferenceCache.set(value, bySetting);
+    }
+    let result = bySetting.get(settingName);
+    if (result === undefined) {
+      result = numericExpressionReferencesName(value, settingName, this.model);
+      bySetting.set(settingName, result);
+    }
+    return result;
+  }
+
+  public resolveTraceWordPart(
+    wordPart: string,
+    parts: { numberPart: number | undefined; wordPart: string },
+  ): {
+    traceWordPart: string;
+    suffixSplit: { baseWord: string; suffixSetting: string } | undefined;
+  } {
+    const cached = this.traceWordResolutionCache.get(wordPart);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const settingNames = this.getSettingNamesLongestFirst();
+    const assetNames = this.getAssetNamesLongestFirst();
+    let traceWordPart = wordPart;
+    let suffixSplit: { baseWord: string; suffixSetting: string } | undefined;
+    if (
+      wordPartMayHaveScaledSuffix(
+        wordPart,
+        settingNames,
+        assetNames,
+        parts,
+        this.getSettingNameSet(),
+        this.getAssetNameSet(),
+      )
+    ) {
+      suffixSplit = splitScaledValueSuffix(
+        wordPart,
+        settingNames,
+        assetNames,
+      );
+      traceWordPart = suffixSplit?.baseWord ?? wordPart;
+    }
+    const resolution = { traceWordPart, suffixSplit };
+    this.traceWordResolutionCache.set(wordPart, resolution);
+    return resolution;
   }
 
   public getModel(): ModelData {
@@ -766,23 +864,19 @@ function traceEvaluation(
         numberPart = parts.numberPart;
       }
       const wordPart = parts.wordPart;
-      const evalModel = values.getModel();
-      const suffixSplit = splitScaledValueSuffix(
+      const { traceWordPart, suffixSplit } = values.resolveTraceWordPart(
         wordPart,
-        modelSettingNamesLongestFirst(evalModel),
-        modelAssetNames(evalModel),
+        parts,
       );
-      const traceWordPart = suffixSplit?.baseWord ?? wordPart;
       let valueForWordPart = values.get(traceWordPart);
       if (values.isSettingName(traceWordPart)) {
         const settingDef = values.getSettingDefinitionValue(traceWordPart);
         const containerPollutedBySameNamedItem =
           typeof valueForWordPart === "string" &&
-          parseNumericExpression(valueForWordPart) !== undefined &&
-          numericExpressionReferencesName(
+          mayContainBinaryNumericExpression(valueForWordPart) &&
+          values.cachedNumericExpressionReferencesName(
             valueForWordPart,
             traceWordPart,
-            evalModel,
           );
         if (containerPollutedBySameNamedItem && settingDef !== undefined) {
           // An income/expense/asset with the same name as this setting stored an
@@ -5654,6 +5748,126 @@ function shiftDate(oldDate: Date, recurrence: string, stepCount: number): Date {
   }
 }
 
+type SettingScheduleIndex = {
+  expensesReferencing: (settingName: string) => Expense[];
+  incomesReferencing: (settingName: string) => Income[];
+  assetsWithPurchasePrice: (settingName: string) => Asset[];
+  assetsReferencingValue: (settingName: string) => Asset[];
+  assetsReferencingSetting: (settingName: string) => Asset[];
+  settingValReferences: (settingVal: string, settingName: string) => boolean;
+};
+
+function buildSettingScheduleIndex(model: ModelData): SettingScheduleIndex {
+  const settingNames = modelSettingNamesLongestFirst(model);
+  const valueToSettings = new Map<string, Set<string>>();
+
+  function settingsReferencedByValue(value: string): Set<string> {
+    let cached = valueToSettings.get(value);
+    if (cached === undefined) {
+      cached = new Set<string>();
+      for (const name of settingNames) {
+        if (numericExpressionReferencesName(value, name, model)) {
+          cached.add(name);
+        }
+      }
+      valueToSettings.set(value, cached);
+    }
+    return cached;
+  }
+
+  const expensesBySetting = new Map<string, Expense[]>();
+  for (const expense of model.expenses) {
+    for (const name of settingsReferencedByValue(expense.VALUE)) {
+      let list = expensesBySetting.get(name);
+      if (list === undefined) {
+        list = [];
+        expensesBySetting.set(name, list);
+      }
+      list.push(expense);
+    }
+  }
+
+  const incomesBySetting = new Map<string, Income[]>();
+  for (const income of model.incomes) {
+    for (const name of settingsReferencedByValue(income.VALUE)) {
+      let list = incomesBySetting.get(name);
+      if (list === undefined) {
+        list = [];
+        incomesBySetting.set(name, list);
+      }
+      list.push(income);
+    }
+  }
+
+  const assetsByValueSetting = new Map<string, Asset[]>();
+  const assetsByGrowthSetting = new Map<string, Asset[]>();
+  const assetsByPurchasePrice = new Map<string, Asset[]>();
+  for (const asset of model.assets) {
+    for (const name of settingsReferencedByValue(asset.VALUE)) {
+      let list = assetsByValueSetting.get(name);
+      if (list === undefined) {
+        list = [];
+        assetsByValueSetting.set(name, list);
+      }
+      list.push(asset);
+    }
+    if (asset.GROWTH.length > 0) {
+      let growthList = assetsByGrowthSetting.get(asset.GROWTH);
+      if (growthList === undefined) {
+        growthList = [];
+        assetsByGrowthSetting.set(asset.GROWTH, growthList);
+      }
+      growthList.push(asset);
+    }
+    if (asset.PURCHASE_PRICE.length > 0) {
+      let priceList = assetsByPurchasePrice.get(asset.PURCHASE_PRICE);
+      if (priceList === undefined) {
+        priceList = [];
+        assetsByPurchasePrice.set(asset.PURCHASE_PRICE, priceList);
+      }
+      priceList.push(asset);
+    }
+  }
+
+  return {
+    expensesReferencing: (settingName: string) => {
+      return expensesBySetting.get(settingName) ?? [];
+    },
+    incomesReferencing: (settingName: string) => {
+      return incomesBySetting.get(settingName) ?? [];
+    },
+    assetsWithPurchasePrice: (settingName: string) => {
+      return assetsByPurchasePrice.get(settingName) ?? [];
+    },
+    assetsReferencingValue: (settingName: string) => {
+      return assetsByValueSetting.get(settingName) ?? [];
+    },
+    assetsReferencingSetting: (settingName: string) => {
+      const byGrowth = assetsByGrowthSetting.get(settingName) ?? [];
+      const byValue = assetsByValueSetting.get(settingName) ?? [];
+      if (byGrowth.length === 0) {
+        return byValue;
+      }
+      if (byValue.length === 0) {
+        return byGrowth;
+      }
+      const seen = new Set(
+        byGrowth.map((a) => {
+          return a.NAME;
+        }),
+      );
+      return byGrowth.concat(
+        byValue.filter((a) => {
+          return !seen.has(a.NAME);
+        }),
+      );
+    },
+    settingValReferences: (settingVal: string, settingName: string) => {
+      return settingsReferencedByValue(settingVal).has(settingName);
+    },
+  };
+}
+
 function generateMoments(
   model: ModelData,
   frequency: string,
@@ -5887,6 +6101,7 @@ function generateMoments(
     settingVal: string;
     setDate: FinKittyDate;
   }[] = [];
+  const scheduleIndex = buildSettingScheduleIndex(model);
   model.settings.forEach((setting) => {
     // Some types of settings have values at the start of the roi
     if (
@@ -5910,18 +6125,16 @@ function generateMoments(
     // settings for purchase prices, expense values or income values
     // are set at the start
     {
-      const referencingPrices = model.assets.filter((a) => {
-        return a.PURCHASE_PRICE === setting.NAME;
-      });
-      const referencingExpenses = model.expenses.filter((e) => {
-        return numericExpressionReferencesName(e.VALUE, setting.NAME, model);
-      });
-      const referencingIncomes = model.incomes.filter((i) => {
-        return numericExpressionReferencesName(i.VALUE, setting.NAME, model);
-      });
-      const referencingAssetValues = model.assets.filter((a) => {
-        return numericExpressionReferencesName(a.VALUE, setting.NAME, model);
-      });
+      const referencingPrices = scheduleIndex.assetsWithPurchasePrice(
+        setting.NAME,
+      );
+      const referencingExpenses = scheduleIndex.expensesReferencing(
+        setting.NAME,
+      );
+      const referencingIncomes = scheduleIndex.incomesReferencing(setting.NAME);
+      const referencingAssetValues = scheduleIndex.assetsReferencingValue(
+        setting.NAME,
+      );
       if (
         (referencingPrices.length > 0 ||
           referencingExpenses.length > 0 ||
@@ -5990,15 +6203,9 @@ function generateMoments(
 
     // log(`got referencing dates ${showObj(referencingDates)}`);
 
-    const referencingAssets = model.assets.filter((a) => {
-      if (a.GROWTH === setting.NAME) {
-        return true;
-      }
-      if (numericExpressionReferencesName(a.VALUE, setting.NAME, model)) {
-        return true;
-      }
-      return false;
-    });
+    const referencingAssets = scheduleIndex.assetsReferencingSetting(
+      setting.NAME,
+    );
 
     referencingAssets.sort((a, b) => {
       if (a.NAME < b.NAME) {
@@ -6069,7 +6276,7 @@ function generateMoments(
       // We need it if something in setSettingsData
       // builds on it
       const match = setSettingsData.find((ss) => {
-        return numericExpressionReferencesName(ss.settingVal, s.NAME, model);
+        return scheduleIndex.settingValReferences(ss.settingVal, s.NAME);
       });
       if (match) {
         // ok, add this too
