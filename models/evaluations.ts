@@ -8029,11 +8029,19 @@ function processDBPGenerators(
       }
       let builtLiability2: string | undefined;
       if (dBDetails.TRANSFER_TO !== "") {
-        const isNotANumber = dBDetails.TRANSFER_PROPORTION === '' 
-          || !isNumberString(dBDetails.TRANSFER_PROPORTION);
-        if (isNotANumber) {
-          return `Transfer proportion ${dBDetails.TRANSFER_PROPORTION} ` +
-              `should be a numerical value`;
+        if (dBDetails.TRANSFER_PROPORTION === "") {
+          return `Transfer proportion should be a numerical value`;
+        }
+        if (
+          !isResolvableNumericSettingValue(
+            dBDetails.TRANSFER_PROPORTION,
+            model,
+          )
+        ) {
+          return (
+            `Transfer proportion ${dBDetails.TRANSFER_PROPORTION} ` +
+            `should be a number or a setting that resolves to a number`
+          );
         }
         builtLiability2 = makeIncomeLiabilityFromNameAndNI(
           dBDetails.TRANSFER_TO,

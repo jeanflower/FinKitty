@@ -1,7 +1,11 @@
 import React, { Component, FormEvent } from "react";
 import { Button, Col, Row } from "react-bootstrap";
 
-import { checkIncomeLiability, isValidValue } from "../../models/checks";
+import {
+  checkIncomeLiability,
+  isResolvableNumericSettingValue,
+  isValidValue,
+} from "../../models/checks";
 import {
   Income,
   Item,
@@ -964,12 +968,21 @@ DB_TRANSFERRED_STOP
       }
       let builtLiability2: string | undefined;
       if (this.state.DB_TRANSFER_TO !== "") {
-        const isNotANumber = this.state.DB_TRANSFER_PROPORTION === '' 
-          || !isNumberString(this.state.DB_TRANSFER_PROPORTION);
-        if (isNotANumber) {
+        if (this.state.DB_TRANSFER_PROPORTION === "") {
+          this.props.showAlert(
+            `Transfer proportion should be a numerical value`,
+          );
+          return;
+        }
+        if (
+          !isResolvableNumericSettingValue(
+            this.state.DB_TRANSFER_PROPORTION,
+            copyModel,
+          )
+        ) {
           this.props.showAlert(
             `Transfer proportion ${this.state.DB_TRANSFER_PROPORTION} ` +
-              `should be a numerical value`,
+              `should be a number or a setting that resolves to a number`,
           );
           return;
         }

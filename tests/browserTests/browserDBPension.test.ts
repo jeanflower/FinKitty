@@ -189,7 +189,8 @@ describe(testName, () => {
     await addDBPension(driver, {
       ...inputs,
       transferProportion: "junk",
-      message: "Transfer proportion junk should be a numerical value",
+      message:
+        "Transfer proportion junk should be a number or a setting that resolves to a number",
     });
 
     await clearPensionFields(driver);

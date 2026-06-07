@@ -9,8 +9,10 @@ import {
   pensionSS,
   crystallizedPension,
   pensionDB,
+  pensionTransfer,
   cpi,
   constType,
+  adjustableType,
   annually,
   chartAdditions,
   chartDeltas,
@@ -7276,6 +7278,139 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 4, 'Tue Apr 01 2025', 165.00, 2);
       expectChartData(chartPts, 5, 'Wed Apr 01 2026', 0, -1);
       expectChartData(chartPts, 6, 'Thu Apr 01 2027', 0, -1);
+    }
+  });
+
+  it("DBP transfer proportion may be a setting name", () => {
+    const buildModel = (transferProportion: string): ModelData => {
+      const modelString = `
+    {
+      "name":"DPBModel",
+      "expenses":[],
+      "incomes":[
+        {"NAME":"javaJob1",
+        "ERA":0,
+        "VALUE":"250",
+        "VALUE_SET":"02 April 2020",
+        "START":"02 April 2021",
+        "END":"02 April 2022",
+        "CPI_IMMUNE":true,
+        "LIABILITY":"Joe(incomeTax)/Joe(NI)",
+        "RECURRENCE":"1m",
+        "CATEGORY":"programming"
+      }
+      ],
+      "assets":[
+        {
+          "NAME":"Cash",
+          "CATEGORY":"",
+          "START":"01 Jan 2017",
+          "VALUE":"0.0",
+          "QUANTITY":"",
+          "GROWTH":"0.0",
+          "CPI_IMMUNE":true,
+          "CAN_BE_NEGATIVE":true,
+          "IS_A_DEBT":false,
+          "LIABILITY":"",
+          "PURCHASE_PRICE":"0.0",
+          "ERA":0
+        }
+      ],
+      "transactions":[],
+      "settings":[
+        {"NAME":"View frequencyTransactions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyTax","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencySettings","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyPlanning","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyOverview","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyOptimizer","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyMonitoring","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyIncomes","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyHome","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyExpenses","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyDebts","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyDates","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyAssets","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"View frequencyAsset actions","VALUE":"Annually","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"Today's value focus date","VALUE":"","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"Beginning of view range","VALUE":"01 Jan 2019","HINT":"","TYPE":"const","ERA":0},
+        {"NAME":"End of view range","VALUE":"01 Feb 2034","HINT":"","TYPE":"const","ERA":0},
+        {"NAME":"Beginning of monitor range","VALUE":"Nov 2022","HINT":"","TYPE":"adjustable","ERA":0},
+        {"NAME":"End of monitor range","VALUE":"Nov 2023","HINT":"","TYPE":"adjustable","ERA":0},
+        {"NAME":"Date of birth","VALUE":"","HINT":"","TYPE":"view","ERA":0},
+        {"NAME":"cpi","VALUE":"2.5","HINT":"","TYPE":"const","ERA":0}
+      ],
+      "monitors":[],
+      "triggers":[],
+      "generators":[
+        {
+          "NAME":"TeachersPensionScheme",
+          "ERA":0,
+          "TYPE":"Defined Benefits",
+          "DETAILS":{
+            "VALUE":"10",
+            "VALUE_SET":"1 Jan 2021",
+            "INCOME_SOURCE":"javaJob1",
+            "SALARY_SACRIFICED":"Y",
+            "CONTRIBUTION_AMOUNT":"0.5",
+            "ACCRUAL":"0.02",
+            "STOP_SOURCE":"1 Jan 2025",
+            "START":"2 April 2023",
+            "END":"2 April 2024",
+            "GROWS_WITH_CPI":"N",
+            "TRANSFER_TO":"Jack",
+            "TRANSFER_PROPORTION":"${transferProportion}",
+            "TRANSFERRED_STOP":"2 May 2025",
+            "TAX_LIABILITY":"Joe",
+            "CATEGORY":"pension"
+          }
+        }
+      ],
+      "version":13
+    }
+    `;
+      const model = makeModelFromJSONString(modelString);
+      setSetting(
+        model.settings,
+        `Beginning of view range`,
+        "April 1 2021",
+        viewType,
+      );
+      setSetting(
+        model.settings,
+        `End of view range`,
+        "April 1 2027",
+        viewType,
+      );
+      return model;
+    };
+
+    const transferIncome = pensionTransfer + "TeachersPensionScheme";
+    const numericEvals = getTestEvaluations(buildModel("0.5"), false)
+      .evaluations;
+    const modelWithSetting = buildModel("dbpTransferProp");
+    setSetting(modelWithSetting.settings, "dbpTransferProp", "0.5", adjustableType);
+    const settingEvals = getTestEvaluations(modelWithSetting, false).evaluations;
+
+    const numericTransfer = numericEvals
+      .filter((e) => e.name === transferIncome)
+      .map((e) => e.value);
+    const settingTransfer = settingEvals
+      .filter((e) => e.name === transferIncome)
+      .map((e) => e.value);
+    expect(settingTransfer).toEqual(numericTransfer);
+
+    // Throughout-evaluation: changing the setting alters the transfer proportion.
+    setSetting(modelWithSetting.settings, "dbpTransferProp", "0.25", adjustableType);
+    const quarterEvals = getTestEvaluations(modelWithSetting, false).evaluations;
+    const quarterTransfer = quarterEvals
+      .filter((e) => e.name === transferIncome)
+      .map((e) => e.value);
+    const nonZeroNumeric = numericTransfer.filter((v) => v !== 0);
+    const nonZeroQuarter = quarterTransfer.filter((v) => v !== 0);
+    expect(nonZeroQuarter.length).toBe(nonZeroNumeric.length);
+    for (let i = 0; i < nonZeroNumeric.length; i += 1) {
+      expect(nonZeroQuarter[i]).toBeCloseTo(nonZeroNumeric[i] / 2, 2);
     }
   });
 
