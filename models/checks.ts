@@ -25,7 +25,7 @@ import {
   quantity,
   revalue,
   revalueAsset,
-  currentAssetValue,
+  currentValue,
   revalueDebt,
   revalueExp,
   revalueInc,
@@ -298,13 +298,13 @@ function isValidRevalueAssetToValueInternal(
   const expr = parseNumericExpression(value);
   if (expr !== undefined) {
     return expr.terms.every((term) => {
-      if (term === currentAssetValue) {
+      if (term === currentValue) {
         return true;
       }
       return isValidValueInternal(term, model, iterationDepth);
     });
   }
-  if (value === currentAssetValue) {
+  if (value === currentValue) {
     return true;
   }
   return isValidValueInternal(value, model, iterationDepth);
@@ -331,7 +331,7 @@ function isValidDCPRevalueValueInternal(
   const expr = parseNumericExpression(value);
   if (expr !== undefined) {
     return expr.terms.every((term) => {
-      if (term === currentAssetValue) {
+      if (term === currentValue) {
         return true;
       }
       return isResolvableNumericSettingValueInternal(
@@ -341,7 +341,7 @@ function isValidDCPRevalueValueInternal(
       );
     });
   }
-  if (value === currentAssetValue) {
+  if (value === currentValue) {
     return true;
   }
   return isResolvableNumericSettingValueInternal(value, model, iterationDepth);
@@ -2180,7 +2180,7 @@ function checkDCPRevalueGeneratorDetails(
     return (
       `generator '${g.NAME}' VALUE '${details.VALUE}' ` +
       `should be a number, a setting that resolves to a number, ` +
-      `or an expression using CurrentAssetValue +/- settings`
+      `or an expression using CurrentValue +/- settings`
     );
   }
   const copyModel = makeModelFromJSON(JSON.stringify(model));

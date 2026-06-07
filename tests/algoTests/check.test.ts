@@ -23,7 +23,7 @@ import {
   viewFrequency,
   generatorTypeDCPRevalue,
   dcpRevalueBatchCategoryPrefix,
-  currentAssetValue,
+  currentValue,
 } from "../../localization/stringConstants";
 import { expectedDCPRevalueTransactionNamePrefixFromCategory } from "../../models/dcpRevalueExpand";
 import {
@@ -1667,7 +1667,7 @@ describe("checks tests", () => {
     expect(revals.length).toBe(3);
   });
 
-  it("DCP revalue generator accepts CurrentAssetValue minus setting expression", () => {
+  it("DCP revalue generator accepts CurrentValue minus setting expression", () => {
     const model = getMinimalModelCopy();
     model.settings.push({
       ...simpleSetting,
@@ -1697,7 +1697,7 @@ describe("checks tests", () => {
         TRANSFER_DATE: "",
       },
     });
-    const expr = `${currentAssetValue}-1.333PurchaseCost`;
+    const expr = `${currentValue}-1.333PurchaseCost`;
     const revGen: Generator = {
       NAME: "JeanRoyalLondon 7",
       TYPE: generatorTypeDCPRevalue,

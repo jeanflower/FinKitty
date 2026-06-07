@@ -1,7 +1,7 @@
 import {
   revalueAsset,
   adjustableType,
-  currentAssetValue,
+  currentValue,
   generatorTypeDCPRevalue,
   pensionPrefix,
 } from "../../localization/stringConstants";
@@ -99,7 +99,7 @@ describe("revalue asset TO_VALUE expressions", () => {
     expect(myAssetEvals[myAssetEvals.length - 1].value).toBe(800);
   });
 
-  it("accepts and evaluates CurrentAssetValue minus setting", () => {
+  it("accepts and evaluates CurrentValue minus setting", () => {
     const roi = {
       start: "Dec 1, 2017 00:00:00",
       end: "May 1, 2020 00:00:00",
@@ -138,14 +138,14 @@ describe("revalue asset TO_VALUE expressions", () => {
           ...simpleTransaction,
           NAME: "Revalue holdings 1",
           TO: "holdings",
-          TO_VALUE: `${currentAssetValue} - Deduction`,
+          TO_VALUE: `${currentValue} - Deduction`,
           TO_ABSOLUTE: true,
           DATE: "01 Jan 2020",
           TYPE: revalueAsset,
         },
       ],
     };
-    const expr = `${currentAssetValue} - Deduction`;
+    const expr = `${currentValue} - Deduction`;
     expect(isValidRevalueAssetToValue(expr, model)).toBe(true);
     expect(isValidValue(expr, model)).toBe(false);
     expect(
@@ -168,7 +168,7 @@ describe("revalue asset TO_VALUE expressions", () => {
     expect(otherAssetEvals[otherAssetEvals.length - 1].value).toBe(300);
   });
 
-  it("evaluates DCP revalue CurrentAssetValue minus setting", () => {
+  it("evaluates DCP revalue CurrentValue minus setting", () => {
     const roi = {
       start: "Dec 1, 2025",
       end: "Sep 1, 2027",
@@ -215,7 +215,7 @@ describe("revalue asset TO_VALUE expressions", () => {
           DETAILS: {
             FROM: pen,
             DATE: "01 Jun 2026",
-            VALUE: `${currentAssetValue}-Deduction`,
+            VALUE: `${currentValue}-Deduction`,
           },
         } as Generator,
       ],

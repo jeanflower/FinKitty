@@ -19,7 +19,7 @@ import {
   liquidateAsset,
   payOffDebt,
   revalueAsset,
-  currentAssetValue,
+  currentValue,
   revalueDebt,
   revalueExp,
   revalueInc,
@@ -263,24 +263,24 @@ export function getNumericExpressionTerms(value: string): string[] {
   return [value];
 }
 
-/** True when a revalueAsset TO_VALUE expression references CurrentAssetValue. */
-export function revalueToValueReferencesCurrentAsset(value: string): boolean {
+/** True when a revalue TO_VALUE expression references CurrentValue. */
+export function revalueToValueReferencesCurrentValue(value: string): boolean {
   return getNumericExpressionTerms(value).some((term) => {
-    return term === currentAssetValue;
+    return term === currentValue;
   });
 }
 
-/** Replace CurrentAssetValue with a concrete asset name in an expression. */
-export function substituteCurrentAssetValue(
+/** Replace CurrentValue with a concrete asset name or number in an expression. */
+export function substituteCurrentValue(
   value: string,
-  assetName: string,
+  replacement: string,
 ): string {
   const expr = parseNumericExpression(value);
   if (expr === undefined) {
-    return value === currentAssetValue ? assetName : value;
+    return value === currentValue ? replacement : value;
   }
   const terms = expr.terms.map((term) => {
-    return term === currentAssetValue ? assetName : term;
+    return term === currentValue ? replacement : term;
   });
   let result = terms[0];
   for (let i = 0; i < expr.ops.length; i += 1) {

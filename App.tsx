@@ -33,6 +33,7 @@ import {
   defaultSourceExcluder,
   evalModeOption,
   checkModelOnEditOption,
+  checkOnLoadOption,
   optimizerView,
   monthly,
   viewFrequency,
@@ -660,8 +661,14 @@ async function refreshDataInternal(
     modelProcessed.name = 'has been processed';
 
     if (error.length > 0) {
-      showAlert(`can't process generators of model: ${error}`);
-      return;
+      if (reactAppComponent.options.checkOnLoad) {
+        showAlert(`can't process generators of model: ${error}`);
+        return;
+      }
+      log(
+        `WARNING: processGenerators on load (${error}); ` +
+          `continuing because ${checkOnLoadOption} is off`,
+      );
     }
 
     modelNames = x.modelNames;
@@ -726,7 +733,14 @@ async function refreshDataInternal(
       evaluationsAndVals.reportData.length === 1 &&
       evaluationsAndVals.reportData[0].name === 'Error from evaluations'
       ) {
-      alert(evaluationsAndVals.reportData[0].source);
+      if (reactAppComponent.options.checkOnLoad) {
+        alert(evaluationsAndVals.reportData[0].source);
+      } else {
+        log(
+          `WARNING: evaluation error on load (${evaluationsAndVals.reportData[0].source}); ` +
+            `continuing because ${checkOnLoadOption} is off`,
+        );
+      }
     }
 
     if (reactAppComponent.state.saveReportAsCSV) {
@@ -2190,6 +2204,7 @@ class AppContent extends Component<AppProps, AppState> {
       checkOverwrite: true,
       evalMode: true,
       checkModelOnEdit: true,
+      checkOnLoad: true,
       favouritesOnly: false,
       uiMode: "advancedUI",
       showHistorical: false,

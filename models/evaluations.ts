@@ -96,8 +96,8 @@ import {
   mayContainBinaryNumericExpression,
   numericExpressionReferencesName,
   parseNumericExpression,
-  revalueToValueReferencesCurrentAsset,
-  substituteCurrentAssetValue,
+  revalueToValueReferencesCurrentValue,
+  substituteCurrentValue,
   makeIncomeLiabilityFromNameAndNI,
   modelNameReferencesSetting,
   modelAssetNames,
@@ -4394,8 +4394,8 @@ function applyRevalueDCPBatch(
     return true;
   }
   let toValueExpr = canonical.TO_VALUE;
-  if (revalueToValueReferencesCurrentAsset(toValueExpr)) {
-    toValueExpr = substituteCurrentAssetValue(toValueExpr, `${totalDCPValue}`);
+  if (revalueToValueReferencesCurrentValue(toValueExpr)) {
+    toValueExpr = substituteCurrentValue(toValueExpr, `${totalDCPValue}`);
   }
   let tTotal: string | number | undefined = traceEvaluation(
     toValueExpr,
@@ -4493,7 +4493,7 @@ function revalueApplied(
     );
   }
   // log(`t.TO_VALUE = ${t.TO_VALUE}`);
-  const perAssetToValue = revalueToValueReferencesCurrentAsset(t.TO_VALUE);
+  const perAssetToValue = revalueToValueReferencesCurrentValue(t.TO_VALUE);
   let tToValue: string | number | undefined = undefined;
   let toVal: number | undefined = undefined;
   if (!perAssetToValue) {
@@ -4505,7 +4505,7 @@ function revalueApplied(
   words = replaceCategoryWithAssetNames(words, model);
   words.forEach((w) => {
     if (perAssetToValue) {
-      const resolvedToValue = substituteCurrentAssetValue(t.TO_VALUE, w);
+      const resolvedToValue = substituteCurrentValue(t.TO_VALUE, w);
       tToValue = traceEvaluation(resolvedToValue, values, growths, w);
       toVal = tToValue;
     }

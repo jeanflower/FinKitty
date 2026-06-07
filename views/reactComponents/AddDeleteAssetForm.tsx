@@ -1186,7 +1186,7 @@ export class AddDeleteAssetForm extends Component<
     if (!parseVal.checksOK) {
       this.props.showAlert(
         `Asset value ${this.state.VALUE} should be a number, % value, ` +
-          `setting, expression, or CurrentAssetValue +/- terms`,
+          `setting, expression, or CurrentValue +/- terms`,
       );
       return;
     }

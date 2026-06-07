@@ -5,6 +5,7 @@ import { Input } from "./Input";
 import { makeButton } from "./Button";
 import {
   checkModelOnEditOption,
+  checkOnLoadOption,
   checkOverwriteOption,
   evalModeOption,
   goToAssetsPageOption,
@@ -153,6 +154,21 @@ export class ReplaceWithJSONForm extends Component<
         )}
         <br></br>
         {makeButton(
+          this.props.getOption(checkOnLoadOption)
+            ? `Don't block load on generator/eval errors`
+            : "Do block load on generator/eval errors",
+          async (e: FormEvent<Element>) => {
+            await this.setState({
+              JSON: checkOnLoadOption,
+            });
+            this.replace(e);
+          },
+          "toggleCOL",
+          "toggleCOL",
+          "outline-secondary",
+        )}
+        <br></br>
+        {makeButton(
           this.props.getOption(checkModelOnEditOption)
             ? `Don't check model on edit`
             : "Do check model on edit",
@@ -263,6 +279,11 @@ export class ReplaceWithJSONForm extends Component<
     }
     if (JSONinput === checkModelOnEdit) {
       this.props.toggleOption(checkModelOnEditOption);
+      this.setState({ JSON: "" });
+      return;
+    }
+    if (JSONinput === checkOnLoadOption) {
+      this.props.toggleOption(checkOnLoadOption);
       this.setState({ JSON: "" });
       return;
     }

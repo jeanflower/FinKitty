@@ -166,9 +166,9 @@ export const revalueInc = "revalueInc";
 export const revalueExp = "revalueExp";
 //  Revalue assets
 export const revalueAsset = "revalueAsset";
-// In a revalueAsset TO_VALUE expression, resolves to each target asset's
-// value immediately before the revaluation is applied.
-export const currentAssetValue = "CurrentAssetValue";
+// In a revalue TO_VALUE expression, resolves to the target item's value
+// immediately before the revaluation is applied (per asset, or DCP pot total).
+export const currentValue = "CurrentValue";
 //  Revalue debts
 export const revalueDebt = "revalueDebt";
 //  Revalue settings
@@ -249,6 +249,8 @@ export const defaultReportSize = 40;
 
 export const evalModeOption = "evalMode";
 export const checkModelOnEditOption = "checkModelOnEdit";
+/** When true, generator/evaluation failures on model load block refresh and show an alert. */
+export const checkOnLoadOption = "checkOnLoad";
 export const goToAssetsPageOption = "goToAssetsPage";
 export const checkOverwriteOption = "checkOverwrite";
 export const showAllBackupsOption = "showAllBackups";
