@@ -41,7 +41,7 @@ import ReactiveTextArea from "./reactComponents/ReactiveTextArea";
 import { AddDeleteEntryForm } from "./reactComponents/AddDeleteEntryForm";
 import { getLiabilityPeople } from "../models/modelUtils";
 
-import { Bar, Line } from "react-chartjs-2";
+import { Bar, Chart, Line } from "react-chartjs-2";
 
 import { Container } from "react-bootstrap";
 import dateFormat from "dateformat";
@@ -686,6 +686,14 @@ function monitoringCategoryColor(index: number, alpha = 1): string {
   return `rgb(${c.r},${c.g},${c.b})`;
 }
 
+function monitoringCategoryDarkColor(index: number): string {
+  const c = getColor(index);
+  const scale = 0.75;
+  return `rgb(${Math.round(c.r * scale)},${Math.round(c.g * scale)},${Math.round(
+    c.b * scale,
+  )})`;
+}
+
 /** Basic and Leisure use palette indices 0 and 1 (same scheme as expense bar charts). */
 const monitoringBasicColorIndex = 0;
 const monitoringLeisureColorIndex = 1;
@@ -746,8 +754,14 @@ export function makeMonitoringCumulativeLineChartData(
   cumExpectedLeisure: number[],
   cumActualLeisure: (number | null)[],
 ): ChartData {
-  const basicColor = monitoringCategoryColor(monitoringBasicColorIndex);
-  const leisureColor = monitoringCategoryColor(monitoringLeisureColorIndex);
+  const basicColor = monitoringCategoryDarkColor(monitoringBasicColorIndex);
+  const leisureColor = monitoringCategoryDarkColor(monitoringLeisureColorIndex);
+  const lineStyle = {
+    borderWidth: 2.5,
+    pointRadius: 3,
+    tension: 0.1,
+    barPercentage: 1.0,
+  };
   return {
     labels,
     displayLegend: true,
@@ -757,37 +771,187 @@ export function makeMonitoringCumulativeLineChartData(
         data: cumExpectedBasic,
         backgroundColor: basicColor,
         borderColor: basicColor,
+        pointBackgroundColor: basicColor,
         borderDash: [6, 4],
-        tension: 0.1,
-        barPercentage: 1.0,
+        ...lineStyle,
       },
       {
         label: "Actual cumulative Basic",
         data: cumActualBasic,
         backgroundColor: basicColor,
         borderColor: basicColor,
-        tension: 0.1,
-        barPercentage: 1.0,
+        pointBackgroundColor: basicColor,
+        ...lineStyle,
       },
       {
         label: "Expected cumulative Leisure",
         data: cumExpectedLeisure,
         backgroundColor: leisureColor,
         borderColor: leisureColor,
+        pointBackgroundColor: leisureColor,
         borderDash: [6, 4],
-        tension: 0.1,
-        barPercentage: 1.0,
+        ...lineStyle,
       },
       {
         label: "Actual cumulative Leisure",
         data: cumActualLeisure,
         backgroundColor: leisureColor,
         borderColor: leisureColor,
-        tension: 0.1,
-        barPercentage: 1.0,
+        pointBackgroundColor: leisureColor,
+        ...lineStyle,
       },
     ],
   };
+}
+
+export function makeMonitoringCombinedChartData(
+  labels: string[],
+  expectedBasic: number[],
+  expectedLeisure: number[],
+  actualBasic: (number | null)[],
+  actualLeisure: (number | null)[],
+  cumExpectedBasic: number[],
+  cumActualBasic: (number | null)[],
+  cumExpectedLeisure: number[],
+  cumActualLeisure: (number | null)[],
+): ChartData {
+  const barData = makeMonitoringSpendBarChartData(
+    labels,
+    expectedBasic,
+    expectedLeisure,
+    actualBasic,
+    actualLeisure,
+  );
+  const lineData = makeMonitoringCumulativeLineChartData(
+    labels,
+    cumExpectedBasic,
+    cumActualBasic,
+    cumExpectedLeisure,
+    cumActualLeisure,
+  );
+  return {
+    labels,
+    displayLegend: true,
+    datasets: [
+      ...barData.datasets.map((d) => {
+        return { ...d, type: "bar" as const, yAxisID: "y", order: 1 };
+      }),
+      ...lineData.datasets.map((d) => {
+        return { ...d, type: "line" as const, yAxisID: "y1", order: 0 };
+      }),
+    ],
+  };
+}
+
+function makeMonitoringCombinedChart(
+  data: ChartData,
+  chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
+) {
+  const options: any = {
+    plugins: {
+      title: {
+        display:
+          chartSettings.title !== undefined && chartSettings.title.display,
+        text:
+          chartSettings.title !== undefined ? chartSettings.title.text : "",
+      },
+      legend: {
+        display: data.displayLegend,
+        position: "right",
+      },
+      tooltip: {
+        callbacks: {
+          title: (tooltipItems: { dataIndex: number }[]) => {
+            if (tooltipItems.length === 0) {
+              return "";
+            }
+            const idx = tooltipItems[0].dataIndex;
+            const l = data.labels[idx];
+            return formatBarCategoryLabel(
+              l,
+              viewSettings,
+              data.xLabelFormat ?? "default",
+            );
+          },
+        },
+      },
+    },
+    animation: {
+      duration: 0,
+    },
+    responsive: true,
+    maintainAspectRatio: false,
+    spanGaps: false,
+    datasets: {
+      bar: {
+        order: 1,
+      },
+      line: {
+        order: 0,
+      },
+    },
+    scales: {
+      x: {
+        stacked: true,
+        ticks: {
+          callback: function (
+            value: string | number,
+            index: number,
+            values: { value: string | number }[],
+          ) {
+            /* istanbul ignore if  */
+            if (printDebug()) {
+              log(
+                `convert value ${value}, ${showObj(
+                  values[index],
+                )} to make tick text`,
+              );
+            }
+            const l: number | string | undefined = data.labels[index];
+            return formatBarCategoryLabel(
+              l,
+              viewSettings,
+              data.xLabelFormat ?? "default",
+            );
+          },
+        },
+      },
+      y: {
+        stacked: true,
+        position: "left",
+        title: {
+          display: true,
+          text: "Monthly spend",
+        },
+      },
+      y1: {
+        position: "right",
+        grid: {
+          drawOnChartArea: false,
+        },
+        title: {
+          display: true,
+          text: "Cumulative spend",
+        },
+      },
+    },
+  };
+  return (
+    <Chart type="bar" options={options} data={data as any} />
+  );
+}
+
+export function makeContainedMonitoringCombinedChart(
+  data: ChartData,
+  chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
+) {
+  return (
+    <Container style={{ height: `${chartSettings.height}px` }}>
+      {makeMonitoringCombinedChart(data, chartSettings, viewSettings)}
+    </Container>
+  );
 }
 
 function incomesChart(

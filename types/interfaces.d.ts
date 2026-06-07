@@ -205,6 +205,12 @@ export interface ChartDataSet {
   borderColor?: string;
   borderDash?: number[];
   tension?: number;
+  type?: "bar" | "line";
+  yAxisID?: string;
+  order?: number;
+  borderWidth?: number;
+  pointRadius?: number;
+  pointBackgroundColor?: string;
 }
 export type ChartXLabelFormat = "default" | "ukTaxYear";
 

@@ -127,9 +127,8 @@ import {
   getDefaultChartSettings,
   makeBarData,
   makeContainedBarChart,
-  makeContainedLineChart,
-  makeMonitoringSpendBarChartData,
-  makeMonitoringCumulativeLineChartData,
+  makeContainedMonitoringCombinedChart,
+  makeMonitoringCombinedChartData,
 } from "./chartPages";
 import { ReportMatcherForm } from "./reactComponents/ReportMatcherForm";
 import { ViewSettings, getDefaultViewSettings, getDisplay } from "../utils/viewUtils";
@@ -3321,7 +3320,6 @@ function makeMonitoringColMonthsFromStartEnd(
       end: new FinKittyDate(new Date(`01 ${end}`)),
     },
     "1m",
-    false,
   );
   // log(`dates = ${dates}`);
   months = dates.map((d) => {
@@ -3439,18 +3437,12 @@ function expensesMonitoringChartDiv(
   }
 
   const viewSettings = getDefaultViewSettings();
-  const barChartSettings = {
+  const chartSettings = {
     ...getDefaultChartSettings(viewSettings, model.settings),
+    height: 360,
     title: {
       display: true,
-      text: "Monthly spend: expected vs actual",
-    },
-  };
-  const lineChartSettings = {
-    ...getDefaultChartSettings(viewSettings, model.settings),
-    title: {
-      display: true,
-      text: "Cumulative spend: expected vs actual",
+      text: "Monitoring spend: monthly and cumulative",
     },
   };
 
@@ -3458,40 +3450,25 @@ function expensesMonitoringChartDiv(
     return dateFormat(new Date(`01 ${mo}`), "mmmm");
   });
 
-  const spendBarChartData = makeMonitoringSpendBarChartData(
+  const combinedChartData = makeMonitoringCombinedChartData(
     chartMonthLabels,
     expectedBasic,
     expectedLeisure,
     actualBasic,
     actualLeisure,
-  );
-  const cumulativeLineChartData = makeMonitoringCumulativeLineChartData(
-    chartMonthLabels,
     cumExpectedBasic,
     cumActualBasic,
     cumExpectedLeisure,
     cumActualLeisure,
   );
 
-  return (
-    <>
-      {collapsibleFragment(
-        makeContainedBarChart(
-          spendBarChartData,
-          barChartSettings,
-          viewSettings,
-        ),
-        "Monthly spend chart",
-      )}
-      {collapsibleFragment(
-        makeContainedLineChart(
-          cumulativeLineChartData,
-          lineChartSettings,
-          viewSettings,
-        ),
-        "Cumulative spend chart",
-      )}
-    </>
+  return collapsibleFragment(
+    makeContainedMonitoringCombinedChart(
+      combinedChartData,
+      chartSettings,
+      viewSettings,
+    ),
+    "Spend monitoring chart",
   );
 }
 
