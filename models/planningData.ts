@@ -30,11 +30,11 @@ export function getPlanningTableData(
     //console.log(`Expect Leisure = ${gemData[1].label}`);
     let basic = 0;
     if (basicExpenses) {
-      basic = basicExpenses.data[idx];
+      basic = basicExpenses.data[idx] ?? 0;
     }
     let leisure = 0;
     if (leisureExpenses) {
-      leisure = leisureExpenses.data[idx];
+      leisure = leisureExpenses.data[idx] ?? 0;
     }
 
     const combined = basic + leisure;
@@ -48,14 +48,15 @@ export function getPlanningTableData(
       const bondsIdx = idx - 1; // show bond funds one year later
       planningAssetsChartData.datasets.forEach((pscd) => {
         // console.log(`pscd = ${showObj(pscd)}`);
+        const bondVal = pscd.data[bondsIdx] ?? 0;
         if ( pscd.label === "PremiumBondsBasic") {
-          pbBasic += pscd.data[bondsIdx];
+          pbBasic += bondVal;
         } else if ( pscd.label === "PremiumBondsLeisure") {
-          pbLeisure += pscd.data[bondsIdx];
-        } else if (!pscd["label"].includes('growth') && pscd.data[bondsIdx] < 0) {
-          // console.log(`pscd.data[bondsIdx] = ${pscd.data[bondsIdx]}`);
-          // console.log(`increase bondsReleaseFunds from ${bondsReleaseFunds} using ${-pscd.data[bondsIdx]} to ${bondsReleaseFunds - pscd.data[bondsIdx]}`);
-          bondsReleaseFunds += -pscd.data[bondsIdx];
+          pbLeisure += bondVal;
+        } else if (!pscd["label"].includes('growth') && bondVal < 0) {
+          // console.log(`pscd.data[bondsIdx] = ${bondVal}`);
+          // console.log(`increase bondsReleaseFunds from ${bondsReleaseFunds} using ${-bondVal} to ${bondsReleaseFunds - bondVal}`);
+          bondsReleaseFunds += -bondVal;
         }
       });
     }

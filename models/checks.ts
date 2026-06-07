@@ -25,6 +25,7 @@ import {
   quantity,
   revalue,
   revalueAsset,
+  currentAssetValue,
   revalueDebt,
   revalueExp,
   revalueInc,
@@ -281,6 +282,39 @@ export function isValidValueInternal(
 }
 export function isValidValue(value: string, model: ModelData): boolean {
   return isValidValueInternal(value, model, 1);
+}
+
+function isValidRevalueAssetToValueInternal(
+  value: string,
+  model: ModelData,
+  iterationDepth: number,
+): boolean {
+  if (value.length === 0) {
+    return false;
+  }
+  if (isNumberString(value)) {
+    return true;
+  }
+  const expr = parseNumericExpression(value);
+  if (expr !== undefined) {
+    return expr.terms.every((term) => {
+      if (term === currentAssetValue) {
+        return true;
+      }
+      return isValidValueInternal(term, model, iterationDepth);
+    });
+  }
+  if (value === currentAssetValue) {
+    return true;
+  }
+  return isValidValueInternal(value, model, iterationDepth);
+}
+
+export function isValidRevalueAssetToValue(
+  value: string,
+  model: ModelData,
+): boolean {
+  return isValidRevalueAssetToValueInternal(value, model, 1);
 }
 
 /**
@@ -1587,7 +1621,11 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         t.NAME,
         t.TYPE,
       )}' needs a non-empty to value`;
-    } else if (!isValidValue(t.TO_VALUE, model)) {
+    } else if (
+      t.TYPE === revalueAsset
+        ? !isValidRevalueAssetToValue(t.TO_VALUE, model)
+        : !isValidValue(t.TO_VALUE, model)
+    ) {
       return `Transaction '${getDisplayName(t.NAME, t.TYPE)}' to value '${t.TO_VALUE
         }' isn't a number or setting`;
     } else if (

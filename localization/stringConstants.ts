@@ -166,6 +166,9 @@ export const revalueInc = "revalueInc";
 export const revalueExp = "revalueExp";
 //  Revalue assets
 export const revalueAsset = "revalueAsset";
+// In a revalueAsset TO_VALUE expression, resolves to each target asset's
+// value immediately before the revaluation is applied.
+export const currentAssetValue = "CurrentAssetValue";
 //  Revalue debts
 export const revalueDebt = "revalueDebt";
 //  Revalue settings

@@ -578,7 +578,13 @@ function makeBarChart(
           },
         },
       }}
-      data={data}
+      data={{
+        labels: data.labels,
+        datasets: data.datasets.map((d) => ({
+          ...d,
+          type: "bar" as const,
+        })),
+      }}
     />
   );
 }

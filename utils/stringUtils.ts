@@ -19,6 +19,7 @@ import {
   liquidateAsset,
   payOffDebt,
   revalueAsset,
+  currentAssetValue,
   revalueDebt,
   revalueExp,
   revalueInc,
@@ -260,6 +261,32 @@ export function getNumericExpressionTerms(value: string): string[] {
     return expr.terms;
   }
   return [value];
+}
+
+/** True when a revalueAsset TO_VALUE expression references CurrentAssetValue. */
+export function revalueToValueReferencesCurrentAsset(value: string): boolean {
+  return getNumericExpressionTerms(value).some((term) => {
+    return term === currentAssetValue;
+  });
+}
+
+/** Replace CurrentAssetValue with a concrete asset name in an expression. */
+export function substituteCurrentAssetValue(
+  value: string,
+  assetName: string,
+): string {
+  const expr = parseNumericExpression(value);
+  if (expr === undefined) {
+    return value === currentAssetValue ? assetName : value;
+  }
+  const terms = expr.terms.map((term) => {
+    return term === currentAssetValue ? assetName : term;
+  });
+  let result = terms[0];
+  for (let i = 0; i < expr.ops.length; i += 1) {
+    result += expr.ops[i] + terms[i + 1];
+  }
+  return result;
 }
 
 /** True when a model item name field equals a setting (or lists it with separator). */

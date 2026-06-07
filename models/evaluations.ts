@@ -96,6 +96,8 @@ import {
   mayContainBinaryNumericExpression,
   numericExpressionReferencesName,
   parseNumericExpression,
+  revalueToValueReferencesCurrentAsset,
+  substituteCurrentAssetValue,
   makeIncomeLiabilityFromNameAndNI,
   modelNameReferencesSetting,
   modelAssetNames,
@@ -4487,17 +4489,22 @@ function revalueApplied(
     );
   }
   // log(`t.TO_VALUE = ${t.TO_VALUE}`);
-  let tToValue: string | number | undefined = traceEvaluation(
-    t.TO_VALUE,
-    values,
-    growths,
-    t.TO_VALUE,
-  );
-  const toVal = tToValue;
+  const perAssetToValue = revalueToValueReferencesCurrentAsset(t.TO_VALUE);
+  let tToValue: string | number | undefined = undefined;
+  let toVal: number | undefined = undefined;
+  if (!perAssetToValue) {
+    tToValue = traceEvaluation(t.TO_VALUE, values, growths, t.TO_VALUE);
+    toVal = tToValue;
+  }
   // log(`t.TO = ${t.TO}, tToValue = ${tToValue}`);
   let words = t.TO.split(separator);
   words = replaceCategoryWithAssetNames(words, model);
   words.forEach((w) => {
+    if (perAssetToValue) {
+      const resolvedToValue = substituteCurrentAssetValue(t.TO_VALUE, w);
+      tToValue = traceEvaluation(resolvedToValue, values, growths, w);
+      toVal = tToValue;
+    }
     const wValue = values.get(w);
     // log(`word from ${t.TO} is ${w} has value ${wValue}`);
     let prevValue: number | undefined = undefined;
