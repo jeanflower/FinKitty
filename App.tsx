@@ -92,6 +92,7 @@ import {
   optimizerDiv,
   calcOptimizer,
   renderDCPWithdrawalGeneratorsTable,
+  MonitoringChartData,
 } from "./views/tablePages";
 import { overviewDiv } from "./views/overviewPage";
 import { makeBarData } from "./views/chartPages";
@@ -165,7 +166,7 @@ import { setUserID, getUserID } from "./utils/user";
 import { attemptRename, deleteItemsFromModelInternal } from "./utils/appActions";
 import { getAppVersion } from "./utils/appVersion";
 import { getVarVal } from "./models/modelQueries";
-import { getAnnualPlanningAssetData } from "./models/planningData";
+import { getAnnualPlanningAssetData, getMonitoringChartData } from "./models/planningData";
 import { ModelButtons } from "./views/reactComponents/ModelButtons";
 import { inspect } from 'util';
 inspect;
@@ -828,6 +829,12 @@ async function refreshDataInternal(
       modelProcessed, 
       evaluationsAndVals,
     );
+
+    const monitoringChartData = getMonitoringChartData(
+      modelProcessed,
+      evaluationsAndVals,
+      getTodaysDate(modelProcessed).d.getFullYear(),
+    );
     
     if (printDebug()) {
       console.log(
@@ -855,6 +862,7 @@ async function refreshDataInternal(
           taxChartData,
           planningExpensesChartData: planningData.planningExpensesChartData,
           planningAssetsChartData: planningData.planningAssetsChartData,
+          monitoringChartData: monitoringChartData,
           modelNamesData: modelNames,
           todaysAssetValues: todaysAssetValues,
           todaysDebtValues: todaysDebtValues,
@@ -1922,6 +1930,7 @@ interface AppState {
   taxChartData: ChartData;
   planningExpensesChartData: ChartData; // to collect Basic and Leisure for Planning
   planningAssetsChartData: ChartData; // to collect maturing Bonds for Planning
+  monitoringChartData: MonitoringChartData; // monthly Basic/Leisure expected spend for Monitoring charts
   optimizationChartData: ChartData;
   todaysAssetValues: Map<Asset, AssetOrDebtVal>;
   todaysDebtValues: Map<Asset, AssetOrDebtVal>;
@@ -2146,6 +2155,11 @@ class AppContent extends Component<AppProps, AppState> {
       labels: [],
       datasets: [],
       displayLegend: false,
+    },
+    monitoringChartData: {
+      months: [],
+      expectedBasic: [],
+      expectedLeisure: [],
     },
     modelNamesData: [],
     todaysAssetValues: new Map<Asset, AssetOrDebtVal>(),
@@ -2539,6 +2553,7 @@ class AppContent extends Component<AppProps, AppState> {
               this.state.planningExpensesChartData,
               this.state.planningAssetsChartData,
               this.state.reportData,
+              this.state.monitoringChartData,
               parentCallbacks,
             )}
             {assetsDiv(

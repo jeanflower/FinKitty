@@ -41,7 +41,7 @@ import ReactiveTextArea from "./reactComponents/ReactiveTextArea";
 import { AddDeleteEntryForm } from "./reactComponents/AddDeleteEntryForm";
 import { getLiabilityPeople } from "../models/modelUtils";
 
-import { Bar } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 
 import { Container } from "react-bootstrap";
 import dateFormat from "dateformat";
@@ -51,6 +51,9 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  LineController,
+  LineElement,
+  PointElement,
   Title,
   Tooltip as ChartTooltip,
   Legend,
@@ -140,6 +143,9 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  LineController,
+  LineElement,
+  PointElement,
   Title,
   ChartTooltip,
   Legend,
@@ -590,6 +596,200 @@ export function makeContainedBarChart(
   );
 }
 
+function makeLineChart(
+  data: ChartData,
+  chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
+) {
+  return (
+    <Line
+      options={{
+        plugins: {
+          title: {
+            display:
+              chartSettings.title !== undefined && chartSettings.title.display,
+            text:
+              chartSettings.title !== undefined ? chartSettings.title.text : "",
+          },
+          legend: {
+            display: data.displayLegend,
+            position: "right",
+          },
+          tooltip: {
+            callbacks: {
+              title: (tooltipItems) => {
+                if (tooltipItems.length === 0) {
+                  return "";
+                }
+                const idx = tooltipItems[0].dataIndex;
+                const l = data.labels[idx];
+                return formatBarCategoryLabel(
+                  l,
+                  viewSettings,
+                  data.xLabelFormat ?? "default",
+                );
+              },
+            },
+          },
+        },
+        animation: {
+          duration: 0,
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        spanGaps: false,
+        scales: {
+          x: {
+            ticks: {
+              callback: function (value, index, values) {
+                /* istanbul ignore if  */
+                if (printDebug()) {
+                  log(
+                    `convert value ${value}, ${showObj(
+                      values[index],
+                    )} to make tick text`,
+                  );
+                }
+                const l: number | string | undefined = data.labels[index];
+                return formatBarCategoryLabel(
+                  l,
+                  viewSettings,
+                  data.xLabelFormat ?? "default",
+                );
+              },
+            },
+          },
+        },
+      }}
+      data={data}
+    />
+  );
+}
+
+export function makeContainedLineChart(
+  data: ChartData,
+  chartSettings: ChartSettings,
+  viewSettings: ViewSettings,
+) {
+  return (
+    <Container style={{ height: `${chartSettings.height}px` }}>
+      {makeLineChart(data, chartSettings, viewSettings)}
+    </Container>
+  );
+}
+
+function monitoringCategoryColor(index: number, alpha = 1): string {
+  const c = getColor(index);
+  if (alpha < 1) {
+    return `rgba(${c.r},${c.g},${c.b},${alpha})`;
+  }
+  return `rgb(${c.r},${c.g},${c.b})`;
+}
+
+/** Basic and Leisure use palette indices 0 and 1 (same scheme as expense bar charts). */
+const monitoringBasicColorIndex = 0;
+const monitoringLeisureColorIndex = 1;
+
+export function makeMonitoringSpendBarChartData(
+  labels: string[],
+  expectedBasic: number[],
+  expectedLeisure: number[],
+  actualBasic: (number | null)[],
+  actualLeisure: (number | null)[],
+): ChartData {
+  return {
+    labels,
+    displayLegend: true,
+    datasets: [
+      {
+        label: "Expected Basic",
+        data: expectedBasic,
+        backgroundColor: monitoringCategoryColor(
+          monitoringBasicColorIndex,
+          0.5,
+        ),
+        barPercentage: 1.0,
+        stack: "expected",
+      },
+      {
+        label: "Expected Leisure",
+        data: expectedLeisure,
+        backgroundColor: monitoringCategoryColor(
+          monitoringLeisureColorIndex,
+          0.5,
+        ),
+        barPercentage: 1.0,
+        stack: "expected",
+      },
+      {
+        label: "Actual Basic",
+        data: actualBasic,
+        backgroundColor: monitoringCategoryColor(monitoringBasicColorIndex),
+        barPercentage: 1.0,
+        stack: "actual",
+      },
+      {
+        label: "Actual Leisure",
+        data: actualLeisure,
+        backgroundColor: monitoringCategoryColor(monitoringLeisureColorIndex),
+        barPercentage: 1.0,
+        stack: "actual",
+      },
+    ],
+  };
+}
+
+export function makeMonitoringCumulativeLineChartData(
+  labels: string[],
+  cumExpectedBasic: number[],
+  cumActualBasic: (number | null)[],
+  cumExpectedLeisure: number[],
+  cumActualLeisure: (number | null)[],
+): ChartData {
+  const basicColor = monitoringCategoryColor(monitoringBasicColorIndex);
+  const leisureColor = monitoringCategoryColor(monitoringLeisureColorIndex);
+  return {
+    labels,
+    displayLegend: true,
+    datasets: [
+      {
+        label: "Expected cumulative Basic",
+        data: cumExpectedBasic,
+        backgroundColor: basicColor,
+        borderColor: basicColor,
+        borderDash: [6, 4],
+        tension: 0.1,
+        barPercentage: 1.0,
+      },
+      {
+        label: "Actual cumulative Basic",
+        data: cumActualBasic,
+        backgroundColor: basicColor,
+        borderColor: basicColor,
+        tension: 0.1,
+        barPercentage: 1.0,
+      },
+      {
+        label: "Expected cumulative Leisure",
+        data: cumExpectedLeisure,
+        backgroundColor: leisureColor,
+        borderColor: leisureColor,
+        borderDash: [6, 4],
+        tension: 0.1,
+        barPercentage: 1.0,
+      },
+      {
+        label: "Actual cumulative Leisure",
+        data: cumActualLeisure,
+        backgroundColor: leisureColor,
+        borderColor: leisureColor,
+        tension: 0.1,
+        barPercentage: 1.0,
+      },
+    ],
+  };
+}
+
 function incomesChart(
   incomesChartData: ChartData,
   chartSettings: ChartSettings,
@@ -696,8 +896,11 @@ export function tideLines(
   if (chartData.datasets[0] === undefined) {
     return "";
   }
-  const mx = Math.max(...chartData.datasets[0].data);
-  const mn = Math.min(...chartData.datasets[0].data);
+  const numericData = chartData.datasets[0].data.filter(
+    (v): v is number => v !== null,
+  );
+  const mx = Math.max(...numericData);
+  const mn = Math.min(...numericData);
   const mxString = makeStringFromCashValue(`${mx}`, "£");
   const mnString = makeStringFromCashValue(`${mn}`, "£");
   return ` min = ${mnString}, max = ${mxString}`;

@@ -1,9 +1,11 @@
-import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions, expensesView, assetsView, fineDetail, bondMature, generatedRecurrence, chartVals } from "../localization/stringConstants";
+import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions, expensesView, assetsView, fineDetail, bondMature, generatedRecurrence, chartVals, revalue } from "../localization/stringConstants";
 import { Asset, AssetOrDebtVal, ChartData, DataForView, Evaluation, Expense, ExpenseVal, Income, IncomeVal, ModelData, ReportDatum, Setting, SettingVal } from "../types/interfaces";
 import { Context, log, showObj } from "../utils/utils";
 import { getDefaultViewSettings } from "../utils/viewUtils";
 import { makeBarData } from "../views/chartPages";
 import { makeChartData } from "./charting";
+import { getCategory } from "./category";
+import dateFormat from "dateformat";
 
 log;
 showObj;
@@ -230,6 +232,80 @@ export function getAnnualPlanningAssetData(
     planningExpensesChartData,
     planningAssetsChartData,
   }
+}
+
+function monitoringMonthStartMs(year: number, monthIndex: number): number {
+  return new Date(year, monthIndex, 1).getTime();
+}
+
+function monitoringMonthEndMs(year: number, monthIndex: number): number {
+  if (monthIndex < 11) {
+    return new Date(year, monthIndex + 1, 1).getTime();
+  }
+  return new Date(year + 1, 0, 1).getTime();
+}
+
+/**
+ * Monthly Basic/Leisure "expected" spend for a single calendar year, used by the
+ * Monitoring page charts. Buckets expense evaluations into calendar months from
+ * the 1st of each month (inclusive) to the 1st of the next month (exclusive).
+ */
+export function getMonitoringChartData(
+  model: ModelData,
+  evals: {
+    evaluations: Evaluation[];
+    todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+    todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+    todaysIncomeValues: Map<Income, IncomeVal>;
+    todaysExpenseValues: Map<Expense, ExpenseVal>;
+    todaysSettingValues: Map<Setting, SettingVal>;
+    reportData: ReportDatum[];
+  },
+  year: number,
+): {
+  months: string[];
+  expectedBasic: number[];
+  expectedLeisure: number[];
+} {
+  const months: string[] = [];
+  const expectedBasic: number[] = [];
+  const expectedLeisure: number[] = [];
+
+  for (let m = 0; m < 12; m++) {
+    months.push(dateFormat(new Date(year, m, 1), "mmm yyyy"));
+    expectedBasic.push(0);
+    expectedLeisure.push(0);
+  }
+
+  const expenseNames = new Set(model.expenses.map((e) => e.NAME));
+  const categoryCache = new Map<string, string>();
+
+  for (const evaln of evals.evaluations) {
+    if (evaln.source === revalue || !expenseNames.has(evaln.name)) {
+      continue;
+    }
+    const category = getCategory(evaln.name, categoryCache, model);
+    if (category !== "Basic" && category !== "Leisure") {
+      continue;
+    }
+
+    const evalTime = evaln.date.getTime();
+    for (let m = 0; m < 12; m++) {
+      if (
+        evalTime >= monitoringMonthStartMs(year, m) &&
+        evalTime < monitoringMonthEndMs(year, m)
+      ) {
+        if (category === "Basic") {
+          expectedBasic[m] += evaln.value;
+        } else {
+          expectedLeisure[m] += evaln.value;
+        }
+        break;
+      }
+    }
+  }
+
+  return { months, expectedBasic, expectedLeisure };
 }
 
 export function getAnnualPlanningSurplusData(

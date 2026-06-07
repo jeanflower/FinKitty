@@ -16,6 +16,7 @@ import {
   cashValueColumn,
   triggerDateColumn,
   expensesMonitoringDivWithHeading,
+  MonitoringChartData,
 } from "./tablePages";
 
 import {
@@ -248,6 +249,7 @@ function getMonitoringDiv(
   reportData: ReportDatum[],
   doChecks: boolean,
   todaysValues: Map<Expense, ExpenseVal>,
+  monitoringChartData: MonitoringChartData,
   parentCallbacks: ViewCallbacks,
 ){
   return expensesMonitoringDivWithHeading(
@@ -258,6 +260,7 @@ function getMonitoringDiv(
     reportData,
     todaysValues,
     doChecks,
+    monitoringChartData,
     parentCallbacks,
     'expensesMonitoring',
   );
@@ -272,6 +275,7 @@ export function expensesDiv(
   planningExpensesChartData: ChartData, // for Basic and Leisure for Planning
   planningAssetsChartData: ChartData, // for maturing Bonds for Planning
   reportData: ReportDatum[],
+  monitoringChartData: MonitoringChartData,
   parentCallbacks: ViewCallbacks,
 ) {
   // console.log(`reportData.length = ${reportData.length}`)
@@ -297,6 +301,7 @@ export function expensesDiv(
       reportData,
       doChecks,
       todaysValues,
+      monitoringChartData,
       parentCallbacks,
     );
   }

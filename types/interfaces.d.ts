@@ -197,10 +197,14 @@ export interface ChartDataPoint {
 }
 export interface ChartDataSet {
   label: string;
-  data: number[]; // corresponds to ChartData.labels
+  data: (number | null)[]; // corresponds to ChartData.labels
   backgroundColor: string;
   //barThickness: number,
   barPercentage: number;
+  stack?: string;
+  borderColor?: string;
+  borderDash?: number[];
+  tension?: number;
 }
 export type ChartXLabelFormat = "default" | "ukTaxYear";
 

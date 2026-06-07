@@ -127,9 +127,12 @@ import {
   getDefaultChartSettings,
   makeBarData,
   makeContainedBarChart,
+  makeContainedLineChart,
+  makeMonitoringSpendBarChartData,
+  makeMonitoringCumulativeLineChartData,
 } from "./chartPages";
 import { ReportMatcherForm } from "./reactComponents/ReportMatcherForm";
-import { ViewSettings, getDisplay } from "../utils/viewUtils";
+import { ViewSettings, getDefaultViewSettings, getDisplay } from "../utils/viewUtils";
 import { EvaluationHelper, generateSequenceOfDates, getEvaluations } from "../models/evaluations";
 import { textEditor } from "react-data-grid";
 import CashValueFormatter from "./reactComponents/CashValueFormatter";
@@ -3341,6 +3344,157 @@ function makeMonitoringColMonths(
   return months;
 }
 
+export interface MonitoringChartData {
+  months: string[]; // e.g. ["Jan 2026", ..., "Dec 2026"]
+  expectedBasic: number[];
+  expectedLeisure: number[];
+}
+
+function expensesMonitoringChartDiv(
+  model: ModelData,
+  monitoringChartData: MonitoringChartData,
+) {
+  const months = monitoringChartData.months;
+  if (months.length === 0) {
+    return undefined;
+  }
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+
+  // Actuals only make sense up to (and including) the current month.
+  const currentMonthIndex = getTodaysDate(model).d.getMonth();
+
+  // Sum entered monitor values per category per month.
+  const workBasic: number[] = months.map(() => 0);
+  const workLeisure: number[] = months.map(() => 0);
+  for (const exp of model.expenses) {
+    const cat = exp.CATEGORY;
+    if (cat !== "Basic" && cat !== "Leisure") {
+      continue;
+    }
+    const monitor = model.monitors.find((mo) => {
+      return mo.NAME === exp.NAME;
+    });
+    if (!monitor) {
+      continue;
+    }
+    for (let m = 0; m < months.length; m++) {
+      const val = monitor.VALUES.find((vv) => {
+        return vv.MONTH === months[m];
+      });
+      if (val === undefined || val.EXPRESSION === "") {
+        continue;
+      }
+      let x = NaN;
+      try {
+        x = evaluate(val.EXPRESSION);
+      } catch (error) {
+        x = NaN;
+      }
+      if (isNaN(x)) {
+        continue;
+      }
+      if (cat === "Basic") {
+        workBasic[m] += x;
+      } else {
+        workLeisure[m] += x;
+      }
+    }
+  }
+
+  // Bar series: expected (full year) and actual (up to current month, then null).
+  const expectedBasic = monitoringChartData.expectedBasic.map(round2);
+  const expectedLeisure = monitoringChartData.expectedLeisure.map(round2);
+  const actualBasic = workBasic.map((v, m) => {
+    return m <= currentMonthIndex ? round2(v) : null;
+  });
+  const actualLeisure = workLeisure.map((v, m) => {
+    return m <= currentMonthIndex ? round2(v) : null;
+  });
+
+  // Cumulative line series.
+  const cumExpectedBasic: number[] = [];
+  const cumExpectedLeisure: number[] = [];
+  let runEB = 0;
+  let runEL = 0;
+  for (let m = 0; m < months.length; m++) {
+    runEB += monitoringChartData.expectedBasic[m];
+    runEL += monitoringChartData.expectedLeisure[m];
+    cumExpectedBasic.push(round2(runEB));
+    cumExpectedLeisure.push(round2(runEL));
+  }
+  const cumActualBasic: (number | null)[] = [];
+  const cumActualLeisure: (number | null)[] = [];
+  let runAB = 0;
+  let runAL = 0;
+  for (let m = 0; m < months.length; m++) {
+    if (m <= currentMonthIndex) {
+      runAB += workBasic[m];
+      runAL += workLeisure[m];
+      cumActualBasic.push(round2(runAB));
+      cumActualLeisure.push(round2(runAL));
+    } else {
+      cumActualBasic.push(null);
+      cumActualLeisure.push(null);
+    }
+  }
+
+  const viewSettings = getDefaultViewSettings();
+  const barChartSettings = {
+    ...getDefaultChartSettings(viewSettings, model.settings),
+    title: {
+      display: true,
+      text: "Monthly spend: expected vs actual",
+    },
+  };
+  const lineChartSettings = {
+    ...getDefaultChartSettings(viewSettings, model.settings),
+    title: {
+      display: true,
+      text: "Cumulative spend: expected vs actual",
+    },
+  };
+
+  const chartMonthLabels = months.map((mo) => {
+    return dateFormat(new Date(`01 ${mo}`), "mmmm");
+  });
+
+  const spendBarChartData = makeMonitoringSpendBarChartData(
+    chartMonthLabels,
+    expectedBasic,
+    expectedLeisure,
+    actualBasic,
+    actualLeisure,
+  );
+  const cumulativeLineChartData = makeMonitoringCumulativeLineChartData(
+    chartMonthLabels,
+    cumExpectedBasic,
+    cumActualBasic,
+    cumExpectedLeisure,
+    cumActualLeisure,
+  );
+
+  return (
+    <>
+      {collapsibleFragment(
+        makeContainedBarChart(
+          spendBarChartData,
+          barChartSettings,
+          viewSettings,
+        ),
+        "Monthly spend chart",
+      )}
+      {collapsibleFragment(
+        makeContainedLineChart(
+          cumulativeLineChartData,
+          lineChartSettings,
+          viewSettings,
+        ),
+        "Cumulative spend chart",
+      )}
+    </>
+  );
+}
+
 export function expensesMonitoringDivWithHeading(
   model: ModelData,
   expensesChartData: ChartData,
@@ -3349,6 +3503,7 @@ export function expensesMonitoringDivWithHeading(
   reportData: ReportDatum[],
   todaysValues: Map<Expense, ExpenseVal>,
   doChecks: boolean,
+  monitoringChartData: MonitoringChartData,
   parentCallbacks: ViewCallbacks,
   tableIDEnding: string,
 ) {
@@ -3436,6 +3591,8 @@ export function expensesMonitoringDivWithHeading(
       >
         Advance 1 month
       </Button>
+
+      {expensesMonitoringChartDiv(model, monitoringChartData)}
 
       {expensesMonitoringYearSummaryTableDiv(
         model,

@@ -158,10 +158,10 @@ function parseRecurrenceString(recurrence: string) {
 
 // let numCalls = 0;
 
+/** Date sequence for evaluation moments (incomes, expenses, transactions, etc.). */
 export function generateSequenceOfDates(
   roi: Interval,
   frequency: string /* e.g. 1m or 1y */,
-  addPreDate = false, // for charting
 ): FinKittyDate[] {
   // numCalls = numCalls + 1;
   // log(`numCalls = ${numCalls}`);
@@ -171,23 +171,6 @@ export function generateSequenceOfDates(
   const mFreq = freq.frequency === monthly;
   const yFreq = freq.frequency === annually;
   const wFreq = freq.frequency === weekly;
-
-  if (addPreDate) {
-    // add a pre-dates before roi - always either 1w, 1m or 1y prior
-    const preDate = new Date(roi.start.d);
-    if (frequency === "1m") {
-      preDate.setMonth(preDate.getMonth() - 1);
-    } else if (frequency === "1w") {
-      preDate.setDate(preDate.getDate() - 7);
-    } else if (frequency === "1y") {
-      preDate.setFullYear(preDate.getFullYear() - 1);
-    } else {
-      /* istanbul ignore next  */ //error
-      throw new Error(`Error: frequency ${frequency} not implemented!`);
-    }
-    const d: FinKittyDate = new FinKittyDate(preDate);
-    result.push(d);
-  }
 
   // now add dates in roi, from start
   let numstepsAdvanced = 0;

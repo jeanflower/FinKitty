@@ -39,10 +39,7 @@ import {
   saveLogsUsingFs,
   showObj,
 } from "../utils/utils";
-import {
-  generateSequenceOfDates,
-  processGenerators,
-} from "./evaluations";
+import { generateSequenceOfDates, processGenerators } from "./evaluations";
 
 import { checkEvalnType, evaluationType } from "./checks";
 import {
@@ -660,8 +657,34 @@ function mapNamesToTypes(model: ModelData) {
   return nameToTypeMap;
 }
 
+/**
+ * Chart axis dates: ROI-anchored stepping (same as evaluation recurrence) plus a
+ * leading pre-bucket one period earlier. makeChartData drops that pre-date with
+ * shift(). Monitoring page expected spend uses calendar-month buckets in
+ * getMonitoringChartData instead.
+ */
+export function generateChartSequenceOfDates(
+  roi: Interval,
+  frequency: string,
+): FinKittyDate[] {
+  const preDate = new Date(roi.start.d);
+  if (frequency === "1m") {
+    preDate.setMonth(preDate.getMonth() - 1);
+  } else if (frequency === "1w") {
+    preDate.setDate(preDate.getDate() - 7);
+  } else if (frequency === "1y") {
+    preDate.setFullYear(preDate.getFullYear() - 1);
+  } else {
+    /* istanbul ignore next */ //error
+    throw new Error(`Error: chart frequency ${frequency} not implemented!`);
+  }
+  return [
+    new FinKittyDate(preDate),
+    ...generateSequenceOfDates(roi, frequency),
+  ];
+}
+
 function generateEvaluationDates(roi: Interval, frequency: string) {
-  const addPreDate = true;
   let freqString = "";
   if (frequency === monthly) {
     freqString = "1m";
@@ -670,7 +693,7 @@ function generateEvaluationDates(roi: Interval, frequency: string) {
   } else {
     freqString = "1y";
   }
-  return generateSequenceOfDates(roi, freqString, addPreDate);
+  return generateChartSequenceOfDates(roi, freqString);
 }
 
 /**
