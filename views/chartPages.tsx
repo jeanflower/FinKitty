@@ -667,7 +667,13 @@ function makeLineChart(
           },
         },
       }}
-      data={data}
+      data={{
+        labels: data.labels,
+        datasets: data.datasets.map((d) => ({
+          ...d,
+          type: "line" as const,
+        })),
+      }}
     />
   );
 }
