@@ -317,6 +317,43 @@ export function isValidRevalueAssetToValue(
   return isValidRevalueAssetToValueInternal(value, model, 1);
 }
 
+function isValidDCPRevalueValueInternal(
+  value: string,
+  model: ModelData,
+  iterationDepth: number,
+): boolean {
+  if (value.length === 0) {
+    return false;
+  }
+  if (isNumberString(value)) {
+    return true;
+  }
+  const expr = parseNumericExpression(value);
+  if (expr !== undefined) {
+    return expr.terms.every((term) => {
+      if (term === currentAssetValue) {
+        return true;
+      }
+      return isResolvableNumericSettingValueInternal(
+        term,
+        model,
+        iterationDepth,
+      );
+    });
+  }
+  if (value === currentAssetValue) {
+    return true;
+  }
+  return isResolvableNumericSettingValueInternal(value, model, iterationDepth);
+}
+
+export function isValidDCPRevalueValue(
+  value: string,
+  model: ModelData,
+): boolean {
+  return isValidDCPRevalueValueInternal(value, model, 1);
+}
+
 /**
  * True if the string is numeric or names a setting (recursively) that resolves
  * to a numeric literal. Does not accept asset names (unlike isValidValue).
@@ -2139,10 +2176,11 @@ function checkDCPRevalueGeneratorDetails(
       details.DATE,
     )}`;
   }
-  if (!isResolvableNumericSettingValue(details.VALUE, model)) {
+  if (!isValidDCPRevalueValue(details.VALUE, model)) {
     return (
       `generator '${g.NAME}' VALUE '${details.VALUE}' ` +
-      `should be a number or a setting that resolves to a number`
+      `should be a number, a setting that resolves to a number, ` +
+      `or an expression using CurrentAssetValue +/- settings`
     );
   }
   const copyModel = makeModelFromJSON(JSON.stringify(model));

@@ -2,6 +2,8 @@ import {
   revalueAsset,
   adjustableType,
   currentAssetValue,
+  generatorTypeDCPRevalue,
+  pensionPrefix,
 } from "../../localization/stringConstants";
 import {
   checkTransaction,
@@ -18,6 +20,7 @@ import { defaultModelSettings } from "../../models/testModel";
 import { ModelData } from "../../types/interfaces";
 import { makeValueAbsPropFromString } from "../../utils/stringUtils";
 import { getTestEvaluations } from "./algoTestUtils";
+import { Generator } from "../../types/interfaces";
 
 describe("revalue asset TO_VALUE expressions", () => {
   it("accepts asset name minus setting", () => {
@@ -163,5 +166,65 @@ describe("revalue asset TO_VALUE expressions", () => {
     const evals = getTestEvaluations(model).evaluations;
     const otherAssetEvals = evals.filter((e) => e.name === "OtherAsset");
     expect(otherAssetEvals[otherAssetEvals.length - 1].value).toBe(300);
+  });
+
+  it("evaluates DCP revalue CurrentAssetValue minus setting", () => {
+    const roi = {
+      start: "Dec 1, 2025",
+      end: "Sep 1, 2027",
+    };
+    const pen = "Pen";
+    const model: ModelData = {
+      ...emptyModel,
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          NAME: "Deduction",
+          VALUE: "100",
+          HINT: "",
+          TYPE: adjustableType,
+          ERA: 0,
+        },
+      ],
+      generators: [
+        {
+          NAME: pen,
+          TYPE: "Defined Contributions",
+          ERA: 0,
+          DETAILS: {
+            VALUE: "1000",
+            GROWS_WITH_CPI: "n",
+            GROWTH: "0",
+            TAX_LIABILITY: "Joe",
+            CATEGORY: "",
+            START: "01 Jan 2026",
+            STOP: "",
+            CRYSTALLIZE: "01 Jan 2030",
+            SS: "n",
+            INCOME_SOURCE: "",
+            CONTRIBUTION_AMOUNT: "",
+            EMP_CONTRIBUTION_AMOUNT: "",
+            TRANSFER_TO: "",
+            TRANSFER_DATE: "",
+          },
+        } as Generator,
+        {
+          NAME: "revExpr",
+          TYPE: generatorTypeDCPRevalue,
+          ERA: 0,
+          DETAILS: {
+            FROM: pen,
+            DATE: "01 Jun 2026",
+            VALUE: `${currentAssetValue}-Deduction`,
+          },
+        } as Generator,
+      ],
+    };
+    const evals = getTestEvaluations(model, false).evaluations;
+    const penEvals = evals.filter((e) => {
+      return e.name === pensionPrefix + pen;
+    });
+    const lastPen = penEvals[penEvals.length - 1];
+    expect(lastPen.value).toBe(900);
   });
 });

@@ -23,6 +23,7 @@ import {
   viewFrequency,
   generatorTypeDCPRevalue,
   dcpRevalueBatchCategoryPrefix,
+  currentAssetValue,
 } from "../../localization/stringConstants";
 import { expectedDCPRevalueTransactionNamePrefixFromCategory } from "../../models/dcpRevalueExpand";
 import {
@@ -1664,5 +1665,49 @@ describe("checks tests", () => {
       );
     });
     expect(revals.length).toBe(3);
+  });
+
+  it("DCP revalue generator accepts CurrentAssetValue minus setting expression", () => {
+    const model = getMinimalModelCopy();
+    model.settings.push({
+      ...simpleSetting,
+      NAME: "PurchaseCost",
+      VALUE: "100",
+      TYPE: adjustableType,
+      ERA: 0,
+    });
+    model.generators.push({
+      NAME: "Pension1",
+      TYPE: "Defined Contributions",
+      ERA: 0,
+      DETAILS: {
+        VALUE: "10000",
+        GROWS_WITH_CPI: "n",
+        GROWTH: "0",
+        TAX_LIABILITY: "Joe(incomeTax)",
+        CATEGORY: "",
+        START: "01 Jan 2025",
+        STOP: "",
+        CRYSTALLIZE: "01 Jan 2030",
+        SS: "n",
+        INCOME_SOURCE: "",
+        CONTRIBUTION_AMOUNT: "",
+        EMP_CONTRIBUTION_AMOUNT: "",
+        TRANSFER_TO: "",
+        TRANSFER_DATE: "",
+      },
+    });
+    const expr = `${currentAssetValue}-1.333PurchaseCost`;
+    const revGen: Generator = {
+      NAME: "JeanRoyalLondon 7",
+      TYPE: generatorTypeDCPRevalue,
+      ERA: 0,
+      DETAILS: {
+        FROM: "Pension1",
+        DATE: "01 Jan 2027",
+        VALUE: expr,
+      },
+    };
+    expect(checkGenerator(revGen, model)).toBe("");
   });
 });

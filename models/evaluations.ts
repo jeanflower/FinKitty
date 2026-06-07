@@ -4371,21 +4371,6 @@ function applyRevalueDCPBatch(
   if (t.NAME !== canonical.NAME) {
     return true;
   }
-  let tTotal: string | number | undefined = traceEvaluation(
-    canonical.TO_VALUE,
-    values,
-    growths,
-    canonical.TO_VALUE,
-  );
-  if (typeof tTotal === "string" && isNumberString(tTotal)) {
-    tTotal = parseFloat(tTotal);
-  }
-  if (typeof tTotal !== "number") {
-    /* istanbul ignore next */
-    throw new Error(
-      `DCP revalue batch needs numeric total, got ${showObj(tTotal)}`,
-    );
-  }
   let totalDCPValue = 0;
   const prevByWord: Map<string, number> = new Map();
   for (const sib of siblings) {
@@ -4407,6 +4392,25 @@ function applyRevalueDCPBatch(
   if (totalDCPValue <= 0) {
     log(`WARNING: DCP revalue batch sum totalDCPValue <= 0`);
     return true;
+  }
+  let toValueExpr = canonical.TO_VALUE;
+  if (revalueToValueReferencesCurrentAsset(toValueExpr)) {
+    toValueExpr = substituteCurrentAssetValue(toValueExpr, `${totalDCPValue}`);
+  }
+  let tTotal: string | number | undefined = traceEvaluation(
+    toValueExpr,
+    values,
+    growths,
+    canonical.TO_VALUE,
+  );
+  if (typeof tTotal === "string" && isNumberString(tTotal)) {
+    tTotal = parseFloat(tTotal);
+  }
+  if (typeof tTotal !== "number") {
+    /* istanbul ignore next */
+    throw new Error(
+      `DCP revalue batch needs numeric total, got ${showObj(tTotal)}`,
+    );
   }
   const ratio = tTotal / totalDCPValue;
   for (const sib of siblings) {
