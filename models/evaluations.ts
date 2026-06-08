@@ -4640,6 +4640,10 @@ function revalueApplied(
       (!t.TO_ABSOLUTE && tToValue !== undefined) ||
       (appliedBaseVal && typeof tToValue === "number")
     ) {
+      if (tToValue === undefined) {
+        /* istanbul ignore next */
+        throw new Error(`can't set revalue value for ${t.NAME}`);
+      }
       setValue(
         values,
         growths,

@@ -397,7 +397,7 @@ export async function fillInputById(
   return result;
 }
 
-async function clearTextInputElement(input: webdriver.IWebElement) {
+async function clearTextInputElement(input: webdriver.WebElement) {
   await input.click();
   const value = await input.getAttribute("value");
   const length = value ? value.length : 0;
