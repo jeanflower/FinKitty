@@ -91,7 +91,7 @@ interface EditIncomeProps extends FormProps {
   ) => Promise<void>;
   submitGeneratorFunction: (
     generator: Generator,
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   deleteGeneratorFunction: (name: string) => Promise<DeleteResult>;
   doCheckBeforeOverwritingExistingData: () => boolean;
   filterForEra: (item: Item) => boolean;
@@ -1159,7 +1159,7 @@ DB_TRANSFERRED_STOP
         TAX_LIABILITY: this.state.LIABILITY,
         CATEGORY: this.state.CATEGORY,        
       };
-      this.props.submitGeneratorFunction(
+      const submittedOK = await this.props.submitGeneratorFunction(
         {
           NAME: this.state.NAME,
           ERA: 0,
@@ -1167,10 +1167,12 @@ DB_TRANSFERRED_STOP
           DETAILS: dbGeneratorDetails
         },
       );
-      this.props.showAlert("added new data");
-      // clear fields
-      this.setState(this.defaultState);
-      this.resetSelect(this.incomeSourceSelectID);
+      if (submittedOK) {
+        this.props.showAlert("added new data");
+        // clear fields
+        this.setState(this.defaultState);
+        this.resetSelect(this.incomeSourceSelectID);
+      }
       return;
     }
 

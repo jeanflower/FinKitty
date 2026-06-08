@@ -936,7 +936,7 @@ function handleTransactionGridRowsUpdated(
     transactionInput: Transaction,
     modelData: ModelData,
   ) => Promise<void>,
-  submitGenerator: (generatorInput: Generator) => Promise<void>,
+  submitGenerator: (generatorInput: Generator) => Promise<boolean>,
   attemptRename: (
     doChecks: boolean,
     old: string,
@@ -4367,7 +4367,7 @@ function handleBondGeneratorGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>,
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<boolean>,
   attemptRename: (
     doChecks: boolean,
     old: string,
@@ -4502,7 +4502,7 @@ function handleDCPGeneratorGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>,
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<boolean>,
   attemptRename: (
     doChecks: boolean,
     old: string,
@@ -4647,7 +4647,7 @@ export function renderBondGeneratorsTable(
   doChecks: boolean,
   submitGenerator: (
     generator: Generator,
-  ) => Promise<void>,
+  ) => Promise<boolean>,
   deleteGenerator: (name: string) => Promise<DeleteResult>,
   setEraGenerator: (name: string, value: number) => Promise<boolean>,
   attemptRename: (
@@ -4785,7 +4785,7 @@ export function renderDCPGeneratorsTable(
   doChecks: boolean,
   submitGenerator: (
     generator: Generator,
-  ) => Promise<void>,
+  ) => Promise<boolean>,
   deleteGenerator: (name: string) => Promise<DeleteResult>,
   setEraGenerator: (name: string, value: number) => Promise<boolean>,
   attemptRename: (
@@ -4945,7 +4945,7 @@ function handleDCPWithdrawalGeneratorGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>,
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<boolean>,
   attemptRename: (
     doChecks: boolean,
     old: string,
@@ -5056,7 +5056,7 @@ export function renderDCPWithdrawalGeneratorsTable(
   doChecks: boolean,
   submitGenerator: (
     generator: Generator,
-  ) => Promise<void>,
+  ) => Promise<boolean>,
   deleteGenerator: (name: string) => Promise<DeleteResult>,
   setEraGenerator: (name: string, value: number) => Promise<boolean>,
   attemptRename: (

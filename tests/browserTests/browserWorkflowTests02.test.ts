@@ -7,7 +7,12 @@ import {
   clickButton,
   getDataDumpFromPage,
 } from "./browserBaseTypes";
-import { quitAfterAll, testModelCreation } from "./browserTestUtils";
+import {
+  quitAfterAll,
+  testModelCreation,
+  waitForEvalReady,
+  acceptAlertIfPresent,
+} from "./browserTestUtils";
 
 showObj;
 
@@ -31,6 +36,8 @@ describe("BrowserWorkflowTests 02", () => {
     );
 
     await clickButton(driver, `btn-overview-${testDataModelName}`);
+    await acceptAlertIfPresent(driver);
+    await waitForEvalReady(driver);
 
     let data = await getDataDumpFromPage(driver, "reportTable");
     /*

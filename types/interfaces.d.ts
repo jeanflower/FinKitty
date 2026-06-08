@@ -435,7 +435,7 @@ export interface ViewCallbacks {
     transactionInput: Transaction,
   ) => Promise<void>;
   submitTrigger: (triggerInput: Trigger) => Promise<void>;
-  submitGenerator: (generatorInput: Generator) => Promise<void>;
+  submitGenerator: (generatorInput: Generator) => Promise<boolean>;
 
   editSetting: (
     settingInput: {

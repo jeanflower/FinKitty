@@ -2076,6 +2076,45 @@ describe("evaluations tests", () => {
     expectEvals(evals, 18, "PRnd", "Fri May 01 2020", 140.49, 2);
   });
 
+  it("should absolute-revalue setting with scaled self-reference without stack overflow", () => {
+    const roi = {
+      start: "Dec 1, 2018 00:00:00",
+      end: "June 1, 2020 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Revalue annuity 1",
+          TO: "annuity",
+          TO_ABSOLUTE: true,
+          TO_VALUE: "100.9annuity",
+          DATE: "Jan 2 2020",
+          TYPE: revalueSetting,
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          NAME: "annuity",
+          ERA: undefined,
+          VALUE: "100",
+          HINT: "",
+          TYPE: adjustableType,
+        },
+      ],
+    };
+
+    const evals = getTestEvaluations(model).evaluations;
+    const annuityEvals = evals.filter((e) => {
+      return e.name === "annuity";
+    });
+    expect(annuityEvals.length).toBeGreaterThan(0);
+    const last = annuityEvals[annuityEvals.length - 1];
+    expect(last.value).toBeCloseTo(10090, 2);
+  });
+
   it("should use a setting as a transaction to value", () => {
     const roi = {
       start: "Dec 1, 2017",

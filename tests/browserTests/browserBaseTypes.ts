@@ -15,6 +15,10 @@ import {
   deleteIfExists,
   sleep,
   monitoringTag,
+  waitForEvalReady,
+  alertIsShowing,
+  acceptAnyAlert,
+  acceptAlertIfPresent,
 } from "./browserTestUtils";
 import { inspect } from 'util'
 inspect
@@ -250,6 +254,7 @@ export async function selectModel(
     );
 
     await btnData[0].click();
+    await waitForEvalReady(driver);
   } else {
     log(`BUG : can't see model ${testDataModelName} in model list`);
     await bugSleep("BUG : can't see model in model list? lengthen dBSleep?");
@@ -392,6 +397,38 @@ export async function fillInputById(
   return result;
 }
 
+async function clearTextInputElement(input: webdriver.IWebElement) {
+  await input.click();
+  const value = await input.getAttribute("value");
+  const length = value ? value.length : 0;
+  for (let i = 0; i < length + 8; i = i + 1) {
+    await input.sendKeys(Key.BACK_SPACE);
+  }
+}
+
+export async function clearInputById(
+  driver: ThenableWebDriver,
+  id: string,
+) {
+  if (id === "fromIncomeSelectIncomeForm") {
+    return;
+  }
+  const input = await driver.findElements(webdriver.By.id(id));
+  if (input.length === 1) {
+    await clearTextInputElement(input[0]);
+  }
+}
+
+export async function clearInputByName(
+  driver: ThenableWebDriver,
+  name: string,
+) {
+  const input = await driver.findElements(webdriver.By.name(name));
+  if (input.length === 1) {
+    await clearTextInputElement(input[0]);
+  }
+}
+
 export async function scrollIntoViewByID(
   driver: ThenableWebDriver,
   id: string,
@@ -495,6 +532,9 @@ export async function beforeAllWork(
   testDataModelName: string,
   modelString: string,
 ) {
+  if (await alertIsShowing(driver)) {
+    await acceptAlertIfPresent(driver, 1000);
+  }
   await driver.get("about:blank");
   await driver.get(serverUri);
   await sleep(
@@ -628,11 +668,7 @@ async function getTypedDumpData(
   switchButtonID: string,
   dataDumpName: string,
 ) {
-  await driver.executeScript("window.scrollBy(0, -4000)");
-  const btn = await driver.findElements(webdriver.By.id(switchButtonID));
-  expect(btn.length === 1).toBe(true);
-  await btn[0].click();
-  await sleep(shortSleep, "--- after switching to correct context");
+  await gotoTabPage(driver, switchButtonID);
   return await getDumpedData(driver, dataDumpName);
 }
 

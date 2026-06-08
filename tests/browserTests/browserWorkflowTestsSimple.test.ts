@@ -1,5 +1,15 @@
 import { getDriver, clickButton, beforeAllWork, fillInputById, cleanUpWork } from "./browserBaseTypes";
-import { assetsTag, debtsTag, expensesTag, gotoTabPage, homeTag, incomesTag, quitAfterAll, testModelContent } from "./browserTestUtils";
+import {
+  assetsTag,
+  deleteIfExists,
+  expensesTag,
+  gotoTabPage,
+  homeTag,
+  incomesTag,
+  quitAfterAll,
+  testModelContent,
+  waitForEvalReady,
+} from "./browserTestUtils";
 
 describe("BrowserWorkflowTests Simple", () => {
   const driver = getDriver();
@@ -8,10 +18,14 @@ describe("BrowserWorkflowTests Simple", () => {
   it("should have right content for Simple example", async () => {
     const testDataModelName = "testName09";
     await beforeAllWork(driver, testDataModelName, "");
-    
-    await fillInputById(driver, "createModel", 'tempExample');
+
+    const exampleModelName = "tempExample";
+    await deleteIfExists(exampleModelName, driver);
+
+    await fillInputById(driver, "createModel", exampleModelName);
     await driver.executeScript("window.scrollBy(0, -500)");
     await clickButton(driver, "btn-create-Simple-example");
+    await waitForEvalReady(driver);
 
     await clickButton(driver, "btn-save-model");
     await gotoTabPage(driver, assetsTag);
@@ -22,7 +36,7 @@ describe("BrowserWorkflowTests Simple", () => {
     await clickButton(driver, "chooseViewDetailTypeDetailed");
     await gotoTabPage(driver, expensesTag);
     await clickButton(driver, "chooseViewDetailTypeDetailed");
-    await cleanUpWork(driver, 'tempExample');
+    await cleanUpWork(driver, exampleModelName);
     
     await testModelContent(driver, "btn-create-Simple-example");
   });

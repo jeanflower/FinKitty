@@ -1,5 +1,19 @@
-import { getDriver, clickButton, beforeAllWork } from "./browserBaseTypes";
-import { assetsTag, gotoTabPage, incomesTag, quitAfterAll, testModelContent } from "./browserTestUtils";
+import {
+  getDriver,
+  clickButton,
+  beforeAllWork,
+  fillInputById,
+  cleanUpWork,
+} from "./browserBaseTypes";
+import {
+  assetsTag,
+  deleteIfExists,
+  gotoTabPage,
+  incomesTag,
+  quitAfterAll,
+  testModelContent,
+  waitForEvalReady,
+} from "./browserTestUtils";
 
 describe("BrowserWorkflowTests DCP", () => {
   const driver = getDriver();
@@ -9,23 +23,22 @@ describe("BrowserWorkflowTests DCP", () => {
     const testDataModelName = "testName05";
     await beforeAllWork(driver, testDataModelName, "");
 
-    await clickButton(driver, "btn-save-model");
+    const exampleModelName = "tempDcpExample";
+    const createButtonID = "btn-create-Defined Contributions Pension-example";
+    await deleteIfExists(exampleModelName, driver);
+
+    await fillInputById(driver, "createModel", exampleModelName);
+    await clickButton(driver, createButtonID);
+    await waitForEvalReady(driver);
 
     await clickButton(driver, "btn-save-model");
     await gotoTabPage(driver, assetsTag);
     await clickButton(driver, "chooseViewDetailTypeDetailed");
-    //await gotoTabPage(driver, debtsTag);
-    //await clickButton(driver, "chooseViewDetailTypeDetailed");
     await gotoTabPage(driver, incomesTag);
-    // can't choose detaild view unless there are some incomes
-    // await clickButton(driver, "chooseViewDetailTypeDetailed");
-    //await gotoTabPage(driver, expensesTag);
-    //await clickButton(driver, "chooseViewDetailTypeDetailed");
+    // can't choose detailed view unless there are some incomes
+    await cleanUpWork(driver, exampleModelName);
 
-    await testModelContent(
-      driver,
-      "btn-create-Defined Contributions Pension-example",
-    );
+    await testModelContent(driver, createButtonID);
   });
   afterAll(async () => {
     if (quitAfterAll) {

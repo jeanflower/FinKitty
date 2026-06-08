@@ -136,7 +136,7 @@ function handleBondGeneratorGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>,
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<boolean>,
   attemptRename: (
     doChecks: boolean,
     old: string,
@@ -271,7 +271,7 @@ function handleDCPGeneratorGridRowsUpdated(
   showAlert: (arg0: string) => void,
   doChecks: boolean,
   rows: any[],
-  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<void>,
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<boolean>,
   attemptRename: (
     doChecks: boolean,
     old: string,

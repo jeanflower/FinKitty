@@ -159,9 +159,10 @@ describe(testName, () => {
     await addDBPension(driver, {
       ...inputs,
       name: "transferStopsBeforeTransfer",
-      pensionEndOrTransferDate: "1 Jan 2037",
-      transferredStopDate: "1 Jan 2035", // transferred pension stops before transfer occurred?
-      message: `can't process generators of model: Transaction '-PT pensionName' from unrecognised asset (could be typo or before asset start date?) : \"-PDB pensionName\"`,
+      startDate: "1 Jan 2039",
+      pensionEndOrTransferDate: "1 Jan 2037", // transfer before pension begins paying out
+      transferredStopDate: "1 Jan 2040",
+      message: `Transaction '-PT transferStopsBeforeTransfer' from unrecognised asset (could be typo or before asset start date?) : "-PDB transferStopsBeforeTransfer"`,
     });
 
     await clearPensionFields(driver);

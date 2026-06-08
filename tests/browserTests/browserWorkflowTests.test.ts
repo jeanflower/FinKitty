@@ -29,6 +29,9 @@ import {
   overviewTag,
   revalueAsset,
   sleep,
+  waitForEvalReady,
+  waitForAlert,
+  acceptAlertIfPresent,
 } from "./browserTestUtils";
 import { log } from "../../utils/utils";
 
@@ -66,6 +69,7 @@ async function makeNewModel(driver: any, name: string) {
   await fillInputById(driver, "createModel", name);
   await clickButton(driver, "btn-createMinimalModel");
   await acceptAnyAlert(driver);
+  await waitForEvalReady(driver);
   await setNarrowViewRange(driver);
 }
 
@@ -87,6 +91,7 @@ async function assertCurrentModel(
       // the testDataModelName model
       await checkMessage(driver, "UNSUPPORTED TEST CODE");
     }
+    await waitForAlert(driver);
     expect(await alertIsShowing(driver)).toBe(true);
     await dismissAnyAlert(driver);
   } else {
@@ -101,7 +106,8 @@ async function switchToModel(driver: any, name: string) {
   await gotoTabPage(driver, homeTag);
   await driver.executeScript("window.scrollBy(0, -500)"); // Adjust scrolling with a negative value here
   await clickButton(driver, `btn-overview-${name}`);
-  await acceptAnyAlert(driver);
+  await acceptAlertIfPresent(driver);
+  await waitForEvalReady(driver);
   await gotoTabPage(driver, homeTag);
 }
 

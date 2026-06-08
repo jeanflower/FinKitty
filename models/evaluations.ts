@@ -4627,7 +4627,16 @@ function revalueApplied(
 
     // log(`passing ${t.TO_VALUE} as new value of ${moment.name}`);
     // log('in revalueApplied:');
+    // Self-referential absolute revals (e.g. "100.9SettingName" on SettingName)
+    // must store the resolved number, not the TO_VALUE string, or traceEvaluation
+    // recurses infinitely. Linked formulas to other settings (e.g. "2026EUR")
+    // still store the string so they can track later setting changes.
+    const toValueReferencesSelf =
+      t.TO_ABSOLUTE &&
+      typeof tToValue === "number" &&
+      numericExpressionReferencesName(t.TO_VALUE, w, model);
     if (
+      toValueReferencesSelf ||
       (!t.TO_ABSOLUTE && tToValue !== undefined) ||
       (appliedBaseVal && typeof tToValue === "number")
     ) {

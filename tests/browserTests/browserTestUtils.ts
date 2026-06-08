@@ -6,6 +6,8 @@ import {
   scrollIntoViewByID,
   getDataDumpFromPage,
   makeTestCode,
+  clearInputById,
+  clearInputByName,
 } from "./browserBaseTypes";
 
 import webdriver from "selenium-webdriver";
@@ -33,11 +35,35 @@ export const optimizerTag = "btn-Optimizer";
 
 export async function gotoTabPage(driver: ThenableWebDriver, tag: string) {
   // log(`go to tab page with tag = ${tag}`);
+  await waitForEvalReady(driver);
   await driver.executeScript("window.scrollBy(0, -4000)");
   const btn = await driver.findElements(webdriver.By.id(tag));
   // log(`btnMms.length = ${btnMms.length}`);
   expect(btn.length === 1).toBe(true);
   await btn[0].click();
+  if (tag !== homeTag) {
+    await waitForEvalReady(driver);
+  }
+}
+
+/** Wait until model evaluation finishes (spinner / deferred navigation). */
+export async function waitForEvalReady(
+  driver: ThenableWebDriver,
+  timeoutMs = 120000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const ready = await driver.findElements(
+      webdriver.By.id("finkitty-eval-ready"),
+    );
+    if (ready.length === 1) {
+      return;
+    }
+    await sleep(200, "wait for model evaluation to finish");
+  }
+  throw new Error(
+    "timeout waiting for model evaluation (finkitty-eval-ready)",
+  );
 }
 
 export async function alertIsShowing(
@@ -51,6 +77,74 @@ export async function alertIsShowing(
     return false;
   } // catch
 } // isAlertPresent()
+
+export async function waitForAlert(
+  driver: webdriver.ThenableWebDriver,
+  timeoutMs = 30000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await alertIsShowing(driver)) {
+      return;
+    }
+    await sleep(100, "wait for alert");
+  }
+  throw new Error("timeout waiting for alert");
+}
+
+export async function acceptAllAlerts(
+  driver: webdriver.ThenableWebDriver,
+  maxAlerts = 5,
+): Promise<void> {
+  for (let i = 0; i < maxAlerts; i = i + 1) {
+    if (!(await alertIsShowing(driver))) {
+      return;
+    }
+    await acceptAnyAlert(driver);
+    await sleep(100, "after accepting alert");
+  }
+}
+
+/** Wait briefly for a confirm dialog after an async UI action, then accept it. */
+export async function acceptAlertIfPresent(
+  driver: webdriver.ThenableWebDriver,
+  timeoutMs = 5000,
+): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await alertIsShowing(driver)) {
+      await acceptAnyAlert(driver);
+      return true;
+    }
+    await sleep(100, "wait for optional confirm dialog");
+  }
+  return false;
+}
+
+/** Dismiss the in-app alert banner (pageTitle + OK), if visible. */
+export async function dismissInAppAlertIfPresent(
+  driver: ThenableWebDriver,
+): Promise<boolean> {
+  const btn = await driver.findElements(webdriver.By.id("btn-clear-alert"));
+  if (btn.length !== 0) {
+    await btn[0].click();
+    await sleep(100, "after dismissing in-app alert");
+    return true;
+  }
+  return false;
+}
+
+/** Home model buttons are not in the DOM when another view is showing. */
+export async function expectHomeModelButtonAbsent(
+  driver: ThenableWebDriver,
+  modelName: string,
+): Promise<void> {
+  await waitForEvalReady(driver);
+  const btn = await driver.findElements(
+    webdriver.By.id(`btn-overview-${modelName}`),
+  );
+  expect(btn.length === 0).toBe(true);
+}
 
 export async function acceptAnyAlert(
   driver: webdriver.ThenableWebDriver,
@@ -82,6 +176,7 @@ export async function consumeAlert(
   driver: webdriver.ThenableWebDriver,
 ) {
   // log(`expect alert with message ${message}`);
+  await waitForAlert(driver);
   expect(await driver.switchTo().alert().getText()).toBe(message);
   if (accept) {
     await driver.switchTo().alert().accept();
@@ -111,6 +206,7 @@ export async function deleteIfExists(
     await sleep(100, `after selecting model ${name}`);
 
     await acceptAnyAlert(driver);
+    await waitForEvalReady(driver);
     await gotoTabPage(driver, homeTag);
 
     await clickButton(driver, "btn-delete");
@@ -125,17 +221,61 @@ export async function deleteIfExists(
   await gotoTabPage(driver, homeTag);
 }
 
-export async function checkMessage(driver: ThenableWebDriver, message: string) {
-  const label = await driver.findElements(webdriver.By.id("pageTitle"));
-  expect(label.length === 1).toBe(true);
-  const labelText = await label[0].getText();
-  //log(`compare expected ${message} against found ${labelText}`);
-  expect(labelText).toBe(message);
+function isStaleElementError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return msg.includes("stale element reference");
+}
 
-  const btn = await driver.findElements(webdriver.By.id("btn-clear-alert"));
-  if (btn.length !== 0) {
-    await btn[0].click();
+export async function checkMessage(
+  driver: ThenableWebDriver,
+  message: string,
+  timeoutMs = 120000,
+) {
+  const deadline = Date.now() + timeoutMs;
+  let lastText = "";
+  while (Date.now() < deadline) {
+    const ready = await driver.findElements(
+      webdriver.By.id("finkitty-eval-ready"),
+    );
+    if (ready.length === 0) {
+      await sleep(200, "evaluation in progress before checkMessage");
+      continue;
+    }
+    const label = await driver.findElements(webdriver.By.id("pageTitle"));
+    if (label.length !== 1) {
+      await sleep(200, "wait for pageTitle");
+      continue;
+    }
+    try {
+      lastText = await label[0].getText();
+      if (lastText === message) {
+        const btn = await driver.findElements(
+          webdriver.By.id("btn-clear-alert"),
+        );
+        if (btn.length !== 0) {
+          await btn[0].click();
+        }
+        return;
+      }
+      const dismissBtn = await driver.findElements(
+        webdriver.By.id("btn-clear-alert"),
+      );
+      if (lastText !== "" && dismissBtn.length !== 0) {
+        expect(lastText).toBe(message);
+      }
+    } catch (err) {
+      if (isStaleElementError(err)) {
+        await sleep(200, "stale pageTitle, retry checkMessage");
+        continue;
+      }
+      throw err;
+    }
+    await sleep(
+      200,
+      `checkMessage waiting for "${message}", last saw "${lastText}"`,
+    );
   }
+  expect(lastText).toBe(message);
 }
 
 export async function addAsset(
@@ -336,33 +476,28 @@ export async function addDBPension(
 }
 
 export async function clearPensionFields(driver: ThenableWebDriver) {
-  /*
-  await clearInputById('incomename');
-  await clearInputByName('income valuation date');
-  await clearInputById('incomevalue');
-  await clearInputByName('end date');
-  await clearInputByName('pension start date');
-  await clearInputByName('pension end/transfer date');
-  await clearInputByName('transferred stop date');
-  await clearInputById('fromIncomeSelectIncomeForm');
-  await clearInputByName('contributionSSIncome');
-  await clearInputById('contributionAmountPensionIncome');
-  await clearInputById('incomeaccrual');
-  await clearInputById('transferNameIncome');
-  await clearInputById('transferProportion');
-  await clearInputById('incomegrowth');
-  await clearInputById('incomecpi-grows');
-  await clearInputById('taxable');
-  */
+  await dismissInAppAlertIfPresent(driver);
   await gotoTabPage(driver, overviewTag);
   await gotoTabPage(driver, incomesTag);
   await scrollIntoViewByID(driver, `useDBPInputs`);
-
-  // console.log(`clicking...`);
   await clickButton(driver, "useDBPInputs");
-  // console.log(`clicked...`);
 
-  // log(`cleared ready for next pension inputs`);
+  await clearInputById(driver, "incomename");
+  await clearInputByName(driver, "income valuation date");
+  await clearInputById(driver, "incomevalue");
+  await clearInputByName(driver, "end date");
+  await clearInputByName(driver, "pension start date");
+  await clearInputByName(driver, "pension end/transfer date");
+  await clearInputByName(driver, "transferred stop date");
+  await clearInputById(driver, "fromIncomeSelectIncomeForm");
+  await clearInputByName(driver, "contributionSSIncome");
+  await clearInputById(driver, "contributionAmountPensionIncome");
+  await clearInputById(driver, "incomeaccrual");
+  await clearInputById(driver, "transferNameIncome");
+  await clearInputById(driver, "transferProportion");
+  await clearInputById(driver, "incomecpi-grows");
+  await clearInputById(driver, "taxable");
+  await clearInputById(driver, "incomecategory");
   return;
 }
 
@@ -813,21 +948,7 @@ export async function sleep(ms: number, message: string) {
 
 /*
 async function clearInputById(id: string) {
-  const input = await driver.findElements(webdriver.By.id(id));
-  //log(`found ${input.length} elements with id = ${id}`);
-  expect(input.length === 1).toBe(true);
-  const result = await input[0].clear();
-  //log(`got ${result} from clear`);
-  return result;
-}
-
-async function clearInputByName(name: string) {
-  const input = await driver.findElements(webdriver.By.name(name));
-  //log(`found ${input.length} elements with name = ${name}`);
-  expect(input.length === 1).toBe(true);
-  const result = await input[0].clear();
-  //log(`got ${result} from clear`);
-  return result;
+  ...
 }
 */
 
@@ -944,9 +1065,7 @@ export async function testModelCreation(
   if (showLogs) {
     log(`check we did create a model ${ex1Name}`);
   }
-  btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex1Name}`));
-  // log(`found ${btn.length} elements with id=${id}`);
-  expect(btn.length === 0).toBe(true); ///??
+  await expectHomeModelButtonAbsent(driver, ex1Name);
 
   if (showLogs) {
     log(`check ${ex1Name} is active model`);
@@ -995,9 +1114,7 @@ export async function testModelCreation(
   await fillInputById(driver, "createModel", ex2Name);
   await clickButton(driver, createButtonID);
 
-  btn = await driver.findElements(webdriver.By.id(`btn-overview-${ex2Name}`));
-  // log(`found ${btn.length} elements with id=${id}`);
-  expect(btn.length === 0).toBe(true);
+  await expectHomeModelButtonAbsent(driver, ex2Name);
 
   await gotoTabPage(driver, overviewTag);
   await checkMessage(driver, `${ex2Name}`);
@@ -2060,8 +2177,10 @@ export async function testModelContent(driver: any, createButtonID: string) {
   await fillInputById(driver, "createModel", ex1Name);
   // console.log(`create model ${createButtonID}`);
   await clickButton(driver, createButtonID);
+  await waitForEvalReady(driver);
   // console.log(`save model ${createButtonID}`);
   await clickButton(driver, "btn-save-model");
+  await waitForEvalReady(driver);
 
   await gotoTabPage(driver, homeTag);
   await clickButton(driver, "btn-check");

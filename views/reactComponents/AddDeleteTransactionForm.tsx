@@ -57,7 +57,7 @@ interface EditTransactionProps extends FormProps {
     modelData: ModelData,
   ) => Promise<void>;
   checkGeneratorFunction: (generator: Generator, model: ModelData) => string;
-  submitGeneratorFunction: (generator: Generator) => Promise<void>;
+  submitGeneratorFunction: (generator: Generator) => Promise<boolean>;
   doCheckBeforeOverwritingExistingData: () => boolean;
 }
 

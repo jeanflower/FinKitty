@@ -33,7 +33,6 @@ import {
   defaultSourceExcluder,
   evalModeOption,
   checkModelOnEditOption,
-  checkOnLoadOption,
   optimizerView,
   monthly,
   viewFrequency,
@@ -175,6 +174,118 @@ inspect;
 let modelName = "";
 
 let isDirty = false; // does the model need saving?
+
+/** True until the current modelName has been fully evaluated this session. */
+let modelEvaluationPending = true;
+
+/** Set when refreshData evaluation aborts; used by submitGenerator return value. */
+let lastRefreshEvaluationFailed = false;
+
+const firstEvaluationSpinnerMinMs = 800;
+
+function markModelNeedsEvaluation(): void {
+  modelEvaluationPending = true;
+}
+
+function markModelEvaluated(): void {
+  modelEvaluationPending = false;
+}
+
+function modelNeedsEvaluation(): boolean {
+  return modelEvaluationPending;
+}
+
+function waitForPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve());
+    });
+  });
+}
+
+function waitMs(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function setWaitingSpinner(visible: boolean): Promise<void> {
+  if (reactAppComponent === undefined) {
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    reactAppComponent.setState({ isWaiting: visible }, () => resolve());
+  });
+  if (visible) {
+    await waitForPaint();
+  }
+}
+
+/** Concurrent refreshData calls; spinner stays until all complete. */
+let refreshDataInFlight = 0;
+
+function computeRefreshShowSpinner(
+  refreshModel: boolean,
+  refreshChart: boolean,
+  evaluateModel: boolean,
+): boolean {
+  const isFirstEvaluation = evaluateModel && modelNeedsEvaluation();
+  return (
+    isFirstEvaluation ||
+    refreshChart ||
+    (refreshModel && evaluateModel)
+  );
+}
+
+async function finishRefreshSpinner(
+  showSpinner: boolean,
+  isFirstEvaluation: boolean,
+  spinnerStartedAt: number,
+): Promise<void> {
+  refreshDataInFlight = Math.max(0, refreshDataInFlight - 1);
+  if (!showSpinner || refreshDataInFlight > 0) {
+    return;
+  }
+  const elapsed = Date.now() - spinnerStartedAt;
+  const spinnerMinMs = isFirstEvaluation ? firstEvaluationSpinnerMinMs : 0;
+  if (elapsed < spinnerMinMs) {
+    await waitMs(spinnerMinMs - elapsed);
+  }
+  await setWaitingSpinner(false);
+}
+
+function prepareModelRaw(model: ModelData): ModelData {
+  const modelRaw = makeModelFromJSON(JSON.stringify(model));
+  modelRaw.triggers.sort((a: Trigger, b: Trigger) => lessThan(b.NAME, a.NAME));
+  modelRaw.expenses.sort((a: Expense, b: Expense) => lessThan(b.NAME, a.NAME));
+  modelRaw.settings.sort((a: Setting, b: Setting) => lessThan(b.NAME, a.NAME));
+  modelRaw.incomes.sort((a: Income, b: Income) => lessThan(b.NAME, a.NAME));
+  modelRaw.transactions.sort((a: Transaction, b: Transaction) =>
+    lessThan(b.NAME, a.NAME),
+  );
+  modelRaw.transactions = modelRaw.transactions.filter((t) => {
+    return !isDCPRevalueBatchTransaction(t);
+  });
+  modelRaw.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
+  return modelRaw;
+}
+
+function showHomeViewOnly(): void {
+  for (const k of views.keys()) {
+    const v = views.get(k);
+    if (v !== undefined) {
+      v.display = k === homeView;
+    }
+  }
+}
+
+function abortEvaluationWithAlert(message: string): void {
+  lastRefreshEvaluationFailed = true;
+  if (reactAppComponent !== undefined) {
+    reactAppComponent.setState({
+      alertText: message,
+      isWaiting: false,
+    });
+  }
+}
 
 function App(): JSX.Element | null {
   const { isLoading, user, loginWithRedirect, loginForTesting, logout } =
@@ -589,6 +700,7 @@ async function refreshDataInternal(
   refreshModel: boolean,
   refreshChart: boolean,
   sourceID: number,
+  evaluateModel: boolean,
 ): Promise<void> {
   if (!evalMode()) {
     log("skip evaluations and chart refresh - evalMode = false");
@@ -632,26 +744,36 @@ async function refreshDataInternal(
     modelProcessed = reactAppComponent.state.modelDataProcessed;
   } else {
     // log(`refresh the model - get the model and recalculate values`);
+    const refreshTargetModelName = modelName;
     const x = await getModel();
     if (x.model === undefined) {
       return;
     }
+    // getModel() may assign modelName on first load (when it was "").
+    // Only discard stale results if the user switched models mid-load.
+    if (
+      refreshTargetModelName !== "" &&
+      modelName !== refreshTargetModelName
+    ) {
+      return;
+    }
 
-    modelRaw = x.model;
-    modelRaw.triggers.sort((a: Trigger, b: Trigger) => lessThan(b.NAME, a.NAME));
-    modelRaw.expenses.sort((a: Expense, b: Expense) => lessThan(b.NAME, a.NAME));
-    modelRaw.settings.sort((a: Setting, b: Setting) => lessThan(b.NAME, a.NAME));
-    modelRaw.incomes.sort((a: Income, b: Income) => lessThan(b.NAME, a.NAME));
-    modelRaw.transactions.sort((a: Transaction, b: Transaction) =>
-      lessThan(b.NAME, a.NAME),
-    );
-    // DCP revalue batches exist only on the processed model (from processGenerators).
-    // Drop any persisted copies so processGenerators does not duplicate them.
-    modelRaw.transactions = modelRaw.transactions.filter((t) => {
-      return !isDCPRevalueBatchTransaction(t);
-    });
-    modelRaw.assets.sort((a: Asset, b: Asset) => lessThan(b.NAME, a.NAME));
+    modelRaw = prepareModelRaw(x.model);
+    modelNames = x.modelNames;
+    modelNames.sort((a: string, b: string) => lessThan(a, b));
 
+    if (!evaluateModel) {
+      markModelNeedsEvaluation();
+      reactAppComponent.setState({
+        modelNamesData: modelNames,
+        modelDataRaw: modelRaw,
+        ROI: getROI(modelRaw),
+        reportData: [],
+      });
+      return;
+    }
+
+    markModelNeedsEvaluation();
     modelProcessed = makeModelFromJSON(JSON.stringify(modelRaw));
     modelProcessed.undoModel = undefined;
     modelProcessed.redoModel = undefined;
@@ -661,19 +783,9 @@ async function refreshDataInternal(
     modelProcessed.name = 'has been processed';
 
     if (error.length > 0) {
-      if (reactAppComponent.options.checkOnLoad) {
-        showAlert(`can't process generators of model: ${error}`);
-        return;
-      }
-      log(
-        `WARNING: processGenerators on load (${error}); ` +
-          `continuing because ${checkOnLoadOption} is off`,
-      );
+      abortEvaluationWithAlert(`can't process generators of model: ${error}`);
+      return;
     }
-
-    modelNames = x.modelNames;
-
-    modelNames.sort((a: string, b: string) => lessThan(a, b));
 
     if (refreshModel) {
       viewSettings.setModel(modelProcessed);
@@ -733,14 +845,8 @@ async function refreshDataInternal(
       evaluationsAndVals.reportData.length === 1 &&
       evaluationsAndVals.reportData[0].name === 'Error from evaluations'
       ) {
-      if (reactAppComponent.options.checkOnLoad) {
-        alert(evaluationsAndVals.reportData[0].source);
-      } else {
-        log(
-          `WARNING: evaluation error on load (${evaluationsAndVals.reportData[0].source}); ` +
-            `continuing because ${checkOnLoadOption} is off`,
-        );
-      }
+      abortEvaluationWithAlert(evaluationsAndVals.reportData[0].source);
+      return;
     }
 
     if (reactAppComponent.state.saveReportAsCSV) {
@@ -858,6 +964,8 @@ async function refreshDataInternal(
       );
     }
     if (reactAppComponent !== undefined) {
+      markModelEvaluated();
+
       // log(`go setState with modelNames = ${modelNames}`);
 
       // setState on a reactComponent triggers update of view
@@ -913,6 +1021,7 @@ async function refreshData(
   refreshModel: boolean,
   refreshChart: boolean,
   sourceID: number,
+  evaluateModel = true,
 ): Promise<void> {
   // log(
   //   `refreshData called refreshModel = ${refreshModel}, refreshChart = ${refreshChart} from sourceID = ${sourceID}`,
@@ -923,59 +1032,75 @@ async function refreshData(
   if (refreshChart) {
     // log('in refreshData with refreshChart = true');
   }
-  if (getDisplay(optimizerView)) {
-    const viewSettings = reactAppComponent.state.viewState;
-    const reporter: ReportValueChecker = () =>
-      //name: string,
-      //val: number | string,
-      //date: Date,
-      //source: string,
-      {
-        return false;
-      };
-    const helper = new EvaluationHelper(
-      reporter,
-      reactAppComponent.state.maxReportSize,
-      viewSettings.getViewSetting(viewFrequency, monthly),
-    );
-    const cd: ChartData = calcOptimizer(
-      reactAppComponent.state.modelDataProcessed,
-      helper,
-      showAlert,
-    );
-    reactAppComponent.setState({
-      optimizationChartData: cd,
-    });
-    return;
+
+  lastRefreshEvaluationFailed = false;
+  refreshDataInFlight += 1;
+  const isFirstEvaluation = evaluateModel && modelNeedsEvaluation();
+  const showSpinner = computeRefreshShowSpinner(
+    refreshModel,
+    refreshChart,
+    evaluateModel,
+  );
+  const spinnerStartedAt = showSpinner ? Date.now() : 0;
+  if (showSpinner) {
+    await setWaitingSpinner(true);
   }
-  if (refreshModel) {
-    log(
-      `go to refresh data - set as waiting...${new Date().toLocaleTimeString()}`,
-    );
-    return await reactAppComponent.setState(
-      {
-        isWaiting: true,
-      },
-      async () => {
-        const result = await refreshDataInternal(
-          refreshModel,
-          refreshChart,
-          sourceID,
-        );
-        log(
-          `finished refresh data - set as not waiting...${new Date().toLocaleTimeString()}`,
-        );
-        reactAppComponent.setState({
-          isWaiting: false,
-        });
-        return result;
-      },
-    );
-  } else {
-    if (refreshChart) {
-      log("go to refresh chart");
+
+  try {
+    if (getDisplay(optimizerView)) {
+      const viewSettings = reactAppComponent.state.viewState;
+      const reporter: ReportValueChecker = () =>
+        //name: string,
+        //val: number | string,
+        //date: Date,
+        //source: string,
+        {
+          return false;
+        };
+      const helper = new EvaluationHelper(
+        reporter,
+        reactAppComponent.state.maxReportSize,
+        viewSettings.getViewSetting(viewFrequency, monthly),
+      );
+      const cd: ChartData = calcOptimizer(
+        reactAppComponent.state.modelDataProcessed,
+        helper,
+        showAlert,
+      );
+      reactAppComponent.setState({
+        optimizationChartData: cd,
+      });
+      return;
     }
-    return await refreshDataInternal(refreshModel, refreshChart, sourceID);
+    if (refreshModel && !evaluateModel) {
+      await refreshDataInternal(
+        refreshModel,
+        refreshChart,
+        sourceID,
+        false,
+      );
+      return;
+    }
+    if (refreshModel) {
+      await refreshDataInternal(
+        refreshModel,
+        refreshChart,
+        sourceID,
+        evaluateModel,
+      );
+    } else {
+      if (refreshChart) {
+        log("go to refresh chart");
+      }
+      await refreshDataInternal(
+        refreshModel,
+        refreshChart,
+        sourceID,
+        evaluateModel,
+      );
+    }
+  } finally {
+    await finishRefreshSpinner(showSpinner, isFirstEvaluation, spinnerStartedAt);
   }
 }
 
@@ -1158,7 +1283,7 @@ async function submitTrigger(
 async function submitGenerator(
   generatorInput: any,
   modelData: ModelData,
-): Promise<void> {
+): Promise<boolean> {
   log(`submitting a generator ${generatorInput}`);
   const outcome = await submitGeneratorLSM(
     generatorInput,
@@ -1168,13 +1293,26 @@ async function submitGenerator(
     getUserID(),
   );
   if (outcome.message === "") {
-    return await refreshData(
+    await refreshData(
       true, // refreshModel
       true, // refreshChart
       6, //sourceID
     );
+    if (lastRefreshEvaluationFailed) {
+      const evalError =
+        reactAppComponent !== undefined
+          ? reactAppComponent.state.alertText
+          : "";
+      await deleteGenerator(generatorInput.NAME);
+      if (evalError !== "") {
+        showAlert(evalError);
+      }
+      return false;
+    }
+    return true;
   } else {
     showAlert(outcome.message);
+    return false;
   }
 }
 
@@ -1329,38 +1467,65 @@ async function submitROISetting(
   };
 }
 
-export function toggle(
+export async function toggle(
   type: ViewType,
   refreshModel: boolean,
   refreshChart: boolean,
   sourceID: number,
-): void | boolean {
+): Promise<void | boolean> {
   /* istanbul ignore if  */
   if (printDebug()) {
     log(`toggle called from ${sourceID}`);
-  }
-  for (const k of views.keys()) {
-    if (k !== type) {
-      const view = views.get(k);
-      if (view === undefined) {
-        log(`Error : unrecognised view ${type}`);
-        return;
-      }
-      view.display = false;
-    }
   }
   const view = views.get(type);
   if (view === undefined) {
     log(`Error : unrecognised view ${type}`);
     return false;
   }
-  view.display = true;
+
+  const applyViewSwitch = (): void => {
+    for (const k of views.keys()) {
+      const v = views.get(k);
+      if (v === undefined) {
+        log(`Error : unrecognised view ${type}`);
+        return;
+      }
+      v.display = k === type;
+    }
+  };
+
+  const targetIsHome = type === homeView;
+  const needsFullEvaluation = !targetIsHome && modelNeedsEvaluation();
+  const doRefreshModel = refreshModel || needsFullEvaluation;
+  const evaluateModel =
+    (refreshModel || needsFullEvaluation) && !targetIsHome;
+
   if (reactAppComponent?.appContentIsMounted()) {
-    refreshData(
-      refreshModel, // refreshModel
-      refreshChart, // refreshChart
-      11, //sourceID
-    );
+    if (needsFullEvaluation) {
+      const wasOnHome = getDisplay(homeView);
+      await refreshData(
+        doRefreshModel,
+        refreshChart,
+        sourceID,
+        evaluateModel,
+      );
+      // Stay on Home if the first eval attempt failed; otherwise allow tab change
+      // so the user (and browser tests) can keep editing after a generator error.
+      if (!modelNeedsEvaluation() || !wasOnHome) {
+        applyViewSwitch();
+        reactAppComponent.setState({ ...reactAppComponent.state });
+      }
+    } else {
+      applyViewSwitch();
+      await refreshData(
+        doRefreshModel,
+        refreshChart,
+        sourceID,
+        evaluateModel,
+      );
+    }
+  } else {
+    applyViewSwitch();
   }
 }
 
@@ -1791,7 +1956,10 @@ async function setEraGenerator(
   }
 }
 
-async function switchToModel(newValue: string): Promise<boolean> {
+async function switchToModel(
+  newValue: string,
+  skipRefresh = false,
+): Promise<boolean> {
   // log(`model name is now ${newValue}`);
   if (modelName === newValue) {
     // log(`no need to update name - already working with ${newValue}`);
@@ -1808,11 +1976,17 @@ async function switchToModel(newValue: string): Promise<boolean> {
   }
   // log(`switch model name to ${newValue}`);
   modelName = newValue;
+  markModelNeedsEvaluation();
   await ensureModel(getUserID(), modelName);
+  if (skipRefresh) {
+    return true;
+  }
+  const evaluateModel = !getDisplay(homeView);
   await refreshData(
     true, // refreshModel
-    true, // refreshChart
+    evaluateModel, // refreshChart
     14, //sourceID
+    evaluateModel,
   );
   return true;
 }
@@ -2226,8 +2400,8 @@ class AppContent extends Component<AppProps, AppState> {
     //log('in componentDidMount');
     toggle(
       homeView,
-      true, // refreshModel
-      true, // refreshChart
+      true, // refreshModel — names and raw model only on Home
+      false, // refreshChart
       17, //sourceID
     );
     //window.addEventListener('beforeunload', this.handleUnload);
@@ -2293,7 +2467,7 @@ class AppContent extends Component<AppProps, AppState> {
         refreshChart: boolean,
         sourceID: number,
       ) => {
-        return toggle(type, refreshModel, refreshChart, sourceID);
+        void toggle(type, refreshModel, refreshChart, sourceID);
       },
     );
   }
@@ -2493,7 +2667,7 @@ class AppContent extends Component<AppProps, AppState> {
           submitTrigger(trigger, this.state.modelDataRaw);
         },
         submitGenerator: async (generatorInput: Generator) => {
-          submitGenerator(generatorInput, this.state.modelDataRaw);
+          return submitGenerator(generatorInput, this.state.modelDataRaw);
         },
         attemptRename: async (
           doChecks: boolean,
@@ -2528,95 +2702,16 @@ class AppContent extends Component<AppProps, AppState> {
       return (
         <>
           {this.navbarDiv(this.state.isWaiting, getDisplayedView())}
+          {!this.state.isWaiting ? (
+            <span
+              id="finkitty-eval-ready"
+              className="d-none"
+              aria-hidden="true"
+            />
+          ) : null}
           <>
             {this.homeDiv()}
-            {overviewDiv(
-              this.state.modelDataProcessed,
-              this.props.user.name,
-              this.state.todaysAssetValues,
-              this.state.todaysIncomeValues,
-              this.state.todaysExpenseValues,
-              this.state.todaysSettingValues,
-              this.state.viewState,
-              this.options.checkModelOnEdit,
-              this.state.assetChartData,
-              this.state.debtChartData,
-              this.state.expensesChartData,
-              this.state.incomesChartData,
-              this.state.taxChartData,
-              parentCallbacks,
-            )}
-            {this.settingsDiv(
-              this.state.modelDataProcessed,
-              this.state.todaysSettingValues,
-              parentCallbacks,
-            )}
-            {incomesDiv(
-              this.state.modelDataProcessed,
-              this.state.viewState,
-              this.options.checkModelOnEdit,
-              this.state.incomesChartData,
-              this.state.todaysIncomeValues,
-              parentCallbacks,
-            )}
-            {expensesDiv(
-              this.state.modelDataProcessed,
-              this.state.viewState,
-              this.options.checkModelOnEdit,
-              this.state.expensesChartData,
-              this.state.todaysExpenseValues,
-              this.state.planningExpensesChartData,
-              this.state.planningAssetsChartData,
-              this.state.reportData,
-              this.state.monitoringChartData,
-              parentCallbacks,
-            )}
-            {assetsDiv(
-              this.state.modelDataProcessed,
-              this.state.viewState,
-              this.options.checkModelOnEdit,
-              this.state.assetChartData,
-              this.state.todaysAssetValues,
-              parentCallbacks,
-            )}
-            {debtsDiv(
-              this.state.modelDataProcessed,
-              this.state.viewState,
-              this.options.checkModelOnEdit,
-              this.state.debtChartData,
-              this.state.todaysDebtValues,
-              parentCallbacks,
-            )}
-            {this.transactionsDiv(parentCallbacks)}
-            {taxDiv(
-              this.state.modelDataProcessed,
-              this.state.viewState,
-              this.state.taxChartData,
-              this.state.totalTaxPaid,
-              this.state.reportData,
-              parentCallbacks,
-            )}
-            {this.triggersDiv(parentCallbacks)}
-            {reportDiv(
-              this.state.modelDataProcessed,
-              this.state.viewState,
-              this.state.reportDefiner,
-              this.state.maxReportSize,
-              this.state.reportIncludesSettings,
-              this.state.reportIncludesExpenses,
-              this.state.reportData.slice(0, this.state.maxReportSize),
-              "report",
-              setReportKey,
-              parentCallbacks.refreshData,
-            )}
-            {optimizerDiv(
-              this.state.modelDataProcessed,
-              this.state.todaysSettingValues,
-              this.state.viewState,
-              this.state.optimizationChartData,
-              parentCallbacks,
-              "optimizer",
-            )}{" "}
+            {this.dataPagesDiv(parentCallbacks)}
           </>
         </>
       );
@@ -2647,16 +2742,33 @@ class AppContent extends Component<AppProps, AppState> {
       currentModelName={modelName}
       actionOnSelect={
         async (model: string) => {
-          if (await switchToModel(model)) {
-            const oldView = getDisplayedView();
-            if (goToAssetsPage()) {
-              const newView = assetsView;
-              await toggle(
-                assetsView,
-                false, // refreshModel
-                needsChartRefresh(this.state, oldView, newView), // refreshChart
-                19, //sourceID
-              );
+          if (this.state.isWaiting) {
+            return;
+          }
+          const willAutoNavigate = goToAssetsPage();
+          const onHome = getDisplay(homeView);
+          const skipRefresh = onHome && willAutoNavigate;
+          const modelWillChange = model !== modelName;
+          let showedEarlySpinner = false;
+          if (skipRefresh && modelWillChange) {
+            await setWaitingSpinner(true);
+            showedEarlySpinner = true;
+          }
+          try {
+            if (await switchToModel(model, skipRefresh)) {
+              if (willAutoNavigate) {
+                const oldView = getDisplayedView();
+                await toggle(
+                  assetsView,
+                  false, // refreshModel
+                  needsChartRefresh(this.state, oldView, assetsView), // refreshChart
+                  19, //sourceID
+                );
+              }
+            }
+          } finally {
+            if (showedEarlySpinner && refreshDataInFlight === 0) {
+              await setWaitingSpinner(false);
             }
           }
         }
@@ -2744,7 +2856,8 @@ class AppContent extends Component<AppProps, AppState> {
     log(`going to clone a model and give it name ${name}`);
     // log(`stringify model for clone`);
     const currentData = JSON.stringify(fromModel);
-    const updatedOK = await switchToModel(name);
+    const skipRefresh = getDisplay(homeView) && goToAssetsPage();
+    const updatedOK = await switchToModel(name, skipRefresh);
     if (updatedOK) {
       const newModel = makeModelFromJSON(currentData, name);
       const replacedOK = await replaceWithModel(
@@ -2950,6 +3063,103 @@ class AppContent extends Component<AppProps, AppState> {
           showFuture={showFuture}
           replaceWithModel={replaceWithModel}
         />
+      </>
+    );
+  }
+
+  private dataPagesDiv(parentCallbacks: ViewCallbacks): JSX.Element {
+    if (this.state.isWaiting) {
+      return <></>;
+    }
+    return (
+      <>
+        {overviewDiv(
+          this.state.modelDataProcessed,
+          this.props.user.name,
+          this.state.todaysAssetValues,
+          this.state.todaysIncomeValues,
+          this.state.todaysExpenseValues,
+          this.state.todaysSettingValues,
+          this.state.viewState,
+          this.options.checkModelOnEdit,
+          this.state.assetChartData,
+          this.state.debtChartData,
+          this.state.expensesChartData,
+          this.state.incomesChartData,
+          this.state.taxChartData,
+          parentCallbacks,
+        )}
+        {this.settingsDiv(
+          this.state.modelDataProcessed,
+          this.state.todaysSettingValues,
+          parentCallbacks,
+        )}
+        {incomesDiv(
+          this.state.modelDataProcessed,
+          this.state.viewState,
+          this.options.checkModelOnEdit,
+          this.state.incomesChartData,
+          this.state.todaysIncomeValues,
+          parentCallbacks,
+        )}
+        {expensesDiv(
+          this.state.modelDataProcessed,
+          this.state.viewState,
+          this.options.checkModelOnEdit,
+          this.state.expensesChartData,
+          this.state.todaysExpenseValues,
+          this.state.planningExpensesChartData,
+          this.state.planningAssetsChartData,
+          this.state.reportData,
+          this.state.monitoringChartData,
+          parentCallbacks,
+        )}
+        {assetsDiv(
+          this.state.modelDataProcessed,
+          this.state.viewState,
+          this.options.checkModelOnEdit,
+          this.state.assetChartData,
+          this.state.todaysAssetValues,
+          parentCallbacks,
+        )}
+        {debtsDiv(
+          this.state.modelDataProcessed,
+          this.state.viewState,
+          this.options.checkModelOnEdit,
+          this.state.debtChartData,
+          this.state.todaysDebtValues,
+          parentCallbacks,
+        )}
+        {this.transactionsDiv(parentCallbacks)}
+        {taxDiv(
+          this.state.modelDataProcessed,
+          this.state.viewState,
+          this.state.taxChartData,
+          this.state.totalTaxPaid,
+          this.state.reportData,
+          parentCallbacks,
+        )}
+        {this.triggersDiv(parentCallbacks)}
+        {reportDiv(
+          this.state.modelDataProcessed,
+          this.state.viewState,
+          this.state.reportDefiner,
+          this.state.maxReportSize,
+          this.state.reportIncludesSettings,
+          this.state.reportIncludesExpenses,
+          this.state.reportData.slice(0, this.state.maxReportSize),
+          "report",
+          setReportKey,
+          parentCallbacks.refreshData,
+        )}
+        {optimizerDiv(
+          this.state.modelDataProcessed,
+          this.state.todaysSettingValues,
+          this.state.viewState,
+          this.state.optimizationChartData,
+          parentCallbacks,
+          "optimizer",
+        )}
       </>
     );
   }
@@ -3256,6 +3466,9 @@ class AppContent extends Component<AppProps, AppState> {
         makeButton(
           view.lc,
           (event: React.MouseEvent<HTMLButtonElement>) => {
+            if (this.state.isWaiting) {
+              return;
+            }
             event.persist();
             const oldView = getDisplayedView();
             toggle(
@@ -3268,6 +3481,7 @@ class AppContent extends Component<AppProps, AppState> {
           view.lc,
           `btn-${view.lc}`,
           display ? "secondary" : "outline-secondary",
+          this.state.isWaiting,
         ),
       );
       viewIterator = it.next();
