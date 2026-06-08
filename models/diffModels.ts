@@ -42,6 +42,9 @@ function diffIncomes(it1: Item, it2: Item): string {
   if (i1.CPI_IMMUNE !== i2.CPI_IMMUNE) {
     return `${it1.NAME}: cpi-immunity ${i1.CPI_IMMUNE} !== ${i2.CPI_IMMUNE}`;
   }
+  if ((i1.GROWTH ?? "0") !== (i2.GROWTH ?? "0")) {
+    return `${it1.NAME}: growth ${i1.GROWTH ?? "0"} !== ${i2.GROWTH ?? "0"}`;
+  }
   if (i1.LIABILITY !== i2.LIABILITY) {
     return `${it1.NAME}: liability ${i1.LIABILITY} !== ${i2.LIABILITY}`;
   }
@@ -71,6 +74,9 @@ function diffExpenses(it1: Item, it2: Item): string {
   }
   if (i1.CPI_IMMUNE !== i2.CPI_IMMUNE) {
     return `${it1.NAME}: cpi-immunity ${i1.CPI_IMMUNE} !== ${i2.CPI_IMMUNE}`;
+  }
+  if ((i1.GROWTH ?? "0") !== (i2.GROWTH ?? "0")) {
+    return `${it1.NAME}: growth ${i1.GROWTH ?? "0"} !== ${i2.GROWTH ?? "0"}`;
   }
   if (i1.RECURRENCE !== i2.RECURRENCE) {
     return `${it1.NAME}: recurrence ${i1.RECURRENCE} !== ${i2.RECURRENCE}`;

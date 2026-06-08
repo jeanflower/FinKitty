@@ -128,6 +128,7 @@ export interface IncomeOrExpense extends ItemCategory {
   END: string;
   VALUE: string;
   VALUE_SET: string;
+  GROWTH: string;
   CPI_IMMUNE: boolean;
   RECURRENCE: string;
 }
@@ -271,18 +272,11 @@ export interface Evaluation {
   source: string; // the source of the change for this evaluation
 }
 
-interface IncomeFromFile extends Income {
-  GROWTH: string | undefined;
-}
-interface ExpenseFromFile extends Expense {
-  GROWTH: string | undefined;
-}
-
 export interface ModelDataFromFile {
   name: string;
   triggers: Trigger[];
-  expenses: ExpenseFromFile[];
-  incomes: IncomeFromFile[];
+  expenses: Expense[];
+  incomes: Income[];
   transactions: Transaction[];
   assets: Asset[];
   monitors: Monitor[];

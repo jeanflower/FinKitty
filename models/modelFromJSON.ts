@@ -129,9 +129,23 @@ export function makeModelFromJSONString(
   return result;
 }
 
+function normalizeIncomeExpenseGrowth(model: ModelDataFromFile): void {
+  model.incomes.forEach((i) => {
+    if (i.GROWTH === undefined) {
+      i.GROWTH = "0";
+    }
+  });
+  model.expenses.forEach((e) => {
+    if (e.GROWTH === undefined) {
+      e.GROWTH = "0";
+    }
+  });
+}
+
 export function makeModelFromJSON(input: string, modelName = ""): ModelData {
   // log('in makeModelFromJSON');
   const model: ModelDataFromFile = makeModelFromJSONString(input, modelName);
   migrateOldVersions(model);
+  normalizeIncomeExpenseGrowth(model);
   return model;
 }

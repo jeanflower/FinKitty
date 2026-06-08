@@ -264,6 +264,7 @@ function handleExpenseGridRowsUpdated(
 
   // log('new expense '+showObj(expense));
   const parsedGrowsWithCPI = makeBooleanFromYesNo(newRow.GROWS_WITH_CPI);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
 
   const parsedValue = makeCashValueFromString(newRow.VALUE);
   let expValue = "";
@@ -275,6 +276,8 @@ function handleExpenseGridRowsUpdated(
   if (doChecks) {
     if (!parsedGrowsWithCPI.checksOK) {
       showAlert("Whether expense grows with CPI should be 'y' or 'n'");
+    } else if (!parsedGrowth.checksOK) {
+      showAlert(`expense growth ${newRow.GROWTH} not understood`);
     } else {
       const expenseForSubmission: Expense = {
         NAME: newRow.NAME,
@@ -284,6 +287,7 @@ function handleExpenseGridRowsUpdated(
         END: newRow.END,
         VALUE: expValue,
         VALUE_SET: newRow.VALUE_SET,
+        GROWTH: parsedGrowth.value,
         CPI_IMMUNE: !parsedGrowsWithCPI.value,
         RECURRENCE: newRow.RECURRENCE,
       };
@@ -304,6 +308,7 @@ function handleExpenseGridRowsUpdated(
       END: newRow.END,
       VALUE: expValue,
       VALUE_SET: newRow.VALUE_SET,
+      GROWTH: parsedGrowth.checksOK ? parsedGrowth.value : (newRow.GROWTH ?? "0"),
       CPI_IMMUNE: !parsedGrowsWithCPI.value,
       RECURRENCE: newRow.RECURRENCE,
     };
@@ -573,10 +578,13 @@ function handleIncomeGridRowsUpdated(
   // log('new income '+showObj(income));
   const parsedGrowsWithCPI = makeBooleanFromYesNo(newRow.GROWS_WITH_CPI);
   const parsedValue = makeCashValueFromString(newRow.VALUE);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
   if (doChecks) {
     if (!parsedGrowsWithCPI.checksOK) {
       showAlert("Whether income grows with CPI should be 'y' or 'n'");
       //newValue = oldValue;
+    } else if (!parsedGrowth.checksOK) {
+      showAlert(`income growth ${newRow.GROWTH} not understood`);
     } else {
       let incValue = "";
       if (parsedValue.checksOK) {
@@ -593,6 +601,7 @@ function handleIncomeGridRowsUpdated(
         END: newRow.END,
         VALUE: incValue,
         VALUE_SET: newRow.VALUE_SET,
+        GROWTH: parsedGrowth.value,
         CPI_IMMUNE: !parsedGrowsWithCPI.value,
         RECURRENCE: newRow.RECURRENCE,
         LIABILITY: newRow.LIABILITY,
@@ -620,6 +629,7 @@ function handleIncomeGridRowsUpdated(
       END: newRow.END,
       VALUE: incValue,
       VALUE_SET: newRow.VALUE_SET,
+      GROWTH: parsedGrowth.checksOK ? parsedGrowth.value : (newRow.GROWTH ?? "0"),
       CPI_IMMUNE: !parsedGrowsWithCPI.value,
       RECURRENCE: newRow.RECURRENCE,
       LIABILITY: newRow.LIABILITY,
@@ -2477,6 +2487,7 @@ function incomesForTable(
       const mapResult = {
         END: obj.END,
         GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
+        GROWTH: makeStringFromGrowth(obj.GROWTH ?? "0", model.settings),
         NAME: obj.NAME,
         ERA: obj.ERA,
         START: obj.START,
@@ -2557,6 +2568,11 @@ function incomesTableDiv(
       ...defaultColumn,
       key: "GROWS_WITH_CPI",
       name: "grows with CPI",
+    },
+    {
+      ...growthColumn(model.settings),
+      key: "GROWTH",
+      name: "growth",
     },
     {
       ...defaultColumn,
@@ -2651,6 +2667,7 @@ function expensesForTable(
       const mapResult = {
         END: obj.END,
         GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
+        GROWTH: makeStringFromGrowth(obj.GROWTH ?? "0", model.settings),
         CATEGORY: obj.CATEGORY,
         NAME: obj.NAME,
         ERA: obj.ERA,
@@ -2726,6 +2743,11 @@ function expensesTableDiv(
       ...defaultColumn,
       key: "GROWS_WITH_CPI",
       name: "grows with CPI",
+    },
+    {
+      ...growthColumn(model.settings),
+      key: "GROWTH",
+      name: "growth",
     },
     {
       ...defaultColumn,

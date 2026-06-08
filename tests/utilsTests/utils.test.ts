@@ -1825,6 +1825,7 @@ describe("utils tests", () => {
       END: "2 February 2047",
       VALUE: "500",
       VALUE_SET: "1 April 2018",
+      GROWTH: "0",
       CPI_IMMUNE: false,
       RECURRENCE: "1m",
     });
@@ -1836,6 +1837,7 @@ describe("utils tests", () => {
       END: "2 February 2047",
       VALUE: "500",
       VALUE_SET: "1 April 2018",
+      GROWTH: "0",
       CPI_IMMUNE: false,
       RECURRENCE: "1m",
     });
@@ -2169,6 +2171,27 @@ describe("utils tests", () => {
     );
     expect(diffResult.length).toBe(0);
 
+    model2.incomes[0].GROWTH = "2";
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      "model",
+      "oldModelCopy",
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual("TeachingJob: growth 2 !== 0");
+
+    model2.incomes[0].GROWTH = "0";
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      "model",
+      "oldModelCopy",
+    );
+    expect(diffResult.length).toBe(0);
+
     model2.incomes[0].LIABILITY = "Joe(NI)";
     diffResult = diffModels(
       model2,
@@ -2204,6 +2227,27 @@ describe("utils tests", () => {
     expect(diffResult[0]).toEqual("TeachingJob: category Pn !== ");
 
     model2.incomes[0].CATEGORY = "";
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      "model",
+      "oldModelCopy",
+    );
+    expect(diffResult.length).toBe(0);
+
+    model2.expenses[0].GROWTH = "2";
+    diffResult = diffModels(
+      model2,
+      oldModelCopy,
+      false,
+      "model",
+      "oldModelCopy",
+    );
+    expect(diffResult.length).toBe(1);
+    expect(diffResult[0]).toEqual("Look after dogs: growth 2 !== 0");
+
+    model2.expenses[0].GROWTH = "0";
     diffResult = diffModels(
       model2,
       oldModelCopy,

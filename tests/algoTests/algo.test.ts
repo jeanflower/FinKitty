@@ -1198,6 +1198,7 @@ describe("evaluations tests", () => {
           END: "End",
           VALUE: "203.85",
           VALUE_SET: "Wed Apr 06 2023",
+          GROWTH: "0",
           CPI_IMMUNE: false,
           RECURRENCE: "1w",
           LIABILITY: "J1(incomeTax)",
@@ -9775,6 +9776,280 @@ expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
       expectChartData(chartPts, 35, 'Mon Dec 01 2025', 8336.61, 2);
     }
 
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+  });
+
+  it("income with explicit growth rate", () => {
+    const roi = {
+      start: "Dec 1, 2017",
+      end: "Feb 1, 2019",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          NAME: "Salary",
+          START: "January 1 2018",
+          END: "July 1 2025",
+          VALUE: "100.0",
+          VALUE_SET: "January 1 2018",
+          GROWTH: "2",
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "0", constType);
+    setROI(model, roi);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(13);
+    expectEvals(evals, 0, "Salary", "Mon Jan 01 2018", 100, -1);
+    expectEvals(evals, 1, "Salary", "Thu Feb 01 2018", 100, -1);
+    expectEvals(evals, 4, "Salary", "Tue May 01 2018", 102, -1);
+    expectEvals(evals, 12, "Salary", "Tue Jan 01 2019", 102, -1);
+
+    const viewSettings = defaultTestViewSettings();
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(1);
+    expect(result.incomesData[0].item.NAME).toBe("Salary");
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(14);
+      expectChartData(chartPts, 0, "Fri Dec 01 2017", 0, -1);
+      expectChartData(chartPts, 1, "Mon Jan 01 2018", 100, -1);
+      expectChartData(chartPts, 2, "Thu Feb 01 2018", 100, -1);
+      expectChartData(chartPts, 3, "Thu Mar 01 2018", 100, -1);
+      expectChartData(chartPts, 4, "Sun Apr 01 2018", 100, -1);
+      expectChartData(chartPts, 5, "Tue May 01 2018", 102, -1);
+      expectChartData(chartPts, 6, "Fri Jun 01 2018", 102, -1);
+      expectChartData(chartPts, 7, "Sun Jul 01 2018", 102, -1);
+      expectChartData(chartPts, 8, "Wed Aug 01 2018", 102, -1);
+      expectChartData(chartPts, 9, "Sat Sep 01 2018", 102, -1);
+      expectChartData(chartPts, 10, "Mon Oct 01 2018", 102, -1);
+      expectChartData(chartPts, 11, "Thu Nov 01 2018", 102, -1);
+      expectChartData(chartPts, 12, "Sat Dec 01 2018", 102, -1);
+      expectChartData(chartPts, 13, "Tue Jan 01 2019", 102, -1);
+    }
+    expect(result.assetData.length).toBe(0);
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+  });
+
+  it("income with explicit growth and CPI", () => {
+    const roi = {
+      start: "Dec 1, 2017",
+      end: "Feb 1, 2019",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      incomes: [
+        {
+          ...simpleIncome,
+          NAME: "Salary",
+          START: "January 1 2018",
+          END: "July 1 2025",
+          VALUE: "100.0",
+          VALUE_SET: "January 1 2018",
+          GROWTH: "2",
+          CPI_IMMUNE: false,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "2", constType);
+    setROI(model, roi);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(13);
+    expectEvals(evals, 0, "Salary", "Mon Jan 01 2018", 100, -1);
+    expectEvals(evals, 1, "Salary", "Thu Feb 01 2018", 100, -1);
+    expectEvals(evals, 4, "Salary", "Tue May 01 2018", 104, 2);
+    expectEvals(evals, 12, "Salary", "Tue Jan 01 2019", 104, 2);
+
+    const viewSettings = defaultTestViewSettings();
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(0);
+    expect(result.incomesData.length).toBe(1);
+    expect(result.incomesData[0].item.NAME).toBe("Salary");
+    {
+      const chartPts = result.incomesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(14);
+      expectChartData(chartPts, 0, "Fri Dec 01 2017", 0, -1);
+      expectChartData(chartPts, 1, "Mon Jan 01 2018", 100, -1);
+      expectChartData(chartPts, 2, "Thu Feb 01 2018", 100, -1);
+      expectChartData(chartPts, 3, "Thu Mar 01 2018", 100, -1);
+      expectChartData(chartPts, 4, "Sun Apr 01 2018", 100, -1);
+      expectChartData(chartPts, 5, "Tue May 01 2018", 104, 2);
+      expectChartData(chartPts, 6, "Fri Jun 01 2018", 104, 2);
+      expectChartData(chartPts, 7, "Sun Jul 01 2018", 104, 2);
+      expectChartData(chartPts, 8, "Wed Aug 01 2018", 104, 2);
+      expectChartData(chartPts, 9, "Sat Sep 01 2018", 104, 2);
+      expectChartData(chartPts, 10, "Mon Oct 01 2018", 104, 2);
+      expectChartData(chartPts, 11, "Thu Nov 01 2018", 104, 2);
+      expectChartData(chartPts, 12, "Sat Dec 01 2018", 104, 2);
+      expectChartData(chartPts, 13, "Tue Jan 01 2019", 104, 2);
+    }
+    expect(result.assetData.length).toBe(0);
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+  });
+
+  it("expense with explicit growth and CPI", () => {
+    const roi = {
+      start: "Dec 1, 2017",
+      end: "Feb 1, 2019",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          NAME: "LivingCosts",
+          START: "January 1 2018",
+          END: "July 1 2025",
+          VALUE: "100.0",
+          VALUE_SET: "January 1 2018",
+          GROWTH: "2",
+          CPI_IMMUNE: false,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "2", constType);
+    setROI(model, roi);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(13);
+    expectEvals(evals, 0, "LivingCosts", "Mon Jan 01 2018", 100, -1);
+    expectEvals(evals, 1, "LivingCosts", "Thu Feb 01 2018", 100.33, 2);
+    expectEvals(evals, 12, "LivingCosts", "Tue Jan 01 2019", 104, 2);
+
+    const viewSettings = defaultTestViewSettings();
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe("LivingCosts");
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(14);
+      expectChartData(chartPts, 0, "Fri Dec 01 2017", 0, -1);
+      expectChartData(chartPts, 1, "Mon Jan 01 2018", 100, -1);
+      expectChartData(chartPts, 2, "Thu Feb 01 2018", 100.33, 2);
+      expectChartData(chartPts, 3, "Thu Mar 01 2018", 100.66, 2);
+      expectChartData(chartPts, 4, "Sun Apr 01 2018", 100.99, 2);
+      expectChartData(chartPts, 5, "Tue May 01 2018", 101.32, 2);
+      expectChartData(chartPts, 6, "Fri Jun 01 2018", 101.65, 2);
+      expectChartData(chartPts, 7, "Sun Jul 01 2018", 101.98, 2);
+      expectChartData(chartPts, 8, "Wed Aug 01 2018", 102.31, 2);
+      expectChartData(chartPts, 9, "Sat Sep 01 2018", 102.65, 2);
+      expectChartData(chartPts, 10, "Mon Oct 01 2018", 102.99, 2);
+      expectChartData(chartPts, 11, "Thu Nov 01 2018", 103.32, 2);
+      expectChartData(chartPts, 12, "Sat Dec 01 2018", 103.66, 2);
+      expectChartData(chartPts, 13, "Tue Jan 01 2019", 104, 2);
+    }
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
+  });
+
+  it("expense with explicit growth rate", () => {
+    const roi = {
+      start: "Dec 1, 2017",
+      end: "Feb 1, 2019",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      expenses: [
+        {
+          ...simpleExpense,
+          NAME: "LivingCosts",
+          START: "January 1 2018",
+          END: "July 1 2025",
+          VALUE: "100.0",
+          VALUE_SET: "January 1 2018",
+          GROWTH: "2",
+          CPI_IMMUNE: true,
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    setSetting(model.settings, cpi, "2", constType);
+    setROI(model, roi);
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(13);
+    expectEvals(evals, 0, "LivingCosts", "Mon Jan 01 2018", 100, -1);
+    expectEvals(evals, 1, "LivingCosts", "Thu Feb 01 2018", 100.17, 2);
+    expectEvals(evals, 12, "LivingCosts", "Tue Jan 01 2019", 102, 2);
+
+    const viewSettings = defaultTestViewSettings();
+    const result = makeChartDataFromEvaluations(
+      model,
+      viewSettings,
+      evalsAndValues,
+    );
+
+    // printTestCodeForChart(result);
+
+    expect(result.expensesData.length).toBe(1);
+    expect(result.expensesData[0].item.NAME).toBe("LivingCosts");
+    {
+      const chartPts = result.expensesData[0].chartDataPoints;
+      expect(chartPts.length).toBe(14);
+      expectChartData(chartPts, 0, "Fri Dec 01 2017", 0, -1);
+      expectChartData(chartPts, 1, "Mon Jan 01 2018", 100, -1);
+      expectChartData(chartPts, 2, "Thu Feb 01 2018", 100.17, 2);
+      expectChartData(chartPts, 3, "Thu Mar 01 2018", 100.33, 2);
+      expectChartData(chartPts, 4, "Sun Apr 01 2018", 100.5, 2);
+      expectChartData(chartPts, 5, "Tue May 01 2018", 100.66, 2);
+      expectChartData(chartPts, 6, "Fri Jun 01 2018", 100.83, 2);
+      expectChartData(chartPts, 7, "Sun Jul 01 2018", 101, 2);
+      expectChartData(chartPts, 8, "Wed Aug 01 2018", 101.16, 2);
+      expectChartData(chartPts, 9, "Sat Sep 01 2018", 101.33, 2);
+      expectChartData(chartPts, 10, "Mon Oct 01 2018", 101.5, 2);
+      expectChartData(chartPts, 11, "Thu Nov 01 2018", 101.66, 2);
+      expectChartData(chartPts, 12, "Sat Dec 01 2018", 101.83, 2);
+      expectChartData(chartPts, 13, "Tue Jan 01 2019", 102, 2);
+    }
+    expect(result.incomesData.length).toBe(0);
+    expect(result.assetData.length).toBe(0);
     expect(result.debtData.length).toBe(0);
     expect(result.taxData.length).toBe(0);
   });

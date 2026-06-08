@@ -743,10 +743,12 @@ function growthData(
       // monthlyGrowth = (1 + monthlyGrowth) ** g.powerByNumMonths - 1;
     }
     // log(`growth power up by ${g.powerByNumMonths} from ${monthlyGrowth} to ${periodicGrowth}`);
-    scale = monthlyGrowth;
+    // Incomes apply explicit GROWTH annually (with CPI on 6 April), not monthly.
+    scale = g.annualCPI ? 0.0 : monthlyGrowth;
     if (
       g.powerByNumMonths === 1 &&
       checkAssertion &&
+      !g.annualCPI &&
       g.scale !== monthlyGrowth
     ) {
       //log(`mismatched growths, ${periodicGrowth} not in ${showObj(g)}`);
@@ -754,7 +756,12 @@ function growthData(
     }
   }
 
-  if (g.powerByNumMonths === 1 && checkAssertion && g.scale !== scale) {
+  if (
+    g.powerByNumMonths === 1 &&
+    checkAssertion &&
+    !g.annualCPI &&
+    g.scale !== scale
+  ) {
     //log(`mismatched growths, g.scale = ${g.scale} and scale = ${scale}`);
     //throw new Error();
   }
@@ -3781,18 +3788,53 @@ function handleIncome(
   // log(`finished handleIncome`);
 }
 
+function parseAnnualGrowthRate(
+  growthString: string,
+  settings: Setting[],
+  itemType: string,
+): number {
+  let growth: number = parseFloat(growthString);
+  if (Number.isNaN(growth)) {
+    let settingVal = getSettings(settings, growthString, "None");
+    /* istanbul ignore if */
+    if (settingVal === "None") {
+      log(`Error: no setting value for ${itemType} growth ${growthString}`);
+      settingVal = "0.0";
+    }
+    growth = parseFloat(settingVal);
+    /* istanbul ignore if */
+    if (Number.isNaN(growth)) {
+      const settingVal2 = getSettings(settings, settingVal, "None");
+      growth = parseFloat(settingVal2);
+      if (Number.isNaN(growth)) {
+        log(
+          `Error: cant parse setting value for ${itemType} growth ` +
+            `${growthString} = ${settingVal}`,
+        );
+        growth = 0.0;
+      }
+    }
+  }
+  return growth;
+}
+
+function adaptedGrowthForCPI(growth: number, cpiVal: number): number {
+  return cpiVal !== 0
+    ? ((1.0 + (growth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) * 100
+    : growth;
+}
+
 function logIncomeOrExpenseGrowth(
   x: IncomeOrExpense,
   isIncome: boolean,
+  cpiVal: number,
   growths: Map<string, GrowthData>,
+  settings: Setting[],
 ) {
-  // if(cpiVal > 0 && (expenseGrowth > 0 || adaptedExpenseGrowth > 0)){
-  //   log(`from ${expenseGrowth}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedExpenseGrowth)}`);
-  // }
+  const growthString = x.GROWTH ?? "0";
   let power = 1;
   const freq = parseRecurrenceString(x.RECURRENCE);
   if (freq.frequency !== monthly || freq.count !== 1) {
-    // scale up the stored growths value
     power = freq.count;
     if (freq.frequency === annually) {
       power *= 12;
@@ -3800,10 +3842,16 @@ function logIncomeOrExpenseGrowth(
       power *= 52 / 12;
     }
   }
+  const growth = parseAnnualGrowthRate(
+    growthString,
+    settings,
+    isIncome ? "income" : "expense",
+  );
+  const adaptedGrowth = adaptedGrowthForCPI(growth, cpiVal);
   growths.set(x.NAME, {
-    itemGrowth: "0.0",
+    itemGrowth: growthString,
     powerByNumMonths: power,
-    scale: 0.0,
+    scale: isIncome ? 0 : getMonthlyGrowth(adaptedGrowth),
     applyCPI: !x.CPI_IMMUNE,
     annualCPI: isIncome,
   });
@@ -3816,39 +3864,8 @@ function logAssetGrowth(
   settings: Setting[],
   frequency: string,
 ) {
-  // log(`stored growth is ${asset.GROWTH}`);
-  let growth: number = parseFloat(asset.GROWTH);
-  // log(`growth is ${growth}`);
-  if (Number.isNaN(growth)) {
-    // log(`growth is recognised as NaN`);
-    let settingVal = getSettings(settings, asset.GROWTH, "None");
-    // log(`setting value for ${asset.GROWTH} is ${settingVal}`);
-    /* istanbul ignore if */
-    if (settingVal === "None") {
-      log(`Error: no setting value for asset growth ${asset.GROWTH}`);
-      settingVal = "0.0";
-    }
-    growth = parseFloat(settingVal);
-    /* istanbul ignore if */
-    if (Number.isNaN(growth)) {
-      const settingVal2 = getSettings(settings, settingVal, "None");
-      growth = parseFloat(settingVal2);
-      if (Number.isNaN(growth)) {
-        log(
-          "Error: cant parse setting value for asset growth " +
-            `${asset.GROWTH} = ${settingVal}`,
-        );
-        growth = 0.0;
-      }
-    }
-  } else {
-    // log(`growth is not recognised as a NaN - assume parseFloat gave something useful`);
-  }
-  // log(`annual growth before cpi adjustment is ${growth}`);
-  const adaptedAssetGrowth =
-    cpiVal !== 0
-      ? ((1.0 + (growth + cpiVal) / 100) / (1.0 + cpiVal / 100) - 1.0) * 100
-      : growth;
+  const growth = parseAnnualGrowthRate(asset.GROWTH, settings, "asset");
+  const adaptedAssetGrowth = adaptedGrowthForCPI(growth, cpiVal);
   // log(`annual growth after cpi adjustment is ${adaptedAssetGrowth}`);
   // if(cpiVal > 0 && (growth > 0 || adaptedAssetGrowth > 0)){
   //   log(`from ${asset.GROWTH}, use cpi ${cpiVal} to create adaptedExpenseGrowth = ${getMonthlyGrowth(adaptedAssetGrowth)}`);
@@ -5900,7 +5917,13 @@ function generateMoments(
     // first expense.  Later expense values are not
     // set here, but the 'moment' at which the expense
     // changes is set here.
-    logIncomeOrExpenseGrowth(expense, false, growths);
+    logIncomeOrExpenseGrowth(
+      expense,
+      false,
+      expense.CPI_IMMUNE ? 0 : cpiInitialVal,
+      growths,
+      model.settings,
+    );
     const expenseStart = getTriggerDate(expense.START, model.triggers, v, model);
 
     const expenseSetDate = getTriggerDate(expense.VALUE_SET, model.triggers, v, model);
@@ -5955,7 +5978,13 @@ function generateMoments(
     // first income.  Later income values are not
     // set here, but the 'moment' at which the income
     // changes is set here.
-    logIncomeOrExpenseGrowth(income, true, growths);
+    logIncomeOrExpenseGrowth(
+      income,
+      true,
+      income.CPI_IMMUNE ? 0 : cpiInitialVal,
+      growths,
+      model.settings,
+    );
     const incomeStart = getTriggerDate(income.START, model.triggers, v, model);
     let shiftStartBackTo = new Date(incomeStart.d);
 
@@ -6568,6 +6597,65 @@ function handleInflationStep(
     );
   }
 }
+function applyAnnualIncomeGrowth(
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  date: FinKittyDate,
+) {
+  growths.forEach((g, name) => {
+    if (!g.annualCPI) {
+      return;
+    }
+    const growth = traceEvaluation(
+      g.itemGrowth,
+      values,
+      growths,
+      "annualIncomeGrowth",
+    );
+    if (growth === undefined || growth === 0) {
+      return;
+    }
+    const existing = values.get(name);
+    if (existing === undefined) {
+      return;
+    }
+    let adaptedGrowth = growth;
+    if (g.applyCPI) {
+      const cpiVal = traceEvaluation(
+        cpi,
+        values,
+        growths,
+        "annualIncomeGrowthCpi",
+      );
+      if (cpiVal !== undefined) {
+        adaptedGrowth = adaptedGrowthForCPI(growth, cpiVal);
+      }
+    }
+    const annualFactor = 1.0 + adaptedGrowth / 100.0;
+    if (typeof existing === "number") {
+      values.set(
+        name,
+        existing * annualFactor,
+        growths,
+        date,
+        "annualGrowthChange",
+        false, // reportIfNoChange
+        "45", //callerID
+      );
+    } else if (typeof existing === "string" && isNumberString(existing)) {
+      values.set(
+        name,
+        parseFloat(existing) * annualFactor,
+        growths,
+        date,
+        "annualGrowthChange",
+        false, // reportIfNoChange
+        "45", //callerID
+      );
+    }
+  });
+}
+
 function handleAnnualInflationStep(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
@@ -6589,6 +6677,7 @@ function handleAnnualInflationStep(
       "44", //callerID
     );
   }
+  applyAnnualIncomeGrowth(values, growths, date);
 }
 
 function captureLastTaxBands(
@@ -8085,6 +8174,7 @@ function processDBPGenerators(
         VALUE: dBDetails.VALUE,
         VALUE_SET: dBDetails.VALUE_SET,
         LIABILITY: inputLiability,
+        GROWTH: "0",
         CPI_IMMUNE: !parseYNGrowsWithCPI.value,
         RECURRENCE: '1m',
         CATEGORY: dBDetails.CATEGORY,
@@ -8108,6 +8198,7 @@ function processDBPGenerators(
           VALUE: "0.0",
           VALUE_SET: dBDetails.VALUE_SET,
           LIABILITY: builtLiability2,
+          GROWTH: "0",
           CPI_IMMUNE: !parseYNGrowsWithCPI.value,
           RECURRENCE: '1m',
           CATEGORY: dBDetails.CATEGORY,

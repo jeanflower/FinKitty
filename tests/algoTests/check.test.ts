@@ -1710,4 +1710,57 @@ describe("checks tests", () => {
     };
     expect(checkGenerator(revGen, model)).toBe("");
   });
+
+  it("checks income and expense growth", () => {
+    const roi = {
+      start: "January 1 2018",
+      end: "April 1, 2018 00:00:00",
+    };
+    const model = {
+      ...getMinimalModelCopy(),
+      settings: [...defaultModelSettings(roi)],
+    };
+    expect(
+      checkIncome(
+        {
+          ...simpleIncome,
+          NAME: "a",
+          START: "January 1 2018",
+          END: "April 1 2018",
+          VALUE: "500",
+          GROWTH: "",
+          LIABILITY: "",
+        },
+        model,
+      ),
+    ).toEqual(`Income 'a' growth set to ''
+        but no corresponding setting found`);
+    expect(
+      checkIncome(
+        {
+          ...simpleIncome,
+          NAME: "a",
+          START: "January 1 2018",
+          END: "April 1 2018",
+          VALUE: "cpi",
+          GROWTH: "0.1",
+          LIABILITY: "",
+        },
+        model,
+      ),
+    ).toEqual(`Income 'a' value 'cpi' may not have nonzero growth`);
+    expect(
+      checkExpense(
+        {
+          ...simpleExpense,
+          NAME: "a",
+          START: "January 1 2018",
+          END: "April 1 2018",
+          VALUE: "cpi",
+          GROWTH: "0.1",
+        },
+        model,
+      ),
+    ).toEqual(`Expense 'a' value 'cpi' may not have nonzero growth`);
+  });
 });

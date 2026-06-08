@@ -1709,6 +1709,12 @@ export function checkForWordClashInModel(
           `value set ${messageWord} called ${replacement}`
         );
       }
+      if (usesWholeWord(obj.GROWTH ?? "0", replacement)) {
+        return (
+          `Income '${obj.NAME}' has ` +
+          `growth ${messageWord} called ${replacement}`
+        );
+      }
       if (usesSeparatedString(obj.LIABILITY, replacement)) {
         return (
           `Income '${obj.NAME}' has ` +
@@ -1762,6 +1768,12 @@ export function checkForWordClashInModel(
         return (
           `Expense '${obj.NAME}' has ` +
           `value set ${messageWord} called ${replacement}`
+        );
+      }
+      if (usesWholeWord(obj.GROWTH ?? "0", replacement)) {
+        return (
+          `Expense '${obj.NAME}' has ` +
+          `growth ${messageWord} called ${replacement}`
         );
       }
       return "";

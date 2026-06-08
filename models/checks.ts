@@ -611,6 +611,35 @@ export function checkIncomeLiability(l: string) {
   return "";
 }
 
+function checkItemGrowth(
+  itemName: string,
+  itemType: string,
+  growth: string | undefined,
+  model: ModelData,
+): string {
+  const growthString = growth ?? "0";
+  if (!isNumberString(growthString)) {
+    const settingVal = getSettings(model.settings, growthString, "missing", false);
+    if (settingVal === "missing") {
+      return `${itemType} '${itemName}' growth set to '${growthString}'
+        but no corresponding setting found`;
+    }
+    if (!isNumberString(settingVal)) {
+      const settingVal2 = getSettings(
+        model.settings,
+        settingVal,
+        "missing",
+        false,
+      );
+      if (settingVal2 === "missing") {
+        return `${itemType} '${itemName}' growth set to '${growthString}'
+          but corresponding setting not a number`;
+      }
+    }
+  }
+  return "";
+}
+
 export function checkRecurrence(rec: string) {
   const lastChar = rec.substring(rec.length - 1);
   // log(`lastChar of ${rec} = ${lastChar}`);
@@ -667,7 +696,14 @@ export function checkIncome(i: Income, model: ModelData): string {
   if (!isValidValue(i.VALUE, model)) {
     return `Income '${i.NAME}' value '${i.VALUE}' does not make sense`;
   }
+  const growthMessage = checkItemGrowth(i.NAME, "Income", i.GROWTH, model);
+  if (growthMessage.length > 0) {
+    return growthMessage;
+  }
   if (!isNumberString(i.VALUE)) {
+    if (parseFloat(i.GROWTH ?? "0") !== 0.0) {
+      return `Income '${i.NAME}' value '${i.VALUE}' may not have nonzero growth`;
+    }
     // A non-numeric value may grow with CPI only when it resolves through
     // settings to a number; such a value is normalised at evaluation time.
     if (!i.CPI_IMMUNE && !isResolvableNumericSettingValue(i.VALUE, model)) {
@@ -730,7 +766,14 @@ export function checkExpense(e: Expense, model: ModelData): string {
   if (!isValidValue(e.VALUE, model)) {
     return `Expense '${e.NAME}' value '${e.VALUE}' is not a number`;
   }
+  const growthMessage = checkItemGrowth(e.NAME, "Expense", e.GROWTH, model);
+  if (growthMessage.length > 0) {
+    return growthMessage;
+  }
   if (!isNumberString(e.VALUE)) {
+    if (parseFloat(e.GROWTH ?? "0") !== 0.0) {
+      return `Expense '${e.NAME}' value '${e.VALUE}' may not have nonzero growth`;
+    }
     // A non-numeric value may grow with CPI only when it resolves through
     // settings to a number; such a value is normalised at evaluation time.
     if (!e.CPI_IMMUNE && !isResolvableNumericSettingValue(e.VALUE, model)) {

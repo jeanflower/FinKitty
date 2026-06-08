@@ -38,6 +38,7 @@ import {
   checkTriggerDate,
   makeBooleanFromYesNo,
   makeIncomeLiabilityFromNameAndNI,
+  makeGrowthFromString,
   lessThan,
 } from "../../utils/stringUtils";
 import Spacer from "react-spacer";
@@ -55,6 +56,7 @@ interface EditIncomeFormState {
   START: string;
   END: string;
   GROWS_WITH_CPI: string;
+  GROWTH: string;
   LIABILITY: string;
   RECURRENCE: string;
   CATEGORY: string;
@@ -169,6 +171,7 @@ export class AddDeleteIncomeForm extends Component<
       START: "",
       END: "",
       GROWS_WITH_CPI: "",
+      GROWTH: "0",
       LIABILITY: "",
       RECURRENCE: "1m",
       CATEGORY: "",
@@ -414,6 +417,21 @@ export class AddDeleteIncomeForm extends Component<
     return (
       <>
         <Row>
+          <Col>
+            <Input
+              title={
+                "Annual growth percentage " +
+                "(excluding inflation, e.g. 2 for 2% p.a.)"
+              }
+              type="text"
+              name="incomegrowth"
+              value={this.state.GROWTH}
+              placeholder="Enter growth"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ GROWTH: e.target.value });
+              }}
+            />
+          </Col>
           <Col>
             <Input
               title="Does value grow with inflation?"
@@ -849,6 +867,17 @@ DB_TRANSFERRED_STOP
       );
       return;
     }
+    const parsedGrowth = makeGrowthFromString(
+      this.state.GROWTH,
+      this.props.model.settings,
+    );
+    if (!parsedGrowth.checksOK) {
+      this.props.showAlert(
+        `Growth value '${this.state.GROWTH}' ` +
+          `should be a numerical or setting value`,
+      );
+      return;
+    }
 
     if (this.state.inputting === inputtingPension) {
       // do work to
@@ -1005,6 +1034,7 @@ DB_TRANSFERRED_STOP
         VALUE: this.state.VALUE,
         VALUE_SET: this.state.VALUE_SET,
         LIABILITY: inputLiability,
+        GROWTH: parsedGrowth.value,
         CPI_IMMUNE: !parseYNGrowsWithCPI.value,
         RECURRENCE: this.state.RECURRENCE,
         CATEGORY: this.state.CATEGORY,
@@ -1029,6 +1059,7 @@ DB_TRANSFERRED_STOP
           VALUE: "0.0",
           VALUE_SET: this.state.VALUE_SET,
           LIABILITY: builtLiability2,
+          GROWTH: parsedGrowth.value,
           CPI_IMMUNE: !parseYNGrowsWithCPI.value,
           RECURRENCE: this.state.RECURRENCE,
           CATEGORY: this.state.CATEGORY,
@@ -1219,6 +1250,7 @@ DB_TRANSFERRED_STOP
       VALUE_SET: this.state.VALUE_SET,
       START: this.state.START,
       END: this.state.END,
+      GROWTH: parsedGrowth.value,
       CPI_IMMUNE: !parseYNGrowsWithCPI.value,
       LIABILITY: builtLiability,
       RECURRENCE: this.state.RECURRENCE,

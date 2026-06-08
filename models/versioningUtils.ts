@@ -585,25 +585,26 @@ function migrateFromV7(model: ModelData) {
 }
 function migrateFromV8(model: ModelDataFromFile) {
   model.expenses.forEach((e) => {
-    if (e.GROWTH !== undefined) {
+    if (e.GROWTH === undefined) {
+      e.GROWTH = "0";
+    } else {
       const growthNum = parseFloat(e.GROWTH);
       if (growthNum !== 0.0) {
         const message = `nullifying expense growth in ${model.name}! ${e.NAME} has growth ${e.GROWTH}`;
         log(message);
-        //alert(message);
-        e.GROWTH = undefined;
+        e.GROWTH = "0";
       }
     }
   });
-  model.incomes.forEach((i: any) => {
-    if (i.GROWTH !== undefined) {
+  model.incomes.forEach((i) => {
+    if (i.GROWTH === undefined) {
+      i.GROWTH = "0";
+    } else {
       const growthNum = parseFloat(i.GROWTH);
       if (growthNum !== 0.0) {
-        // log(`migrating : income ${i.NAME} has non-zero growth ${i.GROWTH}`);
         const message = `nullifying income growth in ${model.name}! ${i.NAME} has growth ${i.GROWTH}`;
         log(message);
-        //alert(message);
-        i.GROWTH = undefined;
+        i.GROWTH = "0";
       }
     }
   });

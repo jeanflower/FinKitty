@@ -20,6 +20,7 @@ import {
   makeValueAbsPropFromString,
   checkTriggerDate,
   makeBooleanFromYesNo,
+  makeGrowthFromString,
   lessThan,
 } from "../../utils/stringUtils";
 import Spacer from "react-spacer";
@@ -32,6 +33,7 @@ interface EditExpenseFormState {
   START: string;
   END: string;
   GROWS_WITH_CPI: string;
+  GROWTH: string;
   CATEGORY: string;
   RECURRENCE: string;
   inputting: string;
@@ -75,6 +77,7 @@ export class AddDeleteExpenseForm extends Component<
       START: "",
       END: "",
       GROWS_WITH_CPI: "",
+      GROWTH: "0",
       CATEGORY: "",
       RECURRENCE: "",
       inputting: inputtingExpense,
@@ -99,6 +102,21 @@ export class AddDeleteExpenseForm extends Component<
     return (
       <>
         <Row>
+          <Col>
+            <Input
+              title={
+                "Annual growth percentage " +
+                "(excluding inflation, e.g. 2 for 2% p.a.)"
+              }
+              type="text"
+              name="expensegrowth"
+              value={this.state.GROWTH}
+              placeholder="Enter growth"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ GROWTH: e.target.value });
+              }}
+            />
+          </Col>
           <Col>
             <Input
               title="Does value grow with inflation?"
@@ -454,6 +472,17 @@ export class AddDeleteExpenseForm extends Component<
       );
       return;
     }
+    const parsedGrowth = makeGrowthFromString(
+      this.state.GROWTH,
+      this.props.model.settings,
+    );
+    if (!parsedGrowth.checksOK) {
+      this.props.showAlert(
+        `Growth value '${this.state.GROWTH}' ` +
+          `should be a numerical or setting value`,
+      );
+      return;
+    }
 
     // log('adding something ' + showObj(this));
     const expense: Expense = {
@@ -463,6 +492,7 @@ export class AddDeleteExpenseForm extends Component<
       VALUE_SET: this.state.VALUE_SET,
       START: this.state.START,
       END: this.state.END,
+      GROWTH: parsedGrowth.value,
       CPI_IMMUNE: !parsedYN.value,
       CATEGORY: this.state.CATEGORY,
       RECURRENCE: this.state.RECURRENCE,

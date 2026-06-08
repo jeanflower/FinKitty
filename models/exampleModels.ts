@@ -544,6 +544,7 @@ export const simpleExpense: Expense = {
   END: "1 Jan 2017",
   VALUE: "0.0",
   VALUE_SET: "1 Jan 2017",
+  GROWTH: "0",
   CPI_IMMUNE: false,
   RECURRENCE: "1m",
 };
@@ -555,6 +556,7 @@ export const simpleIncome: Income = {
   END: "1 Jan 2017",
   VALUE: "0",
   VALUE_SET: "1 Jan 2017",
+  GROWTH: "0",
   CPI_IMMUNE: false,
   RECURRENCE: "1m",
   LIABILITY: "",

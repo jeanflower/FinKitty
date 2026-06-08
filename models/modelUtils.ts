@@ -315,6 +315,7 @@ function attemptRenameLongInternal(
     obj.END = replaceWholeString(obj.END, old, replacement);
     obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement, model);
     obj.VALUE_SET = replaceWholeString(obj.VALUE_SET, old, replacement);
+    obj.GROWTH = replaceWholeString(obj.GROWTH ?? "0", old, replacement);
     obj.LIABILITY = replaceSeparatedString(obj.LIABILITY, old, replacement);
   });
   model.expenses.forEach((obj) => {
@@ -323,6 +324,7 @@ function attemptRenameLongInternal(
     obj.END = replaceWholeString(obj.END, old, replacement);
     obj.VALUE = replaceNumberValueString(obj.VALUE, old, replacement, model);
     obj.VALUE_SET = replaceWholeString(obj.VALUE_SET, old, replacement);
+    obj.GROWTH = replaceWholeString(obj.GROWTH ?? "0", old, replacement);
   });
   model.transactions.forEach((obj) => {
     obj.NAME = replaceWholeString(obj.NAME, old, replacement);
