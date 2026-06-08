@@ -108,7 +108,7 @@ interface EditAssetProps extends FormProps {
   ) => Promise<void>;
   submitGeneratorFunction: (
     generator: Generator,
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   deleteGeneratorFunction: (name: string) => Promise<DeleteResult>;
   setEraGeneratorFunction: (name: string, value: number) => Promise<boolean>;
   doCheckBeforeOverwritingExistingData: () => boolean;
