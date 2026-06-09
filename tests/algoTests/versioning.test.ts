@@ -513,12 +513,19 @@ const v13ModelJSON = `{
   "version":13
 }`;
 
-// we don't yet know what v14 will bring... this should not load
-// while current version is 13
 const v14ModelJSON = JSON.stringify(
   {
     ...JSON.parse(v13ModelJSON),
     "version":14,
+  }
+);
+
+// we don't yet know what v15 will bring... this should not load
+// while current version is 14
+const v15ModelJSON = JSON.stringify(
+  {
+    ...JSON.parse(v13ModelJSON),
+    "version":15,
   }
 );
 
@@ -726,12 +733,25 @@ describe("loadModelsFromJSON", () => {
   });
 
 
-  // at current version, no migration is needed!
   it("migrateFromV13", () => {
     const jsonString = v13ModelJSON;
     suppressLogs();
     const model = makeModelFromJSON(jsonString, "versionTests");
     unSuppressLogs();
+    expect(model.version).toEqual(14);
+    const outcome = checkModel(model);
+    if (outcome.message.length > 0) {
+      log(`outcome.message = ${outcome.message}`);
+    }
+    expect(outcome.message.length).toEqual(0);
+  });
+
+  it("migrateFromV14", () => {
+    const jsonString = v14ModelJSON;
+    suppressLogs();
+    const model = makeModelFromJSON(jsonString, "versionTests");
+    unSuppressLogs();
+    expect(model.version).toEqual(14);
     const outcome = checkModel(model);
     if (outcome.message.length > 0) {
       log(`outcome.message = ${outcome.message}`);
@@ -740,9 +760,9 @@ describe("loadModelsFromJSON", () => {
   });
 
   // future versions should not load - expect an error message to come out
-  it("migrateFromV14", () => {
-    const jsonString = v14ModelJSON;
-    let foundError = "no error thrown in migrateFromV14";
+  it("migrateFromV15", () => {
+    const jsonString = v15ModelJSON;
+    let foundError = "no error thrown in migrateFromV15";
     try {
       makeModelFromJSON(jsonString);
     } catch (e) {
@@ -751,7 +771,7 @@ describe("loadModelsFromJSON", () => {
       }
     }
     expect(foundError).toBe(
-      "this data (v 14) was saved with a newer version of the app (v 13) - please upgrade the app",
+      `this data (v 15) was saved with a newer version of the app (v ${getCurrentVersion()}) - please upgrade the app`,
     );
   });
   

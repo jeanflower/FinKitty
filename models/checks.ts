@@ -563,7 +563,9 @@ export function checkAsset(a: Asset, model: ModelData): string {
   }
   if (!isNumberString(a.VALUE)) {
     if (parseFloat(a.GROWTH) !== 0.0) {
-      return `Asset '${a.NAME}' value '${a.VALUE}' may not have nonzero growth`;
+      if (!isResolvableNumericSettingValue(a.VALUE, model)) {
+        return `Asset '${a.NAME}' value '${a.VALUE}' may not have nonzero growth`;
+      }
     }
     if (!a.CPI_IMMUNE) {
       if (valueIsPlainSettingAlias(a.VALUE)) {
@@ -702,7 +704,9 @@ export function checkIncome(i: Income, model: ModelData): string {
   }
   if (!isNumberString(i.VALUE)) {
     if (parseFloat(i.GROWTH ?? "0") !== 0.0) {
-      return `Income '${i.NAME}' value '${i.VALUE}' may not have nonzero growth`;
+      if (!isResolvableNumericSettingValue(i.VALUE, model)) {
+        return `Income '${i.NAME}' value '${i.VALUE}' may not have nonzero growth`;
+      }
     }
     // A non-numeric value may grow with CPI only when it resolves through
     // settings to a number; such a value is normalised at evaluation time.
@@ -772,7 +776,9 @@ export function checkExpense(e: Expense, model: ModelData): string {
   }
   if (!isNumberString(e.VALUE)) {
     if (parseFloat(e.GROWTH ?? "0") !== 0.0) {
-      return `Expense '${e.NAME}' value '${e.VALUE}' may not have nonzero growth`;
+      if (!isResolvableNumericSettingValue(e.VALUE, model)) {
+        return `Expense '${e.NAME}' value '${e.VALUE}' may not have nonzero growth`;
+      }
     }
     // A non-numeric value may grow with CPI only when it resolves through
     // settings to a number; such a value is normalised at evaluation time.
@@ -1633,7 +1639,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
           return (
             `Transaction '${getDisplayName(t.NAME, t.TYPE)}' ` +
             `from unrecognised asset ` +
-            `(could be typo or before asset start date?) : ${showObj(word)}`
+            `(could be a typo, or before asset start date?) : ${showObj(word)}`
           );
         }
       }
@@ -2267,9 +2273,19 @@ export function checkGenerator(g: Generator, model: ModelData): string {
 export function generateAndCheckModel(
   model: ModelData
 ) {
+  const alreadyProcessed = model.name === "has been processed";
   const copyModel = makeModelFromJSON(JSON.stringify(model));
-  copyModel.name = 'temporary copy';
-  processGenerators(copyModel);
+  copyModel.name = "temporary copy";
+  if (!alreadyProcessed) {
+    const processError = processGenerators(copyModel);
+    if (processError.length > 0) {
+      return {
+        type: undefined,
+        itemName: undefined,
+        message: processError,
+      };
+    }
+  }
 
   const result = checkModel(copyModel);
   return result;

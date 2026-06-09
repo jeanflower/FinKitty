@@ -191,7 +191,7 @@ export function assetsDiv(
       {todaysAssetsTable(model, todaysValues, parentCallbacks)}
       {collapsibleFragment(
         renderBondGeneratorsTable(
-          model,
+          parentCallbacks.modelRaw,
           parentCallbacks.filterForEra,
           parentCallbacks.showAlert,
           doChecks,
@@ -205,7 +205,7 @@ export function assetsDiv(
       )}
       {collapsibleFragment(
         renderDCPGeneratorsTable(
-          model,
+          parentCallbacks.modelRaw,
           parentCallbacks.filterForEra,
           parentCallbacks.showAlert,
           doChecks,

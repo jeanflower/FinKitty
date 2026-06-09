@@ -47,6 +47,7 @@ import {
 import {
   Asset,
   BondGeneratorDetails,
+  DBPGeneratorDetails,
   DCGeneratorDetails,
   Expense,
   Generator,
@@ -2459,6 +2460,10 @@ export function triggersTableDivWithHeading(
   );
 }
 
+function isDBPGeneratedIncome(name: string): boolean {
+  return name.startsWith(pensionDB) || name.startsWith(pensionTransfer);
+}
+
 function incomesForTable(
   model: ModelData,
   todaysValues: Map<Income, IncomeVal>,
@@ -2468,7 +2473,8 @@ function incomesForTable(
     .filter((obj: Item) => {
       return (
         parentCallbacks.filterForEra(obj) &&
-        parentCallbacks.filterForSearch(obj)
+        parentCallbacks.filterForSearch(obj) &&
+        !isDBPGeneratedIncome(obj.NAME)
       );
     })
 
@@ -2504,6 +2510,138 @@ function incomesForTable(
   return addIndices(unindexedResult);
 }
 
+function incomeDefinitionColumns(
+  model: ModelData,
+  parentCallbacks: ViewCallbacks,
+  options: {
+    editable: boolean;
+    withActions: boolean;
+    tableID: string;
+  },
+) {
+  const readOnly = (col: Record<string, unknown>) =>
+    options.editable ? col : { ...col, renderEditCell: undefined };
+
+  let columns: any[] = [];
+  if (options.withActions) {
+    columns.push(
+      faveColumn(
+        parentCallbacks.deleteIncome,
+        parentCallbacks.setEraIncome,
+        options.tableID,
+      ),
+    );
+  }
+  columns.push(
+    readOnly({
+      ...defaultColumn,
+      key: "NAME",
+      name: "name",
+    }),
+  );
+  if (parentCallbacks.doShowTodaysValueColumns()) {
+    columns = columns.concat([
+      readOnly({
+        ...cashValueColumn,
+        key: "TODAYSVALUE",
+        name: `value\nat ${getTodaysDate(model).getViewDescription()}`,
+        renderEditCell: undefined,
+      }),
+    ]);
+  }
+  columns = columns.concat([
+    readOnly({
+      ...cashValueColumn,
+      key: "VALUE",
+      name: "value definition",
+    }),
+    readOnly({
+      ...triggerDateColumn(model),
+      key: "VALUE_SET",
+      name: "definition date",
+    }),
+    readOnly({
+      ...triggerDateColumn(model),
+      key: "START",
+      name: "start",
+    }),
+    readOnly({
+      ...triggerDateColumn(model),
+      key: "END",
+      name: "end",
+    }),
+    readOnly({
+      ...defaultColumn,
+      key: "GROWS_WITH_CPI",
+      name: "grows with CPI",
+    }),
+    readOnly({
+      ...growthColumn(model.settings),
+      key: "GROWTH",
+      name: "growth",
+    }),
+    readOnly({
+      ...defaultColumn,
+      key: "LIABILITY",
+      name: "tax Liability",
+    }),
+    readOnly({
+      ...defaultColumn,
+      key: "RECURRENCE",
+      name: "recurrence",
+    }),
+    readOnly({
+      ...defaultColumn,
+      key: "CATEGORY",
+      name: "category",
+    }),
+  ]);
+  return columns;
+}
+
+function generatedPensionIncomesForTable(
+  model: ModelData,
+  todaysValues: Map<Income, IncomeVal>,
+  parentCallbacks: ViewCallbacks,
+) {
+  const unindexedResult = model.incomes
+    .filter((obj: Item) => {
+      return (
+        parentCallbacks.filterForEra(obj) &&
+        parentCallbacks.filterForSearch(obj) &&
+        isDBPGeneratedIncome(obj.NAME)
+      );
+    })
+    .map((obj: Income) => {
+      let todaysVForTable = 0.0;
+      const todaysValkey = [...todaysValues.keys()].find((i) => {
+        return i.NAME === obj.NAME;
+      });
+
+      const todaysV = todaysValkey ? todaysValues.get(todaysValkey) : undefined;
+      if (todaysV !== undefined) {
+        if (!todaysV.hasEnded) {
+          todaysVForTable = todaysV.incomeVal;
+        }
+      }
+      return {
+        END: obj.END,
+        GROWS_WITH_CPI: makeYesNoFromBoolean(!obj.CPI_IMMUNE),
+        GROWTH: makeStringFromGrowth(obj.GROWTH ?? "0", model.settings),
+        NAME: obj.NAME,
+        ERA: obj.ERA,
+        START: obj.START,
+        VALUE: obj.VALUE,
+        VALUE_SET: obj.VALUE_SET,
+        LIABILITY: obj.LIABILITY,
+        RECURRENCE: obj.RECURRENCE,
+        CATEGORY: obj.CATEGORY,
+        TODAYSVALUE: `${todaysVForTable}`,
+      };
+    });
+  return addIndices(unindexedResult);
+}
+
 function incomesTableDiv(
   model: ModelData,
   incData: any[],
@@ -2514,82 +2652,11 @@ function incomesTableDiv(
   if (incData.length === 0) {
     return;
   }
-  let columns: any[] = [
-    /*
-    {
-      ...defaultColumn,
-      key: 'index',
-      name: 'index',
-    },
-    */
-    faveColumn(
-      parentCallbacks.deleteIncome,
-      parentCallbacks.setEraIncome,
-      "incomeDefTable",
-    ),
-    {
-      ...defaultColumn,
-      key: "NAME",
-      name: "name",
-    },
-  ];
-  if (parentCallbacks.doShowTodaysValueColumns()) {
-    columns = columns.concat([
-      {
-        ...cashValueColumn,
-        key: "TODAYSVALUE",
-        name: `value\nat ${getTodaysDate(model).getViewDescription()}`,
-        renderEditCell: undefined,
-      },
-    ]);
-  }
-  columns = columns.concat([
-    {
-      ...cashValueColumn,
-      key: "VALUE",
-      name: "value definition",
-    },
-    {
-      ...triggerDateColumn(model),
-      key: "VALUE_SET",
-      name: "definition date",
-    },
-    {
-      ...triggerDateColumn(model),
-      key: "START",
-      name: "start",
-    },
-    {
-      ...triggerDateColumn(model),
-      key: "END",
-      name: "end",
-    },
-    {
-      ...defaultColumn,
-      key: "GROWS_WITH_CPI",
-      name: "grows with CPI",
-    },
-    {
-      ...growthColumn(model.settings),
-      key: "GROWTH",
-      name: "growth",
-    },
-    {
-      ...defaultColumn,
-      key: "LIABILITY",
-      name: "tax Liability",
-    },
-    {
-      ...defaultColumn,
-      key: "RECURRENCE",
-      name: "recurrence",
-    },
-    {
-      ...defaultColumn,
-      key: "CATEGORY",
-      name: "category",
-    },
-  ]);
+  const columns = incomeDefinitionColumns(model, parentCallbacks, {
+    editable: true,
+    withActions: true,
+    tableID,
+  });
   return (
     <div
       style={{
@@ -2623,6 +2690,41 @@ function incomesTableDiv(
   );
 }
 
+function generatedPensionIncomesTableDiv(
+  model: ModelData,
+  incData: any[],
+  parentCallbacks: ViewCallbacks,
+  tableID: string,
+) {
+  if (incData.length === 0) {
+    return;
+  }
+  const columns = incomeDefinitionColumns(model, parentCallbacks, {
+    editable: false,
+    withActions: false,
+    tableID,
+  });
+  return (
+    <div
+      style={{
+        display: "block",
+      }}
+    >
+      <fieldset>
+        <div className="dataGridGeneratedPensionIncomes">
+          <DataGridFinKitty
+            tableID={tableID}
+            rows={incData}
+            columns={columns}
+            model={model}
+          />
+        </div>
+        <p />
+      </fieldset>
+    </div>
+  );
+}
+
 export function incomesTableDivWithHeading(
   model: ModelData,
   todaysValues: Map<Income, IncomeVal>,
@@ -2636,6 +2738,30 @@ export function incomesTableDivWithHeading(
   return collapsibleFragment(
     incomesTableDiv(model, incData, doChecks, parentCallbacks, "incomesTable"),
     `Income definitions`,
+  );
+}
+
+export function generatedPensionIncomesTableDivWithHeading(
+  model: ModelData,
+  todaysValues: Map<Income, IncomeVal>,
+  parentCallbacks: ViewCallbacks,
+) {
+  const incData: any[] = generatedPensionIncomesForTable(
+    model,
+    todaysValues,
+    parentCallbacks,
+  );
+  if (incData.length === 0) {
+    return;
+  }
+  return collapsibleFragment(
+    generatedPensionIncomesTableDiv(
+      model,
+      incData,
+      parentCallbacks,
+      "generatedPensionIncomesTable",
+    ),
+    `Generated pension incomes (from defined benefits)`,
   );
 }
 
@@ -4960,6 +5086,296 @@ export function renderDCPGeneratorsTable(
   /> 
 
   return dcptable;
+}
+
+function handleDBPGeneratorGridRowsUpdated(
+  model: ModelData,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  rows: any[],
+  submitGenerator: (generatorInput: Generator, modelData: ModelData) => Promise<boolean>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+  args: any,
+) {
+  const newTable = args[0];
+  const change = args[1];
+  const changedIndexes = change.indexes;
+  const changedColumn = change.column;
+
+  if (changedIndexes.length > 1) {
+    throw new Error(`don't handle multirow edits`);
+  }
+
+  const oldRow = rows.find((r) => {
+    return r.index === changedIndexes[0];
+  });
+  const oldVal = oldRow[changedColumn.key];
+
+  const newRow = newTable.find((r: any) => {
+    return r.index === changedIndexes[0];
+  });
+  const newVal = newRow[changedColumn.key];
+
+  if (oldVal === newVal) {
+    return;
+  }
+
+  if (changedColumn.key === "NAME") {
+    if (doChecks) {
+      if (oldVal !== newVal) {
+        const clashCheck = checkForWordClashInModel(model, newVal, "already");
+        if (clashCheck !== "") {
+          showAlert(clashCheck);
+          return;
+        }
+      }
+    }
+    attemptRename(doChecks, oldVal, newVal, showAlert, refreshData);
+    return;
+  }
+
+  const matchedGenerator = model.generators.filter((g) => {
+    return g.NAME === oldRow.NAME;
+  });
+  if (matchedGenerator.length !== 1) {
+    log(`Error: generator ${oldRow.NAME} not found in model?`);
+    return;
+  }
+
+  newRow[changedColumn.key] = newVal;
+
+  const parsedValue = makeCashValueFromString(newRow.VALUE);
+  const parsedIncomeGrowth = makeGrowthFromString(
+    newRow.IncomeGrowth,
+    model.settings,
+  );
+
+  const buildGeneratorForSubmission = (): Generator => {
+    const valueForSubmission = parsedValue.checksOK
+      ? `${parsedValue.value}`
+      : newRow.VALUE;
+    return {
+      TYPE: "Defined Benefits",
+      NAME: newRow.NAME,
+      ERA: newRow.ERA,
+      DETAILS: {
+        VALUE: valueForSubmission,
+        VALUE_SET: newRow.VALUE_SET,
+        STOP_SOURCE: newRow.STOP_SOURCE,
+        START: newRow.START,
+        END: newRow.END,
+        GROWS_WITH_CPI: newRow.GROWS_WITH_CPI,
+        IncomeGrowth: parsedIncomeGrowth.checksOK
+          ? parsedIncomeGrowth.value
+          : newRow.IncomeGrowth,
+        TRANSFERRED_STOP: newRow.TRANSFERRED_STOP,
+        INCOME_SOURCE: newRow.INCOME_SOURCE,
+        SALARY_SACRIFICED: newRow.SALARY_SACRIFICED,
+        CONTRIBUTION_AMOUNT: newRow.CONTRIBUTION_AMOUNT,
+        ACCRUAL: newRow.ACCRUAL,
+        TRANSFER_TO: newRow.TRANSFER_TO,
+        TRANSFER_PROPORTION: newRow.TRANSFER_PROPORTION,
+        TAX_LIABILITY: newRow.TAX_LIABILITY,
+        CATEGORY: newRow.CATEGORY,
+      },
+    };
+  };
+
+  if (doChecks) {
+    if (!parsedIncomeGrowth.checksOK) {
+      showAlert(`generator income growth ${newRow.IncomeGrowth} not understood`);
+      newRow[changedColumn.key] = oldVal;
+      return;
+    }
+    submitGenerator(buildGeneratorForSubmission(), model);
+  } else {
+    submitGenerator(buildGeneratorForSubmission(), model);
+  }
+}
+
+export function renderDBPGeneratorsTable(
+  model: ModelData,
+  filterForEra: (item: Item) => boolean,
+  showAlert: (arg0: string) => void,
+  doChecks: boolean,
+  submitGenerator: (
+    generator: Generator,
+    modelData?: ModelData,
+  ) => Promise<boolean>,
+  deleteGenerator: (name: string) => Promise<DeleteResult>,
+  setEraGenerator: (name: string, value: number) => Promise<boolean>,
+  attemptRename: (
+    doChecks: boolean,
+    old: string,
+    replacement: string,
+    showAlert: (message: string) => void,
+    refreshData: (
+      refreshModel: boolean,
+      refreshChart: boolean,
+      sourceID: number,
+    ) => Promise<void>,
+  ) => Promise<string>,
+  refreshData: (
+    refreshModel: boolean,
+    refreshChart: boolean,
+    sourceID: number,
+  ) => Promise<void>,
+) {
+  // model must be the unprocessed (raw) model — not modelDataProcessed.
+  const generators: Generator[] = model.generators.filter((g) => {
+    return g.TYPE === "Defined Benefits" && filterForEra(g);
+  });
+
+  const rowData = addIndices(
+    generators.map((g) => {
+      const details: DBPGeneratorDetails = g.DETAILS;
+      return {
+        NAME: g.NAME,
+        ERA: g.ERA,
+        VALUE: details.VALUE,
+        VALUE_SET: details.VALUE_SET,
+        GROWS_WITH_CPI: details.GROWS_WITH_CPI,
+        IncomeGrowth: details.IncomeGrowth ?? "0",
+        TAX_LIABILITY: details.TAX_LIABILITY,
+        CATEGORY: details.CATEGORY,
+        STOP_SOURCE: details.STOP_SOURCE,
+        START: details.START,
+        END: details.END,
+        TRANSFERRED_STOP: details.TRANSFERRED_STOP,
+        INCOME_SOURCE: details.INCOME_SOURCE,
+        SALARY_SACRIFICED: details.SALARY_SACRIFICED,
+        CONTRIBUTION_AMOUNT: details.CONTRIBUTION_AMOUNT,
+        ACCRUAL: details.ACCRUAL,
+        TRANSFER_TO: details.TRANSFER_TO,
+        TRANSFER_PROPORTION: details.TRANSFER_PROPORTION,
+      };
+    }),
+  );
+
+  const dbpTable = (
+    <DataGridFinKitty
+      tableID="dbpGeneratorTable"
+      rows={rowData}
+      columns={[
+        faveColumn(deleteGenerator, setEraGenerator, "dbpGeneratorTable"),
+        {
+          ...defaultColumn,
+          key: "NAME",
+          name: "name",
+        },
+        {
+          ...cashValueColumn,
+          key: "VALUE",
+          name: `value`,
+        },
+        {
+          ...triggerDateColumn(model),
+          key: "VALUE_SET",
+          name: `value set`,
+        },
+        {
+          ...defaultColumn,
+          key: "GROWS_WITH_CPI",
+          name: `grows with cpi`,
+        },
+        {
+          ...growthColumn(model.settings),
+          key: "IncomeGrowth",
+          name: "income growth",
+        },
+        {
+          ...defaultColumn,
+          key: "TAX_LIABILITY",
+          name: `tax liability`,
+        },
+        {
+          ...defaultColumn,
+          key: "CATEGORY",
+          name: `category`,
+        },
+        {
+          ...triggerDateColumn(model),
+          key: "STOP_SOURCE",
+          name: `stop contributions`,
+        },
+        {
+          ...triggerDateColumn(model),
+          key: "START",
+          name: `pension start`,
+        },
+        {
+          ...triggerDateColumn(model),
+          key: "END",
+          name: `pension end`,
+        },
+        {
+          ...triggerDateColumn(model),
+          key: "TRANSFERRED_STOP",
+          name: `transferred stop`,
+        },
+        {
+          ...defaultColumn,
+          key: "INCOME_SOURCE",
+          name: `income source`,
+        },
+        {
+          ...defaultColumn,
+          key: "SALARY_SACRIFICED",
+          name: `sal. sacrifice`,
+        },
+        {
+          ...defaultColumn,
+          key: "CONTRIBUTION_AMOUNT",
+          name: `contribution amount`,
+        },
+        {
+          ...defaultColumn,
+          key: "ACCRUAL",
+          name: `accrual`,
+        },
+        {
+          ...defaultColumn,
+          key: "TRANSFER_TO",
+          name: `transfer to`,
+        },
+        {
+          ...defaultColumn,
+          key: "TRANSFER_PROPORTION",
+          name: `transfer proportion`,
+        },
+      ]}
+      model={model}
+      handleGridRowsUpdated={function (...args: any[]) {
+        return handleDBPGeneratorGridRowsUpdated(
+          model,
+          showAlert,
+          doChecks,
+          rowData,
+          submitGenerator,
+          attemptRename,
+          refreshData,
+          args,
+        );
+      }}
+    />
+  );
+
+  return dbpTable;
 }
 
 function handleDCPWithdrawalGeneratorGridRowsUpdated(

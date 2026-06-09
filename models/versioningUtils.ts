@@ -680,6 +680,17 @@ function migrateFromV12(model: ModelData) {
   model.version = 13;
 }
 
+function migrateFromV13(model: ModelData) {
+  model.generators.forEach((g) => {
+    if (g.TYPE === "Defined Benefits" && g.DETAILS !== undefined) {
+      if (g.DETAILS.IncomeGrowth === undefined) {
+        g.DETAILS.IncomeGrowth = "0";
+      }
+    }
+  });
+  model.version = 14;
+}
+
 export function migrateOldVersions(model: ModelDataFromFile) {
   /* istanbul ignore if  */ //debug
   if (showMigrationLogs) {
@@ -725,9 +736,12 @@ export function migrateOldVersions(model: ModelDataFromFile) {
   if (model.version === 12) {
     migrateFromV12(model);
   }
-  /*
   if (model.version === 13) {
     migrateFromV13(model);
+  }
+  /*
+  if (model.version === 14) {
+    migrateFromV14(model);
   }
   */
   // log(`model after migration is ${showObj(model)}`);

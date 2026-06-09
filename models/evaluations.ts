@@ -99,6 +99,7 @@ import {
   revalueToValueReferencesCurrentValue,
   substituteCurrentValue,
   makeIncomeLiabilityFromNameAndNI,
+  makeGrowthFromString,
   modelNameReferencesSetting,
   modelAssetNames,
   modelSettingNamesLongestFirst,
@@ -235,6 +236,14 @@ function isConditionalTransactionMoment(d: DatedThing): boolean {
   return d.type === momentType.transaction && d.name.startsWith(conditional);
 }
 
+function isPensionTransferTransactionMoment(d: DatedThing): boolean {
+  return d.type === momentType.transaction && d.name.startsWith(pensionTransfer);
+}
+
+function isPensionTransferIncomeMoment(d: DatedThing): boolean {
+  return d.type === momentType.income && d.name.startsWith(pensionTransfer);
+}
+
 export function sortByDate(arrayOfDatedThings: DatedThing[]) {
   /* istanbul ignore if  */ //debug
   if (printDebug()) {
@@ -256,6 +265,19 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
       result = 1;
     } else if (bd_after_ad_ms < 0) {
       result = -1;
+    }
+    if (result === 0) {
+      // -PT transfer: run the autogen transaction before the income moment on
+      // the same date (pop() walks from the end, so sort the transaction later).
+      const aPtTran = isPensionTransferTransactionMoment(a);
+      const bPtTran = isPensionTransferTransactionMoment(b);
+      const aPtInc = isPensionTransferIncomeMoment(a);
+      const bPtInc = isPensionTransferIncomeMoment(b);
+      if (aPtInc && bPtTran) {
+        result = -1;
+      } else if (aPtTran && bPtInc) {
+        result = 1;
+      }
     }
     if (result === 0) {
       // Conditional transactions are evaluated last at a given instant (pop()
@@ -6597,6 +6619,26 @@ function handleInflationStep(
     );
   }
 }
+function resolveNumericStoredValue(
+  name: string,
+  stored: number | string,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  callerID: string,
+): number | undefined {
+  if (typeof stored === "number") {
+    return stored;
+  }
+  if (isNumberString(stored)) {
+    return parseFloat(stored);
+  }
+  const fromStored = traceEvaluation(stored, values, growths, callerID);
+  if (fromStored !== undefined) {
+    return fromStored;
+  }
+  return traceEvaluation(name, values, growths, callerID);
+}
+
 function applyAnnualIncomeGrowth(
   values: ValuesContainer,
   growths: Map<string, GrowthData>,
@@ -6619,6 +6661,16 @@ function applyAnnualIncomeGrowth(
     if (existing === undefined) {
       return;
     }
+    const numericExisting = resolveNumericStoredValue(
+      name,
+      existing,
+      values,
+      growths,
+      "annualIncomeGrowthExisting",
+    );
+    if (numericExisting === undefined) {
+      return;
+    }
     let adaptedGrowth = growth;
     if (g.applyCPI) {
       const cpiVal = traceEvaluation(
@@ -6632,27 +6684,15 @@ function applyAnnualIncomeGrowth(
       }
     }
     const annualFactor = 1.0 + adaptedGrowth / 100.0;
-    if (typeof existing === "number") {
-      values.set(
-        name,
-        existing * annualFactor,
-        growths,
-        date,
-        "annualGrowthChange",
-        false, // reportIfNoChange
-        "45", //callerID
-      );
-    } else if (typeof existing === "string" && isNumberString(existing)) {
-      values.set(
-        name,
-        parseFloat(existing) * annualFactor,
-        growths,
-        date,
-        "annualGrowthChange",
-        false, // reportIfNoChange
-        "45", //callerID
-      );
-    }
+    values.set(
+      name,
+      numericExisting * annualFactor,
+      growths,
+      date,
+      "annualGrowthChange",
+      false, // reportIfNoChange
+      "45", //callerID
+    );
   });
 }
 
@@ -8067,6 +8107,17 @@ function processDBPGenerators(
         return `Grows with inflation '${dBDetails.GROWS_WITH_CPI}' ` +
             `should be a Y/N value`;
       }
+
+      const parsedIncomeGrowth = makeGrowthFromString(
+        dBDetails.IncomeGrowth ?? "0",
+        model.settings,
+      );
+      if (!parsedIncomeGrowth.checksOK) {
+        return (
+          `Income growth '${dBDetails.IncomeGrowth ?? "0"}' ` +
+          `should be a numerical or setting value`
+        );
+      }
   
       const parseYNDBSS = makeBooleanFromYesNo(dBDetails.SALARY_SACRIFICED);
       if (dBDetails.INCOME_SOURCE !== "") {
@@ -8174,7 +8225,7 @@ function processDBPGenerators(
         VALUE: dBDetails.VALUE,
         VALUE_SET: dBDetails.VALUE_SET,
         LIABILITY: inputLiability,
-        GROWTH: "0",
+        GROWTH: parsedIncomeGrowth.value,
         CPI_IMMUNE: !parseYNGrowsWithCPI.value,
         RECURRENCE: '1m',
         CATEGORY: dBDetails.CATEGORY,
@@ -8198,7 +8249,7 @@ function processDBPGenerators(
           VALUE: "0.0",
           VALUE_SET: dBDetails.VALUE_SET,
           LIABILITY: builtLiability2,
-          GROWTH: "0",
+          GROWTH: parsedIncomeGrowth.value,
           CPI_IMMUNE: !parseYNGrowsWithCPI.value,
           RECURRENCE: '1m',
           CATEGORY: dBDetails.CATEGORY,

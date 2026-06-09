@@ -172,14 +172,18 @@ function getTaxShowNet(settings: ViewSettings) {
   return type === "Y" || type === "y" || type === "yes";
 }
 
+type RefreshDataFn = (
+  refreshModel: boolean,
+  refreshChart: boolean,
+  sourceID: number,
+  evaluateModel?: boolean,
+  hidePageWhileComputing?: boolean,
+) => Promise<void>;
+
 async function setViewFrequency(
   viewState: ViewSettings,
   val: string,
-  refreshData: (
-    refreshModel: boolean,
-    refreshChart: boolean,
-    sourceID: number,
-  ) => Promise<void>,
+  refreshData: RefreshDataFn,
   updateFrequency: (newVal: string) => boolean,
 ) {
   return setViewSettingNameVal(
@@ -194,11 +198,7 @@ async function setViewSettingNameVal(
   settings: ViewSettings,
   name: string,
   val: string,
-  refreshData: (
-    refreshModel: boolean,
-    refreshChart: boolean,
-    sourceID: number,
-  ) => Promise<void>,
+  refreshData: RefreshDataFn,
   updateFrequency?: (newVal: string) => boolean,
 ) {
   let needsRefreshData = false;
@@ -229,6 +229,8 @@ async function setViewSettingNameVal(
     needsRefreshData, // refreshModel
     true, // refreshChart
     29, //sourceID
+    true, // evaluateModel
+    false, // hidePageWhileComputing — keep current page visible during view-setting changes
   );
 }
 
@@ -238,11 +240,7 @@ function makeFilterButton(
   context: Context,
   refreshModel: boolean,
   isCategory: boolean,
-  refreshData: (
-    refreshModel: boolean,
-    refreshChart: boolean,
-    sourceID: number,
-  ) => Promise<void>,
+  refreshData: RefreshDataFn,
 ) {
   let id = "";
   if (context === Context.Income) {
@@ -275,6 +273,8 @@ function makeFilterButton(
         refreshModel, // refreshModel
         true, // refreshChart
         30, //sourceID
+        true, // evaluateModel
+        false, // hidePageWhileComputing — keep current page visible during view-setting changes
       );
     },
     buttonName,
@@ -288,11 +288,7 @@ export function filtersList(
   settings: ViewSettings,
   context: Context,
   refreshModel: boolean,
-  refreshData: (
-    refreshModel: boolean,
-    refreshChart: boolean,
-    sourceID: number,
-  ) => Promise<void>,
+  refreshData: RefreshDataFn,
 ) {
   const incomeOrExpenseNames: string[] = items
     .map((data) => data.NAME)
@@ -1204,11 +1200,7 @@ export function expensesChartDivWithButtons(
 
 function assetViewTypeList(
   settings: ViewSettings,
-  refreshData: (
-    refreshModel: boolean,
-    refreshChart: boolean,
-    sourceID: number,
-  ) => Promise<void>,
+  refreshData: RefreshDataFn,
 ) {
   const viewTypes: string[] = [
     chartVals,
@@ -1340,11 +1332,7 @@ export function assetsOrDebtsChartDivWithButtons(
 function taxButtonList(
   model: ModelData,
   viewSettings: ViewSettings,
-  refreshData: (
-    refreshModel: boolean,
-    refreshChart: boolean,
-    sourceID: number,
-  ) => Promise<void>,
+  refreshData: RefreshDataFn,
 ) {
   const liabilityPeople = getLiabilityPeople(model);
   liabilityPeople.unshift(allItems);

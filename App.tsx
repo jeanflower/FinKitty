@@ -219,8 +219,19 @@ async function setWaitingSpinner(visible: boolean): Promise<void> {
   }
 }
 
+async function setHidePageContent(visible: boolean): Promise<void> {
+  if (reactAppComponent === undefined) {
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    reactAppComponent.setState({ hidePageContent: visible }, () => resolve());
+  });
+}
+
 /** Concurrent refreshData calls; spinner stays until all complete. */
 let refreshDataInFlight = 0;
+/** Concurrent refreshData calls that hide page content; page stays hidden until all complete. */
+let hidePageContentInFlight = 0;
 
 function computeRefreshShowSpinner(
   refreshModel: boolean,
@@ -235,11 +246,30 @@ function computeRefreshShowSpinner(
   );
 }
 
+function computeHidePageContent(
+  refreshModel: boolean,
+  evaluateModel: boolean,
+  hidePageWhileComputing?: boolean,
+): boolean {
+  if (hidePageWhileComputing === false) {
+    return false;
+  }
+  const isFirstEvaluation = evaluateModel && modelNeedsEvaluation();
+  return isFirstEvaluation || (refreshModel && evaluateModel);
+}
+
 async function finishRefreshSpinner(
   showSpinner: boolean,
+  hidePage: boolean,
   isFirstEvaluation: boolean,
   spinnerStartedAt: number,
 ): Promise<void> {
+  if (hidePage) {
+    hidePageContentInFlight = Math.max(0, hidePageContentInFlight - 1);
+    if (hidePageContentInFlight === 0) {
+      await setHidePageContent(false);
+    }
+  }
   refreshDataInFlight = Math.max(0, refreshDataInFlight - 1);
   if (!showSpinner || refreshDataInFlight > 0) {
     return;
@@ -279,10 +309,13 @@ function showHomeViewOnly(): void {
 
 function abortEvaluationWithAlert(message: string): void {
   lastRefreshEvaluationFailed = true;
+  hidePageContentInFlight = 0;
+  refreshDataInFlight = 0;
   if (reactAppComponent !== undefined) {
     reactAppComponent.setState({
       alertText: message,
       isWaiting: false,
+      hidePageContent: false,
     });
   }
 }
@@ -1022,6 +1055,7 @@ async function refreshData(
   refreshChart: boolean,
   sourceID: number,
   evaluateModel = true,
+  hidePageWhileComputing?: boolean,
 ): Promise<void> {
   // log(
   //   `refreshData called refreshModel = ${refreshModel}, refreshChart = ${refreshChart} from sourceID = ${sourceID}`,
@@ -1041,7 +1075,16 @@ async function refreshData(
     refreshChart,
     evaluateModel,
   );
+  const hidePage = computeHidePageContent(
+    refreshModel,
+    evaluateModel,
+    hidePageWhileComputing,
+  );
   const spinnerStartedAt = showSpinner ? Date.now() : 0;
+  if (hidePage) {
+    hidePageContentInFlight += 1;
+    await setHidePageContent(true);
+  }
   if (showSpinner) {
     await setWaitingSpinner(true);
   }
@@ -1100,7 +1143,12 @@ async function refreshData(
       );
     }
   } finally {
-    await finishRefreshSpinner(showSpinner, isFirstEvaluation, spinnerStartedAt);
+    await finishRefreshSpinner(
+      showSpinner,
+      hidePage,
+      isFirstEvaluation,
+      spinnerStartedAt,
+    );
   }
 }
 
@@ -1460,6 +1508,10 @@ async function submitROISetting(
     true, // refreshModel
     true, // refreshChart
     10, //sourceID
+    true, // evaluateModel
+    setting.NAME === roiStart || setting.NAME === roiEnd
+      ? false // keep page visible during chart date-range changes
+      : undefined,
   );
   return {
     updated: true,
@@ -2134,6 +2186,7 @@ interface AppState {
   totalTaxPaid: number;
   alertText: string;
   isWaiting: boolean;
+  hidePageContent: boolean;
 }
 interface AppProps {
   logOutAction: () => void;
@@ -2367,6 +2420,7 @@ class AppContent extends Component<AppProps, AppState> {
     totalTaxPaid: 0,
     alertText: "",
     isWaiting: false,
+    hidePageContent: false,
   };
 
   public constructor(props: AppProps) {
@@ -2666,8 +2720,15 @@ class AppContent extends Component<AppProps, AppState> {
         submitTrigger: async (trigger: Trigger) => {
           submitTrigger(trigger, this.state.modelDataRaw);
         },
-        submitGenerator: async (generatorInput: Generator) => {
-          return submitGenerator(generatorInput, this.state.modelDataRaw);
+        modelRaw: this.state.modelDataRaw,
+        submitGenerator: async (
+          generatorInput: Generator,
+          modelData?: ModelData,
+        ) => {
+          return submitGenerator(
+            generatorInput,
+            modelData ?? this.state.modelDataRaw,
+          );
         },
         attemptRename: async (
           doChecks: boolean,
@@ -2751,6 +2812,8 @@ class AppContent extends Component<AppProps, AppState> {
           const modelWillChange = model !== modelName;
           let showedEarlySpinner = false;
           if (skipRefresh && modelWillChange) {
+            hidePageContentInFlight += 1;
+            await setHidePageContent(true);
             await setWaitingSpinner(true);
             showedEarlySpinner = true;
           }
@@ -2768,6 +2831,10 @@ class AppContent extends Component<AppProps, AppState> {
             }
           } finally {
             if (showedEarlySpinner && refreshDataInFlight === 0) {
+              hidePageContentInFlight = Math.max(0, hidePageContentInFlight - 1);
+              if (hidePageContentInFlight === 0) {
+                await setHidePageContent(false);
+              }
               await setWaitingSpinner(false);
             }
           }
@@ -3068,7 +3135,7 @@ class AppContent extends Component<AppProps, AppState> {
   }
 
   private dataPagesDiv(parentCallbacks: ViewCallbacks): JSX.Element {
-    if (this.state.isWaiting) {
+    if (this.state.hidePageContent) {
       return <></>;
     }
     return (
@@ -3306,7 +3373,7 @@ class AppContent extends Component<AppProps, AppState> {
         }) !== undefined &&
         collapsibleFragment(
           renderDCPWithdrawalGeneratorsTable(
-            this.state.modelDataProcessed,
+            parentCallbacks.modelRaw,
             parentCallbacks.filterForEra,
             parentCallbacks.showAlert,
             this.options.checkModelOnEdit,

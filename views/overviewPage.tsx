@@ -15,6 +15,7 @@ import {
   assetsDivWithHeadings,
   debtsDivWithHeadings,
   expensesTableDivWithHeading,
+  generatedPensionIncomesTableDivWithHeading,
   incomesTableDivWithHeading,
   settingsTableDiv,
   transactionFilteredTable,
@@ -254,6 +255,11 @@ export function overviewDiv(
           model,
           todaysIncomeValues,
           doChecks,
+          parentCallbacks,
+        )}
+        {generatedPensionIncomesTableDivWithHeading(
+          model,
+          todaysIncomeValues,
           parentCallbacks,
         )}
         {transactionFilteredTable(

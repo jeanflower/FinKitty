@@ -6541,10 +6541,10 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 5, 'Sun Dec 01 2024', 355817.74, 2);
       expectChartData(chartPts, 6, 'Mon Dec 01 2025', 418102.14, 2);
       expectChartData(chartPts, 7, 'Tue Dec 01 2026', 482634.04, 2);
-      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 546054.37, 2);
-      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 608943.34, 2);
-      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 671903.74, 2);
-      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 671900.44, 2);
+      expectChartData(chartPts, 8, 'Wed Dec 01 2027', 546110.37, 2);
+      expectChartData(chartPts, 9, 'Fri Dec 01 2028', 608999.34, 2);
+      expectChartData(chartPts, 10, 'Sat Dec 01 2029', 671959.74, 2);
+      expectChartData(chartPts, 11, 'Sun Dec 01 2030', 671956.44, 2);
     }
 
     expect(result.assetData[1].item.NAME).toBe('javaDCP');
@@ -6598,7 +6598,7 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 6, 'Tue Apr 01 2025', 6, -1);
       expectChartData(chartPts, 7, 'Wed Apr 01 2026', 6, -1);
       expectChartData(chartPts, 8, 'Thu Apr 01 2027', 6, -1);
-      expectChartData(chartPts, 9, 'Sat Apr 01 2028', 30, -1);
+      expectChartData(chartPts, 9, 'Sat Apr 01 2028', 38, -1);
       expectChartData(chartPts, 10, 'Sun Apr 01 2029', 70, -1);
       expectChartData(chartPts, 11, 'Mon Apr 01 2030', 6, -1);
       expectChartData(chartPts, 12, 'Tue Apr 01 2031', 0, -1);
@@ -6617,7 +6617,7 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 6, 'Tue Apr 01 2025', 12267.60, 2);
       expectChartData(chartPts, 7, 'Wed Apr 01 2026', 12267.60, 2);
       expectChartData(chartPts, 8, 'Thu Apr 01 2027', 12592.08, 2);
-      expectChartData(chartPts, 9, 'Sat Apr 01 2028', 12688.08, 2);
+      expectChartData(chartPts, 9, 'Sat Apr 01 2028', 12720.08, 2);
       expectChartData(chartPts, 10, 'Sun Apr 01 2029', 12848.08, 2);
       expectChartData(chartPts, 11, 'Mon Apr 01 2030', 12592.08, 2);
       expectChartData(chartPts, 12, 'Tue Apr 01 2031', 8398.72, 2);
@@ -6712,7 +6712,7 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 6, 'Tue Apr 01 2025', 6, -1);
       expectChartData(chartPts, 7, 'Wed Apr 01 2026', 6, -1);
       expectChartData(chartPts, 8, 'Thu Apr 01 2027', 6, -1);
-      expectChartData(chartPts, 9, 'Sat Apr 01 2028', 24, -1);
+      expectChartData(chartPts, 9, 'Sat Apr 01 2028', 30, -1);
       expectChartData(chartPts, 10, 'Sun Apr 01 2029', 54, -1);
       expectChartData(chartPts, 11, 'Mon Apr 01 2030', 6, -1);
       expectChartData(chartPts, 12, 'Tue Apr 01 2031', 0, -1);
@@ -6731,7 +6731,7 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 6, 'Tue Apr 01 2025', 12267.60, 2);
       expectChartData(chartPts, 7, 'Wed Apr 01 2026', 12267.60, 2);
       expectChartData(chartPts, 8, 'Thu Apr 01 2027', 12592.08, 2);
-      expectChartData(chartPts, 9, 'Sat Apr 01 2028', 12664.08, 2);
+      expectChartData(chartPts, 9, 'Sat Apr 01 2028', 12688.08, 2);
       expectChartData(chartPts, 10, 'Sun Apr 01 2029', 12784.08, 2);
       expectChartData(chartPts, 11, 'Mon Apr 01 2030', 12592.08, 2);
       expectChartData(chartPts, 12, 'Tue Apr 01 2031', 8398.72, 2);
@@ -7248,7 +7248,7 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
       expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
       expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 82.50, 2);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 90.00, 2);
       expectChartData(chartPts, 5, 'Wed Apr 01 2026', 7.50, 2);
     }
 
@@ -7262,7 +7262,7 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
       expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
       expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 7.50, 2);
       expectChartData(chartPts, 5, 'Wed Apr 01 2026', 90.00, 2);
       expectChartData(chartPts, 6, 'Thu Apr 01 2027', 0, -1);
     }
@@ -7615,7 +7615,7 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
       expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
       expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 90.39, 2);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 98.40, 2);
       expectChartData(chartPts, 5, 'Wed Apr 01 2026', 8.22, 2);
     }
 
@@ -7629,7 +7629,7 @@ expectEvals(evals, 5, "Cash", "Sat Mar 10 2018", 465500, -1);
       expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
       expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
       expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+      expectChartData(chartPts, 4, 'Tue Apr 01 2025', 8.02, 2);
       expectChartData(chartPts, 5, 'Wed Apr 01 2026', 98.60, 2);
       expectChartData(chartPts, 6, 'Thu Apr 01 2027', 0, -1);
     }
@@ -7862,7 +7862,7 @@ it('handle PDB generator NI income no SS with cpi', () => {
     expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
     expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
     expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 167.54, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 182.40, 2);
     expectChartData(chartPts, 5, 'Wed Apr 01 2026', 15.23, 2);
   }
 
@@ -7876,7 +7876,7 @@ it('handle PDB generator NI income no SS with cpi', () => {
     expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
     expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
     expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 14.86, 2);
     expectChartData(chartPts, 5, 'Wed Apr 01 2026', 182.78, 2);
     expectChartData(chartPts, 6, 'Thu Apr 01 2027', 0, -1);
   }
@@ -8109,7 +8109,7 @@ it('handle PDB generator NI income SS with cpi', () => {
     expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
     expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
     expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 167.54, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 182.40, 2);
     expectChartData(chartPts, 5, 'Wed Apr 01 2026', 15.23, 2);
   }
 
@@ -8123,7 +8123,7 @@ it('handle PDB generator NI income SS with cpi', () => {
     expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
     expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
     expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 14.86, 2);
     expectChartData(chartPts, 5, 'Wed Apr 01 2026', 182.78, 2);
     expectChartData(chartPts, 6, 'Thu Apr 01 2027', 0, -1);
   }
@@ -8367,7 +8367,7 @@ it('handle PDB generator tax income SS with cpi', () => {
     expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
     expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
     expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 535.53, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 583.03, 2);
     expectChartData(chartPts, 5, 'Wed Apr 01 2026', 48.68, 2);
   }
 
@@ -8381,7 +8381,7 @@ it('handle PDB generator tax income SS with cpi', () => {
     expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
     expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
     expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 47.50, 2);
     expectChartData(chartPts, 5, 'Wed Apr 01 2026', 584.21, 2);
     expectChartData(chartPts, 6, 'Thu Apr 01 2027', 0, -1);
   }
@@ -8651,7 +8651,7 @@ it('handle PDB generator tax income no SS with cpi', () => {
     expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
     expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
     expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 535.53, 2);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 583.03, 2);
     expectChartData(chartPts, 5, 'Wed Apr 01 2026', 48.68, 2);
   }
 
@@ -8665,7 +8665,7 @@ it('handle PDB generator tax income no SS with cpi', () => {
     expectChartData(chartPts, 1, 'Fri Apr 01 2022', 0, -1);
     expectChartData(chartPts, 2, 'Sat Apr 01 2023', 0, -1);
     expectChartData(chartPts, 3, 'Mon Apr 01 2024', 0, -1);
-    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 0, -1);
+    expectChartData(chartPts, 4, 'Tue Apr 01 2025', 47.50, 2);
     expectChartData(chartPts, 5, 'Wed Apr 01 2026', 584.21, 2);
     expectChartData(chartPts, 6, 'Thu Apr 01 2027', 0, -1);
   }

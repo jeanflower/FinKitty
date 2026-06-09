@@ -24,6 +24,8 @@ import {
   generatorTypeDCPRevalue,
   dcpRevalueBatchCategoryPrefix,
   currentValue,
+  pensionDB,
+  pensionTransfer,
 } from "../../localization/stringConstants";
 import { expectedDCPRevalueTransactionNamePrefixFromCategory } from "../../models/dcpRevalueExpand";
 import {
@@ -37,6 +39,7 @@ import {
   checkSettings,
   checkTransaction,
   checkGenerator,
+  generateAndCheckModel,
   resolveNumericSettingValue,
 } from "../../models/checks";
 import { processGenerators } from "../../models/evaluations";
@@ -127,10 +130,32 @@ describe("checks tests", () => {
           VALUE: "cpi", // something that is not a number directly
           QUANTITY: "3",
           GROWTH: "0.1",
+          CPI_IMMUNE: true,
         },
         model,
       ),
-    ).toEqual(`Asset 'a' value 'cpi' may not have nonzero growth`);
+    ).toEqual("");
+    model.assets.push({
+      ...simpleAsset,
+      NAME: CASH_ASSET_NAME,
+      START: "January 1 2018",
+      VALUE: "0",
+      GROWTH: "0",
+    });
+    expect(
+      checkAsset(
+        {
+          ...simpleAsset,
+          NAME: "a",
+          START: "January 1 2018",
+          VALUE: CASH_ASSET_NAME,
+          QUANTITY: "3",
+          GROWTH: "0.1",
+          CPI_IMMUNE: true,
+        },
+        model,
+      ),
+    ).toEqual(`Asset 'a' value '${CASH_ASSET_NAME}' may not have nonzero growth`);
     expect(
       checkAsset(
         {
@@ -666,7 +691,7 @@ describe("checks tests", () => {
     oldName = model.transactions[2].NAME;
     model.transactions[2].NAME = "nonsense";
     expect(checkModel(model).message).toEqual(
-      `Transaction 'nonsense' from unrecognised asset (could be typo or before asset start date?) : \"TeachingJob\"`,
+      `Transaction 'nonsense' from unrecognised asset (could be a typo, or before asset start date?) : \"TeachingJob\"`,
     );
     model.transactions[2].NAME = oldName;
 
@@ -678,7 +703,7 @@ describe("checks tests", () => {
     );
     model.transactions[0].NAME = `${revalue} ${oldName}`;
     expect(checkModel(model).message).toEqual(
-      `Transaction ' -PT TeachersPensionScheme' from unrecognised asset (could be typo or before asset start date?) : \"-PDB TeachersPensionScheme\"`,
+      `Transaction ' -PT TeachersPensionScheme' from unrecognised asset (could be a typo, or before asset start date?) : \"-PDB TeachersPensionScheme\"`,
     );
     model.transactions[0].NAME = oldName;
     model.transactions[0].TYPE = revalueAsset;
@@ -1537,6 +1562,124 @@ describe("checks tests", () => {
     expect(processGenerators(model)).toBe("");
   });
 
+  it("processDBPGenerators applies IncomeGrowth to -PDB and -PT incomes", () => {
+    const model = getMinimalModelCopy();
+    model.name = "temporary copy";
+    model.incomes.push({
+      ...simpleIncome,
+      NAME: "Salary",
+      START: "01 Jan 2020",
+      END: "01 Jan 2050",
+      VALUE: "1000",
+      VALUE_SET: "01 Jan 2020",
+      LIABILITY: "Joe(incomeTax)",
+    });
+    model.generators.push({
+      NAME: "TeachersPensionScheme",
+      TYPE: "Defined Benefits",
+      ERA: 0,
+      DETAILS: {
+        VALUE: "10",
+        VALUE_SET: "01 Jan 2020",
+        STOP_SOURCE: "01 Jan 2025",
+        START: "01 Jan 2025",
+        END: "01 Jan 2030",
+        GROWS_WITH_CPI: "N",
+        IncomeGrowth: "2",
+        TRANSFERRED_STOP: "01 Jan 2035",
+        INCOME_SOURCE: "Salary",
+        SALARY_SACRIFICED: "N",
+        CONTRIBUTION_AMOUNT: "0.05",
+        ACCRUAL: "0.02",
+        TRANSFER_TO: "Jack",
+        TRANSFER_PROPORTION: "0.5",
+        TAX_LIABILITY: "Joe",
+        CATEGORY: "pension",
+      },
+    });
+    expect(processGenerators(model)).toBe("");
+    const pdbIncome = model.incomes.find(
+      (i) => i.NAME === pensionDB + "TeachersPensionScheme",
+    );
+    const ptIncome = model.incomes.find(
+      (i) => i.NAME === pensionTransfer + "TeachersPensionScheme",
+    );
+    expect(pdbIncome?.GROWTH).toBe("2");
+    expect(ptIncome?.GROWTH).toBe("2");
+  });
+
+  it("generateAndCheckModel allows DBP IncomeGrowth when VALUE is a resolvable setting", () => {
+    const model = getMinimalModelCopy();
+    model.name = "temporary copy";
+    model.settings.push({
+      NAME: "ZumaAnnuityJean",
+      VALUE: "5000",
+      HINT: "",
+      TYPE: "adjustable",
+      ERA: 0,
+    });
+    model.generators.push({
+      NAME: "AnnuityJean",
+      TYPE: "Defined Benefits",
+      ERA: 0,
+      DETAILS: {
+        VALUE: "ZumaAnnuityJean",
+        VALUE_SET: "01 Jan 2020",
+        STOP_SOURCE: "01 Jan 2025",
+        START: "01 Jan 2025",
+        END: "01 Jan 2030",
+        GROWS_WITH_CPI: "N",
+        IncomeGrowth: "2",
+        TRANSFERRED_STOP: "01 Jan 2035",
+        INCOME_SOURCE: "",
+        SALARY_SACRIFICED: "N",
+        CONTRIBUTION_AMOUNT: "",
+        ACCRUAL: "",
+        TRANSFER_TO: "",
+        TRANSFER_PROPORTION: "0",
+        TAX_LIABILITY: "Joe",
+        CATEGORY: "pension",
+      },
+    });
+    const outcome = generateAndCheckModel(model);
+    expect(outcome.message).toBe("");
+  });
+
+  it("generateAndCheckModel skips processGenerators on an already-processed model", () => {
+    const model = getMinimalModelCopy();
+    model.name = "has been processed";
+    model.incomes.push({
+      ...simpleIncome,
+      NAME: pensionDB + "TeachersPensionScheme",
+      START: "01 Jan 2025",
+      END: "01 Jan 2030",
+      VALUE: "10",
+      VALUE_SET: "01 Jan 2020",
+      GROWTH: "2",
+      CPI_IMMUNE: true,
+      LIABILITY: "Joe(incomeTax)",
+    });
+    model.assets.push({
+      ...simpleAsset,
+      NAME: "-PEN JeanRoyalLondon",
+      START: "01 Jan 2020",
+      VALUE: "1000",
+      GROWTH: "0",
+      CPI_IMMUNE: true,
+    });
+    model.transactions.push({
+      ...simpleTransaction,
+      NAME: "TransferJeanPensionAegontoRL",
+      FROM: CASH_ASSET_NAME,
+      TO: "-PEN JeanRoyalLondon",
+      TO_ABSOLUTE: false,
+      TO_VALUE: "1.0",
+      DATE: "01 Jan 2026",
+    });
+    const outcome = generateAndCheckModel(model);
+    expect(outcome.message).toBe("");
+  });
+
   it("DCP withdrawal generator rejects multiplied setting syntax in VALUE", () => {
     const model = getMinimalModelCopy();
     model.settings.push({
@@ -1748,7 +1891,22 @@ describe("checks tests", () => {
         },
         model,
       ),
-    ).toEqual(`Income 'a' value 'cpi' may not have nonzero growth`);
+    ).toEqual("");
+    expect(
+      checkIncome(
+        {
+          ...simpleIncome,
+          NAME: "a",
+          START: "January 1 2018",
+          END: "April 1 2018",
+          VALUE: CASH_ASSET_NAME,
+          GROWTH: "0.1",
+          CPI_IMMUNE: true,
+          LIABILITY: "",
+        },
+        model,
+      ),
+    ).toEqual(`Income 'a' value '${CASH_ASSET_NAME}' may not have nonzero growth`);
     expect(
       checkExpense(
         {
@@ -1761,6 +1919,20 @@ describe("checks tests", () => {
         },
         model,
       ),
-    ).toEqual(`Expense 'a' value 'cpi' may not have nonzero growth`);
+    ).toEqual("");
+    expect(
+      checkExpense(
+        {
+          ...simpleExpense,
+          NAME: "a",
+          START: "January 1 2018",
+          END: "April 1 2018",
+          VALUE: CASH_ASSET_NAME,
+          GROWTH: "0.1",
+          CPI_IMMUNE: true,
+        },
+        model,
+      ),
+    ).toEqual(`Expense 'a' value '${CASH_ASSET_NAME}' may not have nonzero growth`);
   });
 });

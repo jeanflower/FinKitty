@@ -13,6 +13,7 @@ import {
   monthly,
   nationalInsurance,
   pensionDB,
+  pensionTransfer,
   revalue,
   separator,
   taxChartFocusPerson,
@@ -992,6 +993,15 @@ export function makeChartData(
         // only show incomes and expenses as these affect
         // assets.
         // log(`skip expense or income revaluation`);
+        return;
+      }
+      if (
+        evalnType === evaluationType.income &&
+        evaln.name.startsWith(pensionTransfer) &&
+        evaln.source === evaln.name
+      ) {
+        // DBP transfer transaction sets the -PT income rate; chart the
+        // following income moment (source growth) as the payment instead.
         return;
       }
       if (evaln.name.startsWith(pensionDB)) {

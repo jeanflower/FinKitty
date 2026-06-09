@@ -117,7 +117,7 @@ describe(testName, () => {
       ...pensionInputs,
       name: "dcp06",
       startDate: "1 Jan 2036",
-      message: `Transaction '-CPTaxFreeM dcp06' from unrecognised asset (could be typo or before asset start date?) : \"${pensionPrefix}dcp06\"`,
+      message: `Transaction '-CPTaxFreeM dcp06' from unrecognised asset (could be a typo, or before asset start date?) : \"${pensionPrefix}dcp06\"`,
     }); // TODO : what does this error mean?  I expected "start date after end date"
 
     await clearDCPension(driver);

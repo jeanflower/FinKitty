@@ -152,7 +152,7 @@ describe(testName, () => {
       ...inputs,
       startDate: "1 Jan 2033",
       pensionEndOrTransferDate: "1 Jan 2032", // transfer pension before pension begins paying out?
-      message: `can't process generators of model: Transaction '-PT pensionName' from unrecognised asset (could be typo or before asset start date?) : "-PDB pensionName"`,
+      message: `Transaction '-PT pensionName' from unrecognised asset (could be a typo, or before asset start date?) : "-PDB pensionName"`,
     });
 
     await clearPensionFields(driver);
@@ -162,7 +162,7 @@ describe(testName, () => {
       startDate: "1 Jan 2039",
       pensionEndOrTransferDate: "1 Jan 2037", // transfer before pension begins paying out
       transferredStopDate: "1 Jan 2040",
-      message: `Transaction '-PT transferStopsBeforeTransfer' from unrecognised asset (could be typo or before asset start date?) : "-PDB transferStopsBeforeTransfer"`,
+      message: `Transaction '-PT transferStopsBeforeTransfer' from unrecognised asset (could be a typo, or before asset start date?) : "-PDB transferStopsBeforeTransfer"`,
     });
 
     await clearPensionFields(driver);

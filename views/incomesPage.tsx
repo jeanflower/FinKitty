@@ -10,10 +10,12 @@ import { checkIncome, checkTransaction } from "../models/checks";
 import {
   collapsibleFragment,
   defaultColumn,
+  generatedPensionIncomesTableDivWithHeading,
   incomesTableDivWithHeading,
   transactionFilteredTable,
   addIndices,
   cashValueColumn,
+  renderDBPGeneratorsTable,
 } from "./tablePages";
 
 import {
@@ -182,6 +184,11 @@ export function incomesDiv(
         doChecks,
         parentCallbacks,
       )}
+      {generatedPensionIncomesTableDivWithHeading(
+        model,
+        todaysValues,
+        parentCallbacks,
+      )}
       {todaysIncomesTable(
         model,
         todaysValues,
@@ -196,6 +203,20 @@ export function incomesDiv(
         parentCallbacks,
         "incomeRevalsTable",
       )}
+      {collapsibleFragment(
+        renderDBPGeneratorsTable(
+          parentCallbacks.modelRaw,
+          parentCallbacks.filterForEra,
+          parentCallbacks.showAlert,
+          doChecks,
+          parentCallbacks.submitGenerator,
+          parentCallbacks.deleteGenerator,
+          parentCallbacks.setEraGenerator,
+          parentCallbacks.attemptRename,
+          parentCallbacks.refreshData,
+        ),
+        `Defined Benefits Pension generators`,
+      )}
 
       {collapsibleFragment(
         <div className="addNewIncome">
@@ -207,7 +228,6 @@ export function incomesDiv(
             submitTransactionFunction={parentCallbacks.submitTransaction}
             deleteIncomeFunction={parentCallbacks.deleteIncome}
             submitGeneratorFunction={parentCallbacks.submitGenerator}
-            deleteGeneratorFunction={parentCallbacks.deleteGenerator}
             model={model}
             showAlert={parentCallbacks.showAlert}
             doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}

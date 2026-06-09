@@ -1,5 +1,5 @@
 import React, { Component, FormEvent } from "react";
-import { Button, Col, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 
 import {
   checkIncomeLiability,
@@ -71,6 +71,7 @@ interface EditIncomeFormState {
   DB_TRANSFER_TO: string;
   DB_TRANSFER_PROPORTION: string;
   DB_TRANSFERRED_STOP: string;
+  DB_INCOME_GROWTH: string;
 }
 
 const inputtingRevalue = "revalue";
@@ -94,7 +95,6 @@ interface EditIncomeProps extends FormProps {
   submitGeneratorFunction: (
     generator: Generator,
   ) => Promise<boolean>;
-  deleteGeneratorFunction: (name: string) => Promise<DeleteResult>;
   doCheckBeforeOverwritingExistingData: () => boolean;
   filterForEra: (item: Item) => boolean;
 }
@@ -186,6 +186,7 @@ export class AddDeleteIncomeForm extends Component<
       DB_TRANSFER_TO: "",
       DB_TRANSFER_PROPORTION: "",
       DB_TRANSFERRED_STOP: "",
+      DB_INCOME_GROWTH: "0",
     };
 
     this.state = this.defaultState;
@@ -206,86 +207,10 @@ export class AddDeleteIncomeForm extends Component<
     this.setInputRevalue = this.setInputRevalue.bind(this);
   }
 
-  private renderGenerators(
-    generators: Generator[],
-  ){
-    return generators.map((g) => {
-      return <>
-        <div><b>{g.NAME}</b></div>
-        {Object.keys(g.DETAILS).map((key) => {
-          return <div>
-            {`${key} ${g.DETAILS[key]}`}
-          </div>;
-        })}
-        <Button
-          onClick={()=>{
-            console.log(`edit ${g.NAME}`);
-            this.setState({
-              NAME: g.NAME,
-              VALUE: g.DETAILS.VALUE,
-              VALUE_SET: g.DETAILS.VALUE_SET,
-              START: "",
-              END: "",
-              GROWS_WITH_CPI: g.DETAILS.GROWS_WITH_CPI ? g.DETAILS.GROWS_WITH_CPI : 'n',
-              LIABILITY: g.DETAILS.TAX_LIABILITY,
-              RECURRENCE: "1m",
-              CATEGORY: g.DETAILS.CATEGORY,
-              inputting: inputtingPension,
-              DB_INCOME_SOURCE: g.DETAILS.INCOME_SOURCE,
-              DB_CONTRIBUTION_AMOUNT: g.DETAILS.CONTRIBUTION_AMOUNT,
-              DB_ACCRUAL: g.DETAILS.ACCRUAL,
-              DB_SS: g.DETAILS.SALARY_SACRIFICED,
-              DB_STOP_SOURCE: g.DETAILS.STOP_SOURCE,
-              DB_START: g.DETAILS.START,
-              DB_END: g.DETAILS.END,
-              DB_TRANSFER_TO: g.DETAILS.TRANSFER_TO,
-              DB_TRANSFER_PROPORTION: g.DETAILS.TRANSFER_PROPORTION,
-              DB_TRANSFERRED_STOP: g.DETAILS.TRANSFERRED_STOP,
-            })
-          }}
-        >Edit</Button>
-
-        <Button
-          onClick={async ()=>{
-            console.log(`delete ${g.NAME}`);
-            const outcome = await this.props.deleteGeneratorFunction(g.NAME);
-            if (outcome.itemsDeleted) {
-              this.props.showAlert(`deleted ${g.NAME}`);
-              // clear fields
-              this.setState(this.defaultState);
-              this.resetSelect(this.incomeSourceSelectID);
-            } else {
-              this.props.showAlert(outcome.message);
-            }
-          }}
-        >Delete</Button>
-      </>
-    })  
-  }
-  
-  private renderDPBGenerators(
-    generators: Generator[],
-  ){
-    return <>
-      {this.renderGenerators(
-        generators.filter((g) => {
-          return g.TYPE === 'Defined Benefits';
-        })
-      )}
-    </>;
-  }
-
   public render() {
     // log('rendering an AddDeleteIncomeForm');
     return (
       <>
-        <div className="ml-3 my-4">
-          {this.renderDPBGenerators(
-        this.props.model.generators.filter((g) =>
-          this.props.filterForEra(g),
-        ),
-      )}
-        </div>
         <div className="btn-group ml-3" role="group">
           {makeButton(
             "Add new income mode",
@@ -416,22 +341,27 @@ export class AddDeleteIncomeForm extends Component<
     }
     return (
       <>
+        {this.state.inputting === inputtingIncome ? (
+          <Row>
+            <Col>
+              <Input
+                title={
+                  "Annual growth percentage " +
+                  "(excluding inflation, e.g. 2 for 2% p.a.)"
+                }
+                type="text"
+                name="incomegrowth"
+                value={this.state.GROWTH}
+                placeholder="Enter growth"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  this.setState({ GROWTH: e.target.value });
+                }}
+              />
+            </Col>
+            <Col />
+          </Row>
+        ) : null}
         <Row>
-          <Col>
-            <Input
-              title={
-                "Annual growth percentage " +
-                "(excluding inflation, e.g. 2 for 2% p.a.)"
-              }
-              type="text"
-              name="incomegrowth"
-              value={this.state.GROWTH}
-              placeholder="Enter growth"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                this.setState({ GROWTH: e.target.value });
-              }}
-            />
-          </Col>
           <Col>
             <Input
               title="Does value grow with inflation?"
@@ -686,6 +616,24 @@ DB_TRANSFERRED_STOP
         <Row>
           <Col>
             <Input
+              title={
+                "Annual income growth percentage " +
+                "(excluding inflation, e.g. 2 for 2% p.a.)"
+              }
+              type="text"
+              name="dbpincomegrowth"
+              value={this.state.DB_INCOME_GROWTH}
+              placeholder="Enter income growth"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                this.setState({ DB_INCOME_GROWTH: e.target.value });
+              }}
+            />
+          </Col>
+          <Col />
+        </Row>
+        <Row>
+          <Col>
+            <Input
               title="On death, pension transfers to (optional)"
               type="text"
               name="transferNameIncome"
@@ -867,19 +815,18 @@ DB_TRANSFERRED_STOP
       );
       return;
     }
-    const parsedGrowth = makeGrowthFromString(
-      this.state.GROWTH,
-      this.props.model.settings,
-    );
-    if (!parsedGrowth.checksOK) {
-      this.props.showAlert(
-        `Growth value '${this.state.GROWTH}' ` +
-          `should be a numerical or setting value`,
-      );
-      return;
-    }
-
     if (this.state.inputting === inputtingPension) {
+      const parsedIncomeGrowth = makeGrowthFromString(
+        this.state.DB_INCOME_GROWTH,
+        this.props.model.settings,
+      );
+      if (!parsedIncomeGrowth.checksOK) {
+        this.props.showAlert(
+          `Income growth value '${this.state.DB_INCOME_GROWTH}' ` +
+            `should be a numerical or setting value`,
+        );
+        return;
+      }
       // do work to
       // (a) check integrity of inputs
       // (b) build an income for the pension, check integrity of income
@@ -1034,7 +981,7 @@ DB_TRANSFERRED_STOP
         VALUE: this.state.VALUE,
         VALUE_SET: this.state.VALUE_SET,
         LIABILITY: inputLiability,
-        GROWTH: parsedGrowth.value,
+        GROWTH: parsedIncomeGrowth.value,
         CPI_IMMUNE: !parseYNGrowsWithCPI.value,
         RECURRENCE: this.state.RECURRENCE,
         CATEGORY: this.state.CATEGORY,
@@ -1059,7 +1006,7 @@ DB_TRANSFERRED_STOP
           VALUE: "0.0",
           VALUE_SET: this.state.VALUE_SET,
           LIABILITY: builtLiability2,
-          GROWTH: parsedGrowth.value,
+          GROWTH: parsedIncomeGrowth.value,
           CPI_IMMUNE: !parseYNGrowsWithCPI.value,
           RECURRENCE: this.state.RECURRENCE,
           CATEGORY: this.state.CATEGORY,
@@ -1180,6 +1127,7 @@ DB_TRANSFERRED_STOP
         START: this.state.DB_START,
         END: this.state.DB_END,
         GROWS_WITH_CPI: this.state.GROWS_WITH_CPI,
+        IncomeGrowth: parsedIncomeGrowth.value,
         TRANSFERRED_STOP: this.state.DB_TRANSFERRED_STOP,
         INCOME_SOURCE: this.state.DB_INCOME_SOURCE,
         SALARY_SACRIFICED: this.state.DB_SS,
@@ -1204,6 +1152,18 @@ DB_TRANSFERRED_STOP
         this.setState(this.defaultState);
         this.resetSelect(this.incomeSourceSelectID);
       }
+      return;
+    }
+
+    const parsedGrowth = makeGrowthFromString(
+      this.state.GROWTH,
+      this.props.model.settings,
+    );
+    if (!parsedGrowth.checksOK) {
+      this.props.showAlert(
+        `Growth value '${this.state.GROWTH}' ` +
+          `should be a numerical or setting value`,
+      );
       return;
     }
 

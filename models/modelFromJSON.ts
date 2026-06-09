@@ -142,10 +142,24 @@ function normalizeIncomeExpenseGrowth(model: ModelDataFromFile): void {
   });
 }
 
+function normalizeDBPGeneratorIncomeGrowth(model: ModelDataFromFile): void {
+  if (model.generators === undefined) {
+    return;
+  }
+  model.generators.forEach((g) => {
+    if (g.TYPE === "Defined Benefits" && g.DETAILS !== undefined) {
+      if (g.DETAILS.IncomeGrowth === undefined) {
+        g.DETAILS.IncomeGrowth = "0";
+      }
+    }
+  });
+}
+
 export function makeModelFromJSON(input: string, modelName = ""): ModelData {
   // log('in makeModelFromJSON');
   const model: ModelDataFromFile = makeModelFromJSONString(input, modelName);
   migrateOldVersions(model);
   normalizeIncomeExpenseGrowth(model);
+  normalizeDBPGeneratorIncomeGrowth(model);
   return model;
 }

@@ -33,6 +33,7 @@ export interface DBPGeneratorDetails {
   START: string,
   END: string,
   GROWS_WITH_CPI: string,
+  IncomeGrowth: string,
   TRANSFERRED_STOP: string,
   INCOME_SOURCE: string,
   SALARY_SACRIFICED: string,
@@ -429,7 +430,13 @@ export interface ViewCallbacks {
     transactionInput: Transaction,
   ) => Promise<void>;
   submitTrigger: (triggerInput: Trigger) => Promise<void>;
-  submitGenerator: (generatorInput: Generator) => Promise<boolean>;
+  submitGenerator: (
+    generatorInput: Generator,
+    modelData?: ModelData,
+  ) => Promise<boolean>;
+
+  /** Unprocessed model (generators not expanded). Use for generator edits/saves. */
+  modelRaw: ModelData;
 
   editSetting: (
     settingInput: {
