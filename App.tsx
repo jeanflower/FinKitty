@@ -3318,23 +3318,6 @@ class AppContent extends Component<AppProps, AppState> {
 
     return (
       <div className="ml-3">
-        {transactionFilteredTable(
-          this.state.modelDataProcessed,
-          this.options.checkModelOnEdit,
-          custom,
-          "Custom transactions",
-          parentCallbacks,
-          "customTransactions",
-        )}
-        {transactionFilteredTable(
-          this.state.modelDataProcessed,
-          this.options.checkModelOnEdit,
-          autogen,
-          "Auto-generated transactions",
-          parentCallbacks,
-          "autogenTransactions",
-        )}
-        <p />
         {
         this.state.modelDataProcessed.generators.find((g)=>{
           return g.TYPE === "DCPWithdrawal";
@@ -3353,7 +3336,23 @@ class AppContent extends Component<AppProps, AppState> {
           ),
           `Defined Contributions Pension withdrawal`,
         )}
-
+        {transactionFilteredTable(
+          this.state.modelDataProcessed,
+          this.options.checkModelOnEdit,
+          custom,
+          "Custom transactions",
+          parentCallbacks,
+          "customTransactions",
+        )}
+        {transactionFilteredTable(
+          this.state.modelDataProcessed,
+          this.options.checkModelOnEdit,
+          autogen,
+          "Auto-generated transactions",
+          parentCallbacks,
+          "autogenTransactions",
+        )}
+        <p />
         <div className="addNewTransaction">
           <h4> Add a transaction </h4>
           <AddDeleteTransactionForm
