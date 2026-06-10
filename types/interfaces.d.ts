@@ -318,6 +318,7 @@ export interface AssetOrDebtVal {
 }
 export interface IncomeVal {
   incomeVal: number;
+  incomeFreq: string;
   hasStarted: boolean;
   hasEnded: boolean;
   category: string;

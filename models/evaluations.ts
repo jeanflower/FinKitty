@@ -6572,6 +6572,7 @@ function evaluateAllAssets(
     if (val !== undefined) {
       todaysIncomeValues.set(i, {
         incomeVal: val,
+        incomeFreq: i.RECURRENCE,
         category: i.CATEGORY,
         hasStarted: hasStarted,
         hasEnded: hasEnded,

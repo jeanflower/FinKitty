@@ -36,7 +36,17 @@ import { simpleIncome } from "../models/exampleModels";
 
 function addToMap(name: Income, val: IncomeVal, myMap: Map<Income, IncomeVal>) {
   const existingKey = [...myMap.keys()].find((x) => {
-    return x.NAME === name.NAME;
+    const existingVal = myMap.get(x);
+    if (existingVal === undefined) {
+      return false;
+    }
+    if (val.category === "") {
+      return x.NAME === name.NAME;
+    }
+    return (
+      existingVal.category === val.category &&
+      existingVal.incomeFreq === val.incomeFreq
+    );
   });
   const existingEntry = existingKey ? myMap.get(existingKey) : undefined;
 
@@ -69,7 +79,7 @@ function makeDataGridForTodaysIncomes(
               NAME: key[0].NAME,
               ERA: key[0].ERA,
               VALUE: `${key[1].incomeVal}`,
-              CATEGORY: `${key[1].category}`,
+              FREQ: `${key[1].incomeFreq}`,
             };
           })
           .sort((a: Item, b: Item) => lessThan(b.NAME, a.NAME)),
@@ -94,8 +104,8 @@ function makeDataGridForTodaysIncomes(
         },
         {
           ...defaultColumn,
-          key: "CATEGORY",
-          name: `category`,
+          key: "FREQ",
+          name: `frequency`,
         },
       ]}
       model={model}
