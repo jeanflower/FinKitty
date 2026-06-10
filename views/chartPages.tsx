@@ -177,7 +177,6 @@ type RefreshDataFn = (
   refreshChart: boolean,
   sourceID: number,
   evaluateModel?: boolean,
-  hidePageWhileComputing?: boolean,
 ) => Promise<void>;
 
 async function setViewFrequency(
@@ -230,7 +229,6 @@ async function setViewSettingNameVal(
     true, // refreshChart
     29, //sourceID
     true, // evaluateModel
-    false, // hidePageWhileComputing — keep current page visible during view-setting changes
   );
 }
 
@@ -274,7 +272,6 @@ function makeFilterButton(
         true, // refreshChart
         30, //sourceID
         true, // evaluateModel
-        false, // hidePageWhileComputing — keep current page visible during view-setting changes
       );
     },
     buttonName,

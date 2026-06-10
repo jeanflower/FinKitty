@@ -4,11 +4,11 @@
 # Jest scope
 #   1 = only tests listed in testResults/rebaseline-targets.txt (--watch)
 #   0 = full suite (--watchAll)
-FINKITTY_JEST_ONLY_REBASELINE_TARGETS=0
+FINKITTY_JEST_ONLY_REBASELINE_TARGETS=1
 FINKITTY_REBASELINE_TARGETS_FILE=testResults/rebaseline-targets-copy.txt   # optional
 
 # Browser (Chrome via Selenium)
-FINKITTY_BROWSER_HEADLESS=1          # 1 = no visible window
+FINKITTY_BROWSER_HEADLESS=0          # 1 = no visible window
 FINKITTY_BROWSER_PAGE_ZOOM=0.5
 FINKITTY_BROWSER_WINDOW_WIDTH=1000
 FINKITTY_BROWSER_WINDOW_HEIGHT=720

@@ -41,10 +41,12 @@ import {
   bondInvest,
   bondMature,
   roiStart,
+  birthDate,
   taxFreePart,
   taxablePart,
   revalueAsset,
   generatorTypeDCPRevalue,
+  viewType,
 } from "../localization/stringConstants";
 import {
   DatedThing,
@@ -106,6 +108,7 @@ import {
   splitScaledSettingSuffix,
   splitScaledValueSuffix,
   wordPartMayHaveScaledSuffix,
+  lessThan,
 } from "../utils/stringUtils";
 import { getTodaysDate, getROI } from "./modelUtils";
 import {
@@ -244,7 +247,73 @@ function isPensionTransferIncomeMoment(d: DatedThing): boolean {
   return d.type === momentType.income && d.name.startsWith(pensionTransfer);
 }
 
+function compareByNameDescending(a: string, b: string): number {
+  if (lessThan(b, a)) {
+    return 1;
+  }
+  if (lessThan(a, b)) {
+    return -1;
+  }
+  return 0;
+}
+
+function referencingDateItemKey(item: Item): string {
+  const txn = item as Transaction;
+  if (txn.DATE !== undefined && txn.DATE.length > 0) {
+    return `T:${txn.DATE}`;
+  }
+  const asset = item as Asset;
+  if (asset.START !== undefined && asset.START.length > 0) {
+    return `A:${asset.START}`;
+  }
+  return `I:${item.NAME}`;
+}
+
+function sortReferencingDates(
+  entries: { item: Item; date: FinKittyDate }[],
+): void {
+  const indexed = entries.map((entry, index) => {
+    return { entry, index };
+  });
+  indexed.sort((a, b) => {
+    const ad = a.entry.date.getTime();
+    const bd = b.entry.date.getTime();
+    if (ad < bd) {
+      return -1;
+    }
+    if (ad > bd) {
+      return 1;
+    }
+    const nameCmp = compareByNameDescending(
+      a.entry.item.NAME,
+      b.entry.item.NAME,
+    );
+    if (nameCmp !== 0) {
+      return nameCmp;
+    }
+    const aKey = referencingDateItemKey(a.entry.item);
+    const bKey = referencingDateItemKey(b.entry.item);
+    if (lessThan(aKey, bKey)) {
+      return -1;
+    }
+    if (lessThan(bKey, aKey)) {
+      return 1;
+    }
+    return a.index - b.index;
+  });
+  entries.length = 0;
+  entries.push(
+    ...indexed.map((x) => {
+      return x.entry;
+    }),
+  );
+}
+
 export function sortByDate(arrayOfDatedThings: DatedThing[]) {
+  const insertionOrder = new Map<DatedThing, number>();
+  arrayOfDatedThings.forEach((thing, index) => {
+    insertionOrder.set(thing, index);
+  });
   /* istanbul ignore if  */ //debug
   if (printDebug()) {
     log("before date sort --------------");
@@ -368,8 +437,9 @@ export function sortByDate(arrayOfDatedThings: DatedThing[]) {
         // log(`b type`);
         result = -1;
       } else {
-        log(`can't order two moments named ${a.name}`);
-        result = 0;
+        const ai = insertionOrder.get(a) ?? 0;
+        const bi = insertionOrder.get(b) ?? 0;
+        result = ai - bi;
       }
     }
 
@@ -548,7 +618,14 @@ class ValuesContainer {
 
   public getSettingNamesLongestFirst(): string[] {
     if (this.settingNamesLongestFirst === undefined) {
-      this.settingNamesLongestFirst = modelSettingNamesLongestFirst(this.model);
+      this.settingNamesLongestFirst = modelSettingNamesLongestFirst(
+        this.model,
+      ).filter((name) => {
+        const s = this.model.settings.find((x) => {
+          return x.NAME === name;
+        });
+        return s?.TYPE !== viewType;
+      });
     }
     return this.settingNamesLongestFirst;
   }
@@ -563,9 +640,13 @@ class ValuesContainer {
   private getSettingNameSet(): Set<string> {
     if (this.settingNameSet === undefined) {
       this.settingNameSet = new Set(
-        this.model.settings.map((s) => {
-          return s.NAME;
-        }),
+        this.model.settings
+          .filter((s) => {
+            return s.TYPE !== viewType;
+          })
+          .map((s) => {
+            return s.NAME;
+          }),
       );
     }
     return this.settingNameSet;
@@ -640,6 +721,9 @@ class ValuesContainer {
     const match = this.model.settings.find((s) => {
       return s.NAME === name;
     });
+    if (match?.TYPE === viewType) {
+      return undefined;
+    }
     return match?.VALUE;
   }
 }
@@ -2330,8 +2414,16 @@ function OptimizeIncomeTax(
   // log(`unusedAllowance = ${unusedAllowance}`);
   // if we have unused allowance, see
   // have we got some crystallised pension we can use?
-  for (const valueKey of values.keys()) {
-    /* eslint-disable-line no-restricted-syntax */
+  const valueKeys = Array.from(values.keys()).sort((a, b) => {
+    if (lessThan(a, b)) {
+      return -1;
+    }
+    if (lessThan(b, a)) {
+      return 1;
+    }
+    return 0;
+  });
+  for (const valueKey of valueKeys) {
     if (valueKey.startsWith(crystallizedPension)) {
       // is it for the right person?
       const removedCP = `${valueKey.substr(crystallizedPension.length)}`;
@@ -5804,7 +5896,12 @@ type SettingScheduleIndex = {
 };
 
 function buildSettingScheduleIndex(model: ModelData): SettingScheduleIndex {
-  const settingNames = modelSettingNamesLongestFirst(model);
+  const settingNames = modelSettingNamesLongestFirst(model).filter((name) => {
+    const s = model.settings.find((x) => {
+      return x.NAME === name;
+    });
+    return s?.TYPE !== viewType;
+  });
   const valueToSettings = new Map<string, Set<string>>();
 
   function settingsReferencedByValue(value: string): Set<string> {
@@ -5929,11 +6026,26 @@ function generateMoments(
 ) {
   let allMoments: Moment[] = [];
   const v = getVarVal(model.settings);
+  const sortedExpenses = [...model.expenses].sort((a, b) => {
+    return compareByNameDescending(a.NAME, b.NAME);
+  });
+  const sortedIncomes = [...model.incomes].sort((a, b) => {
+    return compareByNameDescending(a.NAME, b.NAME);
+  });
+  const sortedAssets = [...model.assets].sort((a, b) => {
+    return compareByNameDescending(a.NAME, b.NAME);
+  });
+  const sortedTransactions = [...model.transactions].sort((a, b) => {
+    return compareByNameDescending(a.NAME, b.NAME);
+  });
+  const sortedSettings = [...model.settings].sort((a, b) => {
+    return compareByNameDescending(a.NAME, b.NAME);
+  });
 
   // For each expense, work out monthly growth and
   // a set of moments starting when the expense began,
   // ending when the roi ends.
-  model.expenses.forEach((expense) => {
+  sortedExpenses.forEach((expense) => {
     // log(`generate moments for expense ${expense.NAME}`);
     // Growth is important to set the value of the
     // first expense.  Later expense values are not
@@ -5994,7 +6106,7 @@ function generateMoments(
   // For each income, work out monthly growth and
   // a set of moments starting when the income began,
   // ending when the roi ends.
-  model.incomes.forEach((income) => {
+  sortedIncomes.forEach((income) => {
     // log(`generate moments for income ${income.NAME}`);
     // Growth is important to set the value of the
     // first income.  Later income values are not
@@ -6092,7 +6204,7 @@ function generateMoments(
   // log(`liabilitiesMap = ...`);
   // liabilitiesMap.forEach((value, key)=>{log(`{\`${key}\`, \`${value}\`}`)});
 
-  model.assets.forEach((asset) => {
+  sortedAssets.forEach((asset) => {
     //  log(`log data for asset ${asset.NAME}`);
     logAssetGrowth(
       asset,
@@ -6134,7 +6246,7 @@ function generateMoments(
     logAssetIncomeLiabilities(asset, liabilitiesMap);
   });
 
-  model.transactions.forEach((transaction) => {
+  sortedTransactions.forEach((transaction) => {
     // one-off asset-asset transactions generate a single moment
     // recurring asset-asset transactions generate a sequence of moments
     const newMoments = getTransactionMoments(transaction, model, roiEndDate);
@@ -6160,7 +6272,10 @@ function generateMoments(
     setDate: FinKittyDate;
   }[] = [];
   const scheduleIndex = buildSettingScheduleIndex(model);
-  model.settings.forEach((setting) => {
+  sortedSettings.forEach((setting) => {
+    if (setting.TYPE === viewType) {
+      return;
+    }
     // Some types of settings have values at the start of the roi
     if (
       setting.NAME === "Grain" ||
@@ -6240,7 +6355,7 @@ function generateMoments(
       }
     }
 
-    const referencingTransactions = model.transactions.filter((t) => {
+    const referencingTransactions = sortedTransactions.filter((t) => {
       return (
         t.TO_VALUE.includes(setting.NAME) ||
         t.TO.includes(setting.NAME) ||
@@ -6266,14 +6381,17 @@ function generateMoments(
     );
 
     referencingAssets.sort((a, b) => {
-      if (a.NAME < b.NAME) {
-        return 1;
-      } else if (a.NAME > b.NAME) {
-        return -1;
-      } else {
-        return 0;
-        // throw new Error('attempting to sort matching assets!');
+      const byName = compareByNameDescending(a.NAME, b.NAME);
+      if (byName !== 0) {
+        return byName;
       }
+      if (lessThan(a.START, b.START)) {
+        return -1;
+      }
+      if (lessThan(b.START, a.START)) {
+        return 1;
+      }
+      return 0;
     });
 
     referencingDates = referencingDates.concat(
@@ -6286,21 +6404,7 @@ function generateMoments(
     );
 
     if (referencingDates.length > 1) {
-      // log(`referencingDates for ${setting.NAME} = ${referencingDates.map(d=>dateAsString(DateFormatType.Test,d))}`);
-      referencingDates = referencingDates.sort((a, b) => {
-        if (a.date.getTime() < b.date.getTime()) {
-          return -1;
-        } else if (a.date.getTime() > b.date.getTime()) {
-          return +1;
-        } else if (a.item.NAME < b.item.NAME) {
-          // a silly way but gets stability
-          return 1;
-        } else if (a.item.NAME > b.item.NAME) {
-          return -1;
-        } else {
-          return JSON.stringify(a) < JSON.stringify(b) ? 1 : -1; // NQR
-        }
-      });
+      sortReferencingDates(referencingDates);
     }
 
     if (referencingDates.length > 0 && values.get(setting.NAME) === undefined) {
@@ -6322,7 +6426,10 @@ function generateMoments(
 
   // some settings are included in the names of other settings
   // make sure those are set appropriately as well
-  model.settings.forEach((s) => {
+  sortedSettings.forEach((s) => {
+    if (s.TYPE === viewType) {
+      return;
+    }
     if (
       !setSettingsData.find((sd) => {
         return sd.settingName === s.NAME;
@@ -6644,9 +6751,19 @@ function applyAnnualIncomeGrowth(
   growths: Map<string, GrowthData>,
   date: FinKittyDate,
 ) {
-  growths.forEach((g, name) => {
-    if (!g.annualCPI) {
-      return;
+  const growthNames = Array.from(growths.keys()).sort((a, b) => {
+    if (lessThan(a, b)) {
+      return -1;
+    }
+    if (lessThan(b, a)) {
+      return 1;
+    }
+    return 0;
+  });
+  for (const name of growthNames) {
+    const g = growths.get(name);
+    if (g === undefined || !g.annualCPI) {
+      continue;
     }
     const growth = traceEvaluation(
       g.itemGrowth,
@@ -6655,11 +6772,11 @@ function applyAnnualIncomeGrowth(
       "annualIncomeGrowth",
     );
     if (growth === undefined || growth === 0) {
-      return;
+      continue;
     }
     const existing = values.get(name);
     if (existing === undefined) {
-      return;
+      continue;
     }
     const numericExisting = resolveNumericStoredValue(
       name,
@@ -6669,7 +6786,7 @@ function applyAnnualIncomeGrowth(
       "annualIncomeGrowthExisting",
     );
     if (numericExisting === undefined) {
-      return;
+      continue;
     }
     let adaptedGrowth = growth;
     if (g.applyCPI) {
@@ -6693,7 +6810,7 @@ function applyAnnualIncomeGrowth(
       false, // reportIfNoChange
       "45", //callerID
     );
-  });
+  }
 }
 
 function handleAnnualInflationStep(
@@ -7187,6 +7304,263 @@ function getEvaluationsROI(model: ModelData) {
   return range;
 }
 
+function momentSnapshotKey(m: DatedThing): string {
+  return `${m.name}|${m.type}|${m.date.getTime()}`;
+}
+
+/** Snapshot of evaluator state after processing one moment (test diagnostics). */
+export type EvaluationMomentSnapshot = {
+  index: number;
+  momentKey: string;
+  evaluationCount: number;
+  estate: number | undefined;
+  cash: number | undefined;
+  isaFutureInvest: number | undefined;
+  bondChetwood: number | undefined;
+  valuesKeyCount: number;
+};
+
+function makeMomentProcessingSnapshot(
+  index: number,
+  moment: Moment | undefined,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  evaluations: Evaluation[],
+): EvaluationMomentSnapshot {
+  return {
+    index,
+    momentKey: moment === undefined ? "(prelude)" : momentSnapshotKey(moment),
+    evaluationCount: evaluations.length,
+    estate: traceEvaluationForToday("Estate", values, growths),
+    cash: traceEvaluationForToday(CASH_ASSET_NAME, values, growths),
+    isaFutureInvest: traceEvaluationForToday("ISAFutureInvest", values, growths),
+    bondChetwood: traceEvaluationForToday(
+      "BondChetwoodBank5ySept25",
+      values,
+      growths,
+    ),
+    valuesKeyCount: Array.from(values.keys()).length,
+  };
+}
+
+export type EvaluationDivergence = {
+  index: number;
+  field: keyof EvaluationMomentSnapshot;
+  momentKeyA: string;
+  momentKeyB: string;
+  valueA: number | string | undefined;
+  valueB: number | string | undefined;
+};
+
+export function findFirstEvaluationDivergence(
+  snapshotsA: EvaluationMomentSnapshot[],
+  snapshotsB: EvaluationMomentSnapshot[],
+): EvaluationDivergence | undefined {
+  const n = Math.min(snapshotsA.length, snapshotsB.length);
+  const fields: (keyof EvaluationMomentSnapshot)[] = [
+    "momentKey",
+    "evaluationCount",
+    "estate",
+    "cash",
+    "isaFutureInvest",
+    "bondChetwood",
+    "valuesKeyCount",
+  ];
+  for (let i = 0; i < n; i += 1) {
+    const a = snapshotsA[i];
+    const b = snapshotsB[i];
+    for (const field of fields) {
+      if (a[field] !== b[field]) {
+        return {
+          index: a.index,
+          field,
+          momentKeyA: a.momentKey,
+          momentKeyB: b.momentKey,
+          valueA: a[field],
+          valueB: b[field],
+        };
+      }
+    }
+  }
+  if (snapshotsA.length !== snapshotsB.length) {
+    return {
+      index: n,
+      field: "evaluationCount",
+      momentKeyA: snapshotsA[n]?.momentKey ?? "(end)",
+      momentKeyB: snapshotsB[n]?.momentKey ?? "(end)",
+      valueA: snapshotsA.length,
+      valueB: snapshotsB.length,
+    };
+  }
+  return undefined;
+}
+
+export function buildPreInflationDatedMoments(
+  model: ModelData,
+  helper: EvaluationHelper | undefined,
+): Moment[] {
+  const values = new ValuesContainer(model);
+  const growths = new Map<string, GrowthData>();
+  const cpiInitialVal = cpiInitialValue(model);
+  const viewRange = getEvaluationsROI(model);
+  const roiStartDate = viewRange.start;
+  const roiEndDate = viewRange.end;
+  const today = getTodaysDate(model);
+  const evaluations: Evaluation[] = [];
+  const liabilitiesMap = new Map<string, string>([]);
+  const pensionTransactions: Transaction[] = [];
+  const freq = helper ? helper.frequency : monthly;
+  const allMoments = generateMoments(
+    model,
+    freq,
+    values,
+    growths,
+    cpiInitialVal,
+    roiStartDate,
+    roiEndDate,
+    today,
+    evaluations,
+    liabilitiesMap,
+    pensionTransactions,
+  );
+  const datedMoments = allMoments.filter((moment) => {
+    return moment.date !== undefined;
+  });
+  sortByDate(datedMoments);
+  return datedMoments;
+}
+
+/** Test helper: build the sorted moment list used before the pop() evaluation loop. */
+export function buildDatedMomentsSnapshot(
+  model: ModelData,
+  helper: EvaluationHelper | undefined,
+  includeInflation = true,
+): string[] {
+  let datedMoments = buildPreInflationDatedMoments(model, helper);
+  const values = new ValuesContainer(model);
+  const growths = new Map<string, GrowthData>();
+  const cpiInitialVal = cpiInitialValue(model);
+  const viewRange = getEvaluationsROI(model);
+  const roiEndDate = viewRange.end;
+
+  if (includeInflation && datedMoments.length > 0) {
+    values.set(
+      cpi,
+      cpiInitialVal,
+      growths,
+      datedMoments[0].date,
+      "start value",
+      false,
+      "0",
+    );
+    values.set(
+      baseForCPI,
+      1.0,
+      growths,
+      datedMoments[0].date,
+      "start value",
+      false,
+      "0",
+    );
+    values.set(
+      annualBaseForCPI,
+      1.0,
+      growths,
+      datedMoments[0].date,
+      "start value",
+      false,
+      "0",
+    );
+    const first = datedMoments[0].date;
+    const last = new Date(datedMoments[datedMoments.length - 1].date.d);
+    last.setFullYear(last.getFullYear() - 1);
+    const infUpdateDates = generateSequenceOfDates(
+      { start: new FinKittyDate(last), end: first },
+      "1m",
+    );
+    datedMoments = datedMoments.concat(
+      infUpdateDates.map((date) => {
+        return {
+          date,
+          name: cpi,
+          type: momentType.inflation,
+          setValue: NaN,
+          transaction: undefined,
+        };
+      }),
+    );
+    const startAnnualCPIEffect = new Date(last);
+    startAnnualCPIEffect.setDate(5);
+    startAnnualCPIEffect.setMonth(3);
+    if (startAnnualCPIEffect < last) {
+      startAnnualCPIEffect.setFullYear(startAnnualCPIEffect.getFullYear() + 1);
+    }
+    const annualInfUpdateDates = generateSequenceOfDates(
+      { start: new FinKittyDate(startAnnualCPIEffect), end: first },
+      "1y",
+    );
+    datedMoments = datedMoments.concat(
+      annualInfUpdateDates.map((date) => {
+        return {
+          date,
+          name: annualBaseForCPI,
+          type: momentType.inflation,
+          setValue: NaN,
+          transaction: undefined,
+        };
+      }),
+    );
+    const needPredictedTaxBands = new Date(highestTaxYearInMap, 3, 5);
+    if (needPredictedTaxBands.getTime() < roiEndDate.getTime()) {
+      const d = new Date(highestTaxYearInMap, 3, 4);
+      datedMoments.push({
+        date: new FinKittyDate(d),
+        name: "captureLastTaxBands",
+        type: momentType.inflation,
+        setValue: NaN,
+        transaction: undefined,
+      });
+    }
+    sortByDate(datedMoments);
+  }
+
+  return datedMoments.map(momentSnapshotKey);
+}
+
+/**
+ * Run getEvaluationsInternal with per-moment snapshots (test diagnostics).
+ * Uses the internal single-pass path (not the bond planning two-pass wrapper).
+ */
+export function collectEvaluationMomentSnapshots(
+  model: ModelData,
+  helper: EvaluationHelper | undefined,
+): EvaluationMomentSnapshot[] {
+  const snapshots: EvaluationMomentSnapshot[] = [];
+  getEvaluationsInternal(model, helper, (snapshot) => {
+    snapshots.push(snapshot);
+  });
+  return snapshots;
+}
+
+/** True when sortByDate order depends on input array order (unstable ties). */
+export function sortByDateIsUnstable(moments: DatedThing[]): boolean {
+  if (moments.length < 2) {
+    return false;
+  }
+  const forward = [...moments];
+  const reversed = [...moments].reverse();
+  sortByDate(forward);
+  sortByDate(reversed);
+  const keysForward = forward.map(momentSnapshotKey);
+  const keysReversed = reversed.map(momentSnapshotKey);
+  for (let i = 0; i < keysForward.length; i += 1) {
+    if (keysForward[i] !== keysReversed[i]) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export class EvaluationHelper {
   public reporter: ReportValueChecker | undefined;
   public maxReportSize: number;
@@ -7220,6 +7594,7 @@ function cpiInitialValue(model: ModelData): number {
 function getEvaluationsInternal(
   model: ModelData,
   helper: EvaluationHelper | undefined,
+  momentSnapshotHook?: (snapshot: EvaluationMomentSnapshot) => void,
 ): {
   evaluations: Evaluation[];
   todaysAssetValues: Map<Asset, AssetOrDebtVal>;
@@ -7506,6 +7881,12 @@ function getEvaluationsInternal(
   };
 
   // log(`gathered ${datedMoments.length} moments to process`);
+  if (momentSnapshotHook !== undefined) {
+    momentSnapshotHook(
+      makeMomentProcessingSnapshot(-1, undefined, values, growths, evaluations),
+    );
+  }
+  let momentProcessIndex = 0;
   while (datedMoments.length > 0) {
     const moment = datedMoments.pop();
     if (moment === undefined) {
@@ -7648,6 +8029,19 @@ function getEvaluationsInternal(
       );
     } else if (datedMoments.length === 0) {
       // log('last item mo tax info...');
+    }
+
+    if (momentSnapshotHook !== undefined) {
+      momentSnapshotHook(
+        makeMomentProcessingSnapshot(
+          momentProcessIndex,
+          moment,
+          values,
+          growths,
+          evaluations,
+        ),
+      );
+      momentProcessIndex += 1;
     }
   }
 
@@ -8640,6 +9034,185 @@ let message = processDBPGenerators(model);
 
 }
 
+/** Build the adjusted model used for the bond-planning first pass (test diagnostics). */
+export function buildBondPlanningAdjustedModel(
+  model: ModelData,
+): ModelData | undefined {
+  const genForInvestTransactions = model.transactions.filter((t) => {
+    return t.TO.includes(generatedRecurrence);
+  });
+  if (genForInvestTransactions.length === 0) {
+    return undefined;
+  }
+  const start = getROI(model).start;
+  const v = getVarVal(model.settings);
+  for (const t of genForInvestTransactions) {
+    const matureDate = getTriggerDate(t.DATE, model.triggers, v, model);
+    if (matureDate.getTime() < start.getTime()) {
+      start.setFullYear(matureDate.d.getFullYear() - 1);
+    }
+  }
+  return {
+    name: model.name,
+    assets: model.assets.filter((a) => {
+      return !a.NAME.includes(generatedRecurrence);
+    }),
+    triggers: model.triggers,
+    expenses: model.expenses,
+    incomes: model.incomes,
+    monitors: model.monitors,
+    generators: model.generators,
+    transactions: model.transactions.filter((t) => {
+      return (
+        !t.FROM.includes(generatedRecurrence) &&
+        !t.TO.includes(generatedRecurrence)
+      );
+    }),
+    settings: model.settings.map((s) => {
+      // Date of birth is view-only (chart age labels). Planning surplus
+      // matches rows by calendar year parsed from chart DATE strings.
+      if (s.NAME === birthDate) {
+        return { ...s, VALUE: "" };
+      }
+      if (s.NAME !== roiStart) {
+        return s;
+      }
+      return {
+        ...s,
+        VALUE: `${start.getDateString()}`,
+      };
+    }),
+    version: model.version,
+    undoModel: undefined,
+    redoModel: undefined,
+  };
+}
+
+function bondPlanningEvaluationHelper(
+  helper: EvaluationHelper | undefined,
+): EvaluationHelper {
+  const freq = helper ? helper.frequency : monthly;
+  return {
+    frequency: freq,
+    maxReportSize: 0,
+    reporter: (
+      name: string,
+      val: number | string,
+      date: FinKittyDate,
+      source: string,
+    ) => {
+      val;
+      date;
+      source;
+      return name.startsWith("taxForFixed") || name.startsWith("incomeFixed");
+    },
+  };
+}
+
+/** Full result of the bond-planning first pass (test diagnostics). */
+export function runBondPlanningFirstPass(
+  model: ModelData,
+  helper: EvaluationHelper | undefined,
+): ReturnType<typeof getEvaluationsInternal> | undefined {
+  const adjustedModel = buildBondPlanningAdjustedModel(model);
+  if (adjustedModel === undefined) {
+    return undefined;
+  }
+  return getEvaluationsInternal(
+    adjustedModel,
+    bondPlanningEvaluationHelper(helper),
+  );
+}
+
+/** Moment snapshots from the bond-planning first pass only (test diagnostics). */
+export function collectBondPlanningPassSnapshots(
+  model: ModelData,
+  helper: EvaluationHelper | undefined,
+): EvaluationMomentSnapshot[] {
+  const adjustedModel = buildBondPlanningAdjustedModel(model);
+  if (adjustedModel === undefined) {
+    return [];
+  }
+  const snapshots: EvaluationMomentSnapshot[] = [];
+  getEvaluationsInternal(
+    adjustedModel,
+    bondPlanningEvaluationHelper(helper),
+    (snapshot) => {
+      snapshots.push(snapshot);
+    },
+  );
+  return snapshots;
+}
+
+export type BondInvestFromValue = {
+  transactionName: string;
+  fromValue: string;
+  planningYear: number;
+};
+
+function bondInvestFromValuesFromPlanning(
+  model: ModelData,
+  adjustedModel: ModelData,
+  adjustedEvals: ReturnType<typeof getEvaluationsInternal>,
+): BondInvestFromValue[] {
+  const planningData = getAnnualPlanningSurplusData(
+    adjustedModel,
+    adjustedEvals,
+  );
+  const result: BondInvestFromValue[] = [];
+  for (const t of model.transactions) {
+    if (!t.TO.includes(generatedRecurrence)) {
+      continue;
+    }
+    const year = parseInt(
+      t.NAME.substring(t.NAME.length - 4 - 6, t.NAME.length - 6),
+    );
+    const pdForYear = planningData.find((pd) => {
+      const planningDate = new Date(pd.DATE);
+      return planningDate.getFullYear() === year;
+    });
+    let fromValue = "0";
+    if (pdForYear) {
+      const surplus = parseFloat(pdForYear.SURPLUS);
+      const investAmount = surplus < 0 ? -surplus : 0;
+      fromValue = `${investAmount}`;
+    }
+    result.push({
+      transactionName: t.NAME,
+      fromValue,
+      planningYear: year,
+    });
+  }
+  return result;
+}
+
+/** Compute GenFor invest FROM_VALUEs from planning pass without running the main eval. */
+export function computeBondInvestFromValues(
+  model: ModelData,
+  helper: EvaluationHelper | undefined,
+): BondInvestFromValue[] {
+  const adjustedModel = buildBondPlanningAdjustedModel(model);
+  if (adjustedModel === undefined) {
+    return [];
+  }
+  const adjustedEvals = getEvaluationsInternal(
+    adjustedModel,
+    bondPlanningEvaluationHelper(helper),
+  );
+  if (
+    adjustedEvals.evaluations.length === 0 &&
+    adjustedEvals.reportData.length === 1 &&
+    adjustedEvals.reportData[0].name === "Error from evaluations"
+  ) {
+    return [];
+  }
+  return bondInvestFromValuesFromPlanning(
+    model,
+    adjustedModel,
+    adjustedEvals,
+  );
+}
+
 // This is the key entry point for code calling from outside
 // this file.
 export function getEvaluations(
@@ -8676,141 +9249,35 @@ export function getEvaluations(
   // is for antipicating a planning surplus / deficit
   // we'll use that surplus / deficit to set bond investment
   // levels.
-  const genForInvestTransactions = model.transactions.filter((t) => {
-    return t.TO.includes(generatedRecurrence);
-  });
+  const adjustedModel = buildBondPlanningAdjustedModel(model);
 
-  if (genForInvestTransactions.length > 0) {
-
-    // We need to ensure that the first evaluations and 
-    // planning view includes the timeframe for the bonds
-    // so we might need to shoft back the start date
-    // (in whole numbers of years)
-    // to pick to the right planning numbers and get the
-    // right bond numbers.
-    const start = getROI(model).start;
-    const v = getVarVal(model.settings);
-    for (const t of genForInvestTransactions) {
-      const matureDate = getTriggerDate(t.DATE, model.triggers, v, model);
-      if (matureDate.getTime() < start.getTime()) {
-        start.setFullYear(matureDate.d.getFullYear() - 1);
-      }
-    }
-
-    // the first run excludes generated / recurring
-    // bonds - remove the assets and transactions
-    // for those
-    const adjustedModel: ModelData = {
-      name: model.name,
-      assets: model.assets.filter((a) => {
-        return !a.NAME.includes(generatedRecurrence);
-      }), 
-      triggers: model.triggers,
-      expenses: model.expenses,
-      incomes: model.incomes,
-      monitors: model.monitors,
-      generators: model.generators,
-      transactions: model.transactions.filter((t) => {
-        return !t.FROM.includes(generatedRecurrence) &&
-          !t.TO.includes(generatedRecurrence);
-      }), 
-      settings: model.settings.map((s)=>{
-        if (s.NAME !== roiStart) {
-          return s;
-        }
-        return {
-          ...s,
-          VALUE: `${start.getDateString()}`
-        }
-      }),
-      version: model.version,
-      undoModel: undefined,
-      redoModel: undefined,
-    };
-
-    // log(`START FIRST EVALUATIONS for ${model.name}`);
-    let freq = monthly;
-    if (helper) {
-      freq = helper.frequency;
-    }
-
-    // to emulate what we would see on a planning page,
-    // provide the right kind of 'reporter' to watch the evaluations
-    // and pick up elements for fixed incomes
-    // (and tax on those fixed incomes)
+  if (adjustedModel !== undefined) {
     const adjustedEvals = getEvaluationsInternal(
-      adjustedModel, 
-      {
-        frequency: freq,
-        maxReportSize: 0,
-        reporter: (
-          name: string,
-          val: number | string,
-          date: FinKittyDate,
-          source: string,
-        ) => {
-          val;
-          date;
-          source;
-          const result =
-            name.startsWith("taxForFixed") || name.startsWith("incomeFixed");
-          // console.log(`include ${name} for report? ${result}`);
-          return result;
-        },
-      }
+      adjustedModel,
+      bondPlanningEvaluationHelper(helper),
     );
-    // log(`END FIRST EVALUATIONS for ${model.name}`);
-    // log(`adjustedEvals = ${showObj(adjustedEvals)}`);
 
-    if(adjustedEvals.evaluations.length === 0 &&
+    if (
+      adjustedEvals.evaluations.length === 0 &&
       adjustedEvals.reportData.length === 1 &&
-      adjustedEvals.reportData[0].name === 'Error from evaluations'
-      ) {
-        return adjustedEvals;
-      }
+      adjustedEvals.reportData[0].name === "Error from evaluations"
+    ) {
+      return adjustedEvals;
+    }
 
-    // review surplus (deficit probably)
-    // to set bond target values
-    const planningData = getAnnualPlanningSurplusData( // NEEDS THE RIGHT EVALUATOR REPORTER ABOVE !!
+    const bondInvestAmounts = bondInvestFromValuesFromPlanning(
+      model,
       adjustedModel,
       adjustedEvals,
     );
-    
-    // console.log(`planningData from 1st run = ${showObj(planningData)}`);
-
-    for (const t of model.transactions) {
-      if (!t.TO.includes(generatedRecurrence)) {
-        continue;
-      }
-      // How much should we invest in this Bond?
-      // Look at the planningData for the corresponding year.
-
-      // t.NAME is something like 
-      // MyFirstBondJul20GenFor2027Invest
-
-      const year = parseInt(t.NAME.substring(t.NAME.length - 4 - 6, t.NAME.length - 6));
-      const pdForYear = planningData.find((pd) => {
-        const planningDate = new Date(pd.DATE);
-        if (planningDate.getFullYear() === year) {
-          return true;
-        }
+    for (const amount of bondInvestAmounts) {
+      const t = model.transactions.find((tx) => {
+        return tx.NAME === amount.transactionName;
       });
-
-      if(pdForYear){
-        // console.log(`for ${t.NAME}, pd.SURPLUS = ${pdForYear.SURPLUS}`);
-        // Invest only to cover a deficit (surplus < 0). A non-negative surplus
-        // must not produce a negative invest (bond assets are not negative).
-        const surplus = parseFloat(pdForYear.SURPLUS);
-        const investAmount = surplus < 0 ? -surplus : 0;
-        t.FROM_VALUE = `${investAmount}`;
-      } else {
-        // console.log(`for ${t.NAME}, no pd found`);
-        t.FROM_VALUE = '0';
+      if (t !== undefined) {
+        t.FROM_VALUE = amount.fromValue;
       }
-
-      // log(`we should invest something like ${t.FROM_VALUE} into ${t.NAME} adjusted later for growth`);
     }
-    
   } else {
     // log(`SKIP FIRST EVALUATIONS for ${model.name}`);
   }

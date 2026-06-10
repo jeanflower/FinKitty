@@ -21,6 +21,7 @@ import {
   myFirstModelName,
   homeView,
   reportView,
+  birthDate,
   roiEnd,
   roiStart,
   settingsView,
@@ -219,19 +220,8 @@ async function setWaitingSpinner(visible: boolean): Promise<void> {
   }
 }
 
-async function setHidePageContent(visible: boolean): Promise<void> {
-  if (reactAppComponent === undefined) {
-    return;
-  }
-  await new Promise<void>((resolve) => {
-    reactAppComponent.setState({ hidePageContent: visible }, () => resolve());
-  });
-}
-
 /** Concurrent refreshData calls; spinner stays until all complete. */
 let refreshDataInFlight = 0;
-/** Concurrent refreshData calls that hide page content; page stays hidden until all complete. */
-let hidePageContentInFlight = 0;
 
 function computeRefreshShowSpinner(
   refreshModel: boolean,
@@ -246,30 +236,11 @@ function computeRefreshShowSpinner(
   );
 }
 
-function computeHidePageContent(
-  refreshModel: boolean,
-  evaluateModel: boolean,
-  hidePageWhileComputing?: boolean,
-): boolean {
-  if (hidePageWhileComputing === false) {
-    return false;
-  }
-  const isFirstEvaluation = evaluateModel && modelNeedsEvaluation();
-  return isFirstEvaluation || (refreshModel && evaluateModel);
-}
-
 async function finishRefreshSpinner(
   showSpinner: boolean,
-  hidePage: boolean,
   isFirstEvaluation: boolean,
   spinnerStartedAt: number,
 ): Promise<void> {
-  if (hidePage) {
-    hidePageContentInFlight = Math.max(0, hidePageContentInFlight - 1);
-    if (hidePageContentInFlight === 0) {
-      await setHidePageContent(false);
-    }
-  }
   refreshDataInFlight = Math.max(0, refreshDataInFlight - 1);
   if (!showSpinner || refreshDataInFlight > 0) {
     return;
@@ -309,13 +280,11 @@ function showHomeViewOnly(): void {
 
 function abortEvaluationWithAlert(message: string): void {
   lastRefreshEvaluationFailed = true;
-  hidePageContentInFlight = 0;
   refreshDataInFlight = 0;
   if (reactAppComponent !== undefined) {
     reactAppComponent.setState({
       alertText: message,
       isWaiting: false,
-      hidePageContent: false,
     });
   }
 }
@@ -797,34 +766,49 @@ async function refreshDataInternal(
 
     if (!evaluateModel) {
       markModelNeedsEvaluation();
-      reactAppComponent.setState({
-        modelNamesData: modelNames,
-        modelDataRaw: modelRaw,
-        ROI: getROI(modelRaw),
-        reportData: [],
-      });
-      return;
-    }
+      if (!refreshChart) {
+        reactAppComponent.setState({
+          modelNamesData: modelNames,
+          modelDataRaw: modelRaw,
+          ROI: getROI(modelRaw),
+          reportData: [],
+        });
+        return;
+      }
+      // Model changed but only chart display needs updating (e.g. Date of birth labels).
+      modelProcessed = makeModelFromJSON(JSON.stringify(modelRaw));
+      modelProcessed.undoModel = undefined;
+      modelProcessed.redoModel = undefined;
+      modelProcessed.name = "ready to be processed";
+      const error = processGenerators(modelProcessed);
+      modelProcessed.name = "has been processed";
+      if (error.length > 0) {
+        abortEvaluationWithAlert(`can't process generators of model: ${error}`);
+        return;
+      }
+      if (refreshModel) {
+        viewSettings.setModel(modelProcessed);
+      }
+    } else {
+      markModelNeedsEvaluation();
+      modelProcessed = makeModelFromJSON(JSON.stringify(modelRaw));
+      modelProcessed.undoModel = undefined;
+      modelProcessed.redoModel = undefined;
+      modelProcessed.name = "ready to be processed";
 
-    markModelNeedsEvaluation();
-    modelProcessed = makeModelFromJSON(JSON.stringify(modelRaw));
-    modelProcessed.undoModel = undefined;
-    modelProcessed.redoModel = undefined;
-    modelProcessed.name = 'ready to be processed';
+      const error = processGenerators(modelProcessed);
+      modelProcessed.name = "has been processed";
 
-    const error = processGenerators(modelProcessed);
-    modelProcessed.name = 'has been processed';
+      if (error.length > 0) {
+        abortEvaluationWithAlert(`can't process generators of model: ${error}`);
+        return;
+      }
 
-    if (error.length > 0) {
-      abortEvaluationWithAlert(`can't process generators of model: ${error}`);
-      return;
-    }
-
-    if (refreshModel) {
-      viewSettings.setModel(modelProcessed);
-    }
-    // log(`go to make evaluations...`);
-    let reporter: ReportValueChecker = (
+      if (refreshModel) {
+        viewSettings.setModel(modelProcessed);
+      }
+      // log(`go to make evaluations...`);
+      let reporter: ReportValueChecker = (
       name: string,
       val: number | string,
       date: FinKittyDate,
@@ -910,7 +894,8 @@ async function refreshDataInternal(
       }
     }
 
-    // log(`evaluationsAndVals.reportData.length = ${evaluationsAndVals.reportData.length}`);
+      // log(`evaluationsAndVals.reportData.length = ${evaluationsAndVals.reportData.length}`);
+    }
   }
   if (refreshModel || refreshChart) {
     // log(`refresh model or chart data`);
@@ -1055,7 +1040,6 @@ async function refreshData(
   refreshChart: boolean,
   sourceID: number,
   evaluateModel = true,
-  hidePageWhileComputing?: boolean,
 ): Promise<void> {
   // log(
   //   `refreshData called refreshModel = ${refreshModel}, refreshChart = ${refreshChart} from sourceID = ${sourceID}`,
@@ -1075,16 +1059,7 @@ async function refreshData(
     refreshChart,
     evaluateModel,
   );
-  const hidePage = computeHidePageContent(
-    refreshModel,
-    evaluateModel,
-    hidePageWhileComputing,
-  );
   const spinnerStartedAt = showSpinner ? Date.now() : 0;
-  if (hidePage) {
-    hidePageContentInFlight += 1;
-    await setHidePageContent(true);
-  }
   if (showSpinner) {
     await setWaitingSpinner(true);
   }
@@ -1145,7 +1120,6 @@ async function refreshData(
   } finally {
     await finishRefreshSpinner(
       showSpinner,
-      hidePage,
       isFirstEvaluation,
       spinnerStartedAt,
     );
@@ -1401,10 +1375,18 @@ async function editSetting(
     getUserID(),
   );
   if (outcome.message === "") {
+    const savedSetting = modelData.settings.find((s) => {
+      return s.NAME === settingInput.NAME;
+    });
+    const labelOnlyViewSetting =
+      savedSetting !== undefined &&
+      savedSetting.TYPE === viewType &&
+      savedSetting.NAME === birthDate;
     return await refreshData(
       true, // refreshModel
       true, // refreshChart
       8, //sourceID
+      !labelOnlyViewSetting, // evaluateModel — DOB affects chart labels only
     );
   } else {
     showAlert(outcome.message);
@@ -1509,9 +1491,6 @@ async function submitROISetting(
     true, // refreshChart
     10, //sourceID
     true, // evaluateModel
-    setting.NAME === roiStart || setting.NAME === roiEnd
-      ? false // keep page visible during chart date-range changes
-      : undefined,
   );
   return {
     updated: true,
@@ -2186,7 +2165,6 @@ interface AppState {
   totalTaxPaid: number;
   alertText: string;
   isWaiting: boolean;
-  hidePageContent: boolean;
 }
 interface AppProps {
   logOutAction: () => void;
@@ -2420,7 +2398,6 @@ class AppContent extends Component<AppProps, AppState> {
     totalTaxPaid: 0,
     alertText: "",
     isWaiting: false,
-    hidePageContent: false,
   };
 
   public constructor(props: AppProps) {
@@ -2812,8 +2789,6 @@ class AppContent extends Component<AppProps, AppState> {
           const modelWillChange = model !== modelName;
           let showedEarlySpinner = false;
           if (skipRefresh && modelWillChange) {
-            hidePageContentInFlight += 1;
-            await setHidePageContent(true);
             await setWaitingSpinner(true);
             showedEarlySpinner = true;
           }
@@ -2831,10 +2806,6 @@ class AppContent extends Component<AppProps, AppState> {
             }
           } finally {
             if (showedEarlySpinner && refreshDataInFlight === 0) {
-              hidePageContentInFlight = Math.max(0, hidePageContentInFlight - 1);
-              if (hidePageContentInFlight === 0) {
-                await setHidePageContent(false);
-              }
               await setWaitingSpinner(false);
             }
           }
@@ -3135,9 +3106,6 @@ class AppContent extends Component<AppProps, AppState> {
   }
 
   private dataPagesDiv(parentCallbacks: ViewCallbacks): JSX.Element {
-    if (this.state.hidePageContent) {
-      return <></>;
-    }
     return (
       <>
         {overviewDiv(
