@@ -24,6 +24,7 @@ import {
   generatorTypeDCPRevalue,
   dcpRevalueBatchCategoryPrefix,
   currentValue,
+  monthly,
   pensionDB,
   pensionTransfer,
 } from "../../localization/stringConstants";
@@ -42,7 +43,12 @@ import {
   generateAndCheckModel,
   resolveNumericSettingValue,
 } from "../../models/checks";
-import { processGenerators } from "../../models/evaluations";
+import {
+  EvaluationHelper,
+  getEvaluations,
+  processGenerators,
+} from "../../models/evaluations";
+import { getAnnualPlanningSurplusData } from "../../models/planningData";
 import {
   emptyModel,
   simpleAsset,
@@ -1606,6 +1612,71 @@ describe("checks tests", () => {
     );
     expect(pdbIncome?.GROWTH).toBe("2");
     expect(ptIncome?.GROWTH).toBe("2");
+    expect(pdbIncome?.CATEGORY).toBe("PensionJoe");
+    expect(ptIncome?.CATEGORY).toBe("PensionJack");
+  });
+
+  it("DBP generated pension incomes contribute to planning fixed income", () => {
+    const model = getMinimalModelCopy();
+    model.name = "ready to be processed";
+    model.generators.push({
+      NAME: "StatePension",
+      TYPE: "Defined Benefits",
+      ERA: 0,
+      DETAILS: {
+        VALUE: "12000",
+        VALUE_SET: "01 Jan 2020",
+        STOP_SOURCE: "01 Jan 2025",
+        START: "01 Jan 2025",
+        END: "01 Jan 2040",
+        GROWS_WITH_CPI: "N",
+        IncomeGrowth: "0",
+        TRANSFERRED_STOP: "01 Jan 2040",
+        INCOME_SOURCE: "",
+        SALARY_SACRIFICED: "N",
+        CONTRIBUTION_AMOUNT: "",
+        ACCRUAL: "",
+        TRANSFER_TO: "",
+        TRANSFER_PROPORTION: "0",
+        TAX_LIABILITY: "Joe",
+        CATEGORY: "pension",
+      },
+    });
+    const roiStart = model.settings.find((s) => {
+      return s.NAME === "Beginning of view range";
+    });
+    const roiEnd = model.settings.find((s) => {
+      return s.NAME === "End of view range";
+    });
+    if (roiStart !== undefined) {
+      roiStart.VALUE = "01 Jan 2024";
+    }
+    if (roiEnd !== undefined) {
+      roiEnd.VALUE = "01 Jan 2027";
+    }
+    expect(processGenerators(model)).toBe("");
+    model.name = "has been processed";
+
+    const helper = new EvaluationHelper(
+      (name) => name.startsWith("incomeFixed"),
+      100,
+      monthly,
+    );
+    const evals = getEvaluations(model, helper);
+    const pdbName = pensionDB + "StatePension";
+    const incomeFixedReports = evals.reportData.filter((d) => {
+      return d.name === `incomeFixed${pdbName}`;
+    });
+    expect(incomeFixedReports.length).toBeGreaterThan(0);
+
+    const planningData = getAnnualPlanningSurplusData(model, evals);
+    // Planning rows label the year end; FIXED_INCOME sums the prior calendar year.
+    const row2026 = planningData.find((row) => {
+      return String(row.DATE).includes("2026");
+    });
+    expect(row2026).toBeDefined();
+    expect(parseFloat(row2026!.FIXED_INCOME)).toBeCloseTo(12 * 12000, 0);
+    expect(incomeFixedReports[0].newVal).toBeCloseTo(12000, 0);
   });
 
   it("generateAndCheckModel allows DBP IncomeGrowth when VALUE is a resolvable setting", () => {

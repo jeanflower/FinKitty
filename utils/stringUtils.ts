@@ -534,6 +534,11 @@ export function removeNumberPart(input: string) {
   }
 }
 
+/** Category for incomes auto-generated from a Defined Benefits pension generator. */
+export function dbpGeneratedIncomeCategory(taxPayerName: string): string {
+  return `Pension${taxPayerName}`;
+}
+
 export function makeIncomeLiabilityFromNameAndNI(
   name: string,
   NI: boolean,

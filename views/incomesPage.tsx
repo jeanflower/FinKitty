@@ -229,6 +229,7 @@ export function incomesDiv(
             deleteIncomeFunction={parentCallbacks.deleteIncome}
             submitGeneratorFunction={parentCallbacks.submitGenerator}
             model={model}
+            modelRaw={parentCallbacks.modelRaw}
             showAlert={parentCallbacks.showAlert}
             doCheckBeforeOverwritingExistingData={parentCallbacks.doCheckBeforeOverwritingExistingData}
             filterForEra={parentCallbacks.filterForEra}

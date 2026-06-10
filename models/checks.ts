@@ -2291,6 +2291,25 @@ export function generateAndCheckModel(
   return result;
 }
 
+/** Expand generators on a copy of model (including generator) and run checkModel. */
+export function checkModelAfterAddingGenerator(
+  model: ModelData,
+  generator: Generator,
+): CheckResult {
+  const copyModel = makeModelFromJSON(JSON.stringify(model));
+  copyModel.name = "temporary copy";
+  copyModel.generators.push(generator);
+  const processError = processGenerators(copyModel);
+  if (processError.length > 0) {
+    return {
+      type: undefined,
+      itemName: undefined,
+      message: processError,
+    };
+  }
+  return checkModel(copyModel);
+}
+
 export function checkModel(
   model: ModelData
 ): CheckResult {

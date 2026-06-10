@@ -100,6 +100,7 @@ import {
   parseNumericExpression,
   revalueToValueReferencesCurrentValue,
   substituteCurrentValue,
+  dbpGeneratedIncomeCategory,
   makeIncomeLiabilityFromNameAndNI,
   makeGrowthFromString,
   modelNameReferencesSetting,
@@ -512,11 +513,21 @@ class ValuesContainer {
       this.includeInReport(name, val, date, source);
     let oldVal: number | undefined = 0.0;
     if (reportChange) {
-      oldVal = traceEvaluation(name, this, growths, "debugReportOld");
+      const previous = this.reportValues.get(name);
+      if (typeof previous === "number") {
+        oldVal = previous;
+      } else {
+        oldVal = traceEvaluation(name, this, growths, "debugReportOld");
+      }
     }
     this.reportValues.set(name, val);
     if (reportChange) {
-      let newVal = traceEvaluation(name, this, growths, "debugReportNew");
+      let newVal: number | undefined;
+      if (typeof val === "number") {
+        newVal = val;
+      } else {
+        newVal = traceEvaluation(name, this, growths, "debugReportNew");
+      }
       if (reportIfNoChange || oldVal !== newVal) {
         let change = undefined;
         if (newVal !== undefined && oldVal !== undefined) {
@@ -8622,7 +8633,7 @@ function processDBPGenerators(
         GROWTH: parsedIncomeGrowth.value,
         CPI_IMMUNE: !parseYNGrowsWithCPI.value,
         RECURRENCE: '1m',
-        CATEGORY: dBDetails.CATEGORY,
+        CATEGORY: dbpGeneratedIncomeCategory(dBDetails.TAX_LIABILITY),
       };
       let message = checkIncome(
         pensionDbpIncome1,
@@ -8646,7 +8657,7 @@ function processDBPGenerators(
           GROWTH: parsedIncomeGrowth.value,
           CPI_IMMUNE: !parseYNGrowsWithCPI.value,
           RECURRENCE: '1m',
-          CATEGORY: dBDetails.CATEGORY,
+          CATEGORY: dbpGeneratedIncomeCategory(dBDetails.TRANSFER_TO),
         };
         const message = checkIncome(
           pensionDbpIncome2,

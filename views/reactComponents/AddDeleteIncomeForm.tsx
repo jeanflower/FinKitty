@@ -3,7 +3,7 @@ import { Col, Row } from "react-bootstrap";
 
 import {
   checkIncomeLiability,
-  isResolvableNumericSettingValue,
+  checkModelAfterAddingGenerator,
   isValidValue,
 } from "../../models/checks";
 import {
@@ -21,16 +21,7 @@ import { log, printDebug, showObj } from "../../utils/utils";
 import { makeButton } from "./Button";
 import { DateSelectionRow, itemOptions } from "./DateSelectionRow";
 import { Input } from "./Input";
-import {
-  pensionDB,
-  incomeTax,
-  pensionPrefix,
-  pensionSS,
-  separator,
-  pensionTransfer,
-  autogen,
-  revalueInc,
-} from "../../localization/stringConstants";
+import { revalueInc } from "../../localization/stringConstants";
 
 import { makeRevalueName } from "../../models/modelUtils";
 import {
@@ -42,12 +33,7 @@ import {
   lessThan,
 } from "../../utils/stringUtils";
 import Spacer from "react-spacer";
-import {
-  isAnIncome,
-  getVarVal,
-  isNumberString,
-} from "../../models/modelQueries";
-import { makeModelFromJSON } from "../../models/modelFromJSON";
+import { isAnIncome, getVarVal } from "../../models/modelQueries";
 
 interface EditIncomeFormState {
   NAME: string;
@@ -79,6 +65,7 @@ const inputtingIncome = "income";
 const inputtingPension = "definedBenefitsPension";
 
 interface EditIncomeProps extends FormProps {
+  modelRaw: ModelData;
   checkIncomeFunction: (i: Income, model: ModelData) => string;
   checkTransactionFunction: (t: Transaction, model: ModelData) => string;
 
@@ -827,295 +814,15 @@ DB_TRANSFERRED_STOP
         );
         return;
       }
-      // do work to
-      // (a) check integrity of inputs
-      // (b) build an income for the pension, check integrity of income
-      // (c) build an income for the transferred pension,
-      //     check integrity of income
-      // (d) build a transaction for the contributions to the income,
-      //     check integrity of transaction
-      // (e) build a transaction for the accrual of the benefit,
-      //     check integrity of transaction
-      // (f) submit income
-      // (g) submit transactions
-      // (h) reset to defaults
 
-      const copyModel = makeModelFromJSON(JSON.stringify(this.props.model));
-      copyModel.name = 'temporary copy';
-      copyModel.undoModel = undefined;
-      copyModel.redoModel = undefined;
-
-      const parseYNDBSS = makeBooleanFromYesNo(this.state.DB_SS);
-      if (this.state.DB_INCOME_SOURCE !== "") {
-        if (!parseYNDBSS.checksOK) {
-          this.props.showAlert(
-            `Salary sacrifice '${this.state.DB_SS}' should be a Y/N value`,
-          );
-          return;
-        } else {
-          // log(`parseYNDBSS = ${showObj(parseYNDBSS)}`);
-        }
-
-        let isNotANumber = this.state.DB_CONTRIBUTION_AMOUNT === '' 
-          || !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
-        if (isNotANumber) {
-          this.props.showAlert(
-            `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' ` +
-              `should be a numerical value`,
-          );
-          return;
-        }
-
-        isNotANumber = this.state.DB_ACCRUAL === '' 
-          || !isNumberString(this.state.DB_ACCRUAL);
-        if (isNotANumber) {
-          this.props.showAlert(
-            `Accrual value '${this.state.DB_ACCRUAL}' ` +
-              `should be a numerical value`,
-          );
-          return;
-        }
-      } else {
-        let isNotANumber = this.state.DB_CONTRIBUTION_AMOUNT === '' 
-          || !isNumberString(this.state.DB_CONTRIBUTION_AMOUNT);
-        if (!isNotANumber) {
-          this.props.showAlert(
-            `Contribution amount '${this.state.DB_CONTRIBUTION_AMOUNT}' ` +
-              `from no income?`,
-          );
-          return;
-        }
-
-        isNotANumber = this.state.DB_ACCRUAL === '' || !isNumberString(this.state.DB_ACCRUAL);
-        if (!isNotANumber) {
-          this.props.showAlert(
-            `Accrual value '${this.state.DB_ACCRUAL}' from no income?`,
-          );
-          return;
-        }
-      }
-      const inputLiability = makeIncomeLiabilityFromNameAndNI(
-        this.state.LIABILITY,
-        false, // no NI payable
-      );
-      let liabilityMessage = checkIncomeLiability(inputLiability);
-      if (liabilityMessage !== "") {
-        this.props.showAlert(liabilityMessage);
-        return;
-      }
-
-      const sourceIncome = copyModel.incomes.find((i) => {
-        return i.NAME === this.state.DB_INCOME_SOURCE;
-      });
-      if (sourceIncome === undefined && this.state.DB_INCOME_SOURCE !== "") {
-        this.props.showAlert(
-          `${this.state.DB_INCOME_SOURCE} not recognised as an income`,
-        );
-        return;
-      } else if (sourceIncome) {
-        const liabilities = sourceIncome.LIABILITY;
-        if (liabilities.length === 0) {
-          this.props.showAlert(
-            `Source income '${sourceIncome.NAME}' should pay income tax`,
-          );
-          return;
-        }
-        const words = liabilities.split(separator);
-        const incomeTaxWord = words.find((w) => {
-          return w.endsWith(incomeTax);
+      if (this.props.doCheckBeforeOverwritingExistingData()) {
+        const matchingGenerator = this.props.modelRaw.generators.find((g) => {
+          return g.NAME === this.state.NAME;
         });
-        if (incomeTaxWord === undefined) {
+        if (matchingGenerator !== undefined) {
           this.props.showAlert(
-            `Source income '${sourceIncome.NAME}' ` +
-              `should have an income tax liability`,
+            `There's already a generator called ${this.state.NAME}`,
           );
-          return;
-        } else {
-          // insist incomeTaxWord matches inputLiability
-          if (incomeTaxWord !== inputLiability) {
-            log(`${incomeTaxWord} !== ${inputLiability}`);
-            this.props.showAlert(
-              `Source income '${sourceIncome.NAME}' ` +
-                `should have income tax liability matching '${inputLiability}'`,
-            );
-            return;
-          }
-        }
-      }
-      let builtLiability2: string | undefined;
-      if (this.state.DB_TRANSFER_TO !== "") {
-        if (this.state.DB_TRANSFER_PROPORTION === "") {
-          this.props.showAlert(
-            `Transfer proportion should be a numerical value`,
-          );
-          return;
-        }
-        if (
-          !isResolvableNumericSettingValue(
-            this.state.DB_TRANSFER_PROPORTION,
-            copyModel,
-          )
-        ) {
-          this.props.showAlert(
-            `Transfer proportion ${this.state.DB_TRANSFER_PROPORTION} ` +
-              `should be a number or a setting that resolves to a number`,
-          );
-          return;
-        }
-        builtLiability2 = makeIncomeLiabilityFromNameAndNI(
-          this.state.DB_TRANSFER_TO,
-          false, // no NI payable
-        );
-        liabilityMessage = checkIncomeLiability(builtLiability2);
-        if (liabilityMessage !== "") {
-          this.props.showAlert(liabilityMessage);
-          return;
-        }
-      }
-      const newIncomeName1 = pensionDB + this.state.NAME;
-      const pensionDbpIncome1: Income = {
-        START: this.state.DB_START,
-        END: this.state.DB_END,
-        NAME: newIncomeName1,
-        ERA: 0, // new things are automatically current,
-        VALUE: this.state.VALUE,
-        VALUE_SET: this.state.VALUE_SET,
-        LIABILITY: inputLiability,
-        GROWTH: parsedIncomeGrowth.value,
-        CPI_IMMUNE: !parseYNGrowsWithCPI.value,
-        RECURRENCE: this.state.RECURRENCE,
-        CATEGORY: this.state.CATEGORY,
-      };
-      let message = await this.props.checkIncomeFunction(
-        pensionDbpIncome1,
-        copyModel,
-      );
-      if (message.length > 0) {
-        this.props.showAlert(message);
-        return;
-      }
-      let pensionDbpIncome2: Income | undefined;
-      let newIncomeName2: string | undefined;
-      if (this.state.DB_TRANSFER_TO !== "" && builtLiability2 !== undefined) {
-        newIncomeName2 = pensionTransfer + this.state.NAME;
-        pensionDbpIncome2 = {
-          START: this.state.DB_START,
-          END: this.state.DB_TRANSFERRED_STOP,
-          NAME: newIncomeName2,
-          ERA: 0, // new things are automatically current,
-          VALUE: "0.0",
-          VALUE_SET: this.state.VALUE_SET,
-          LIABILITY: builtLiability2,
-          GROWTH: parsedIncomeGrowth.value,
-          CPI_IMMUNE: !parseYNGrowsWithCPI.value,
-          RECURRENCE: this.state.RECURRENCE,
-          CATEGORY: this.state.CATEGORY,
-        };
-        const message = await this.props.checkIncomeFunction(
-          pensionDbpIncome2,
-          copyModel,
-        );
-        if (message.length > 0) {
-          this.props.showAlert(message);
-          return;
-        }
-      }
-
-      copyModel.incomes.push(pensionDbpIncome1);
-      if (pensionDbpIncome2) {
-        copyModel.incomes.push(pensionDbpIncome2);
-      }
-
-      let pensionDbptran1: Transaction | undefined;
-      let pensionDbptran2: Transaction | undefined;
-      if (this.state.DB_INCOME_SOURCE !== "") {
-        pensionDbptran1 = {
-          NAME: (parseYNDBSS.value ? pensionSS : pensionPrefix) + this.state.NAME,
-          ERA: 0, // new things are automatically current,
-          FROM: this.state.DB_INCOME_SOURCE,
-          FROM_ABSOLUTE: false,
-          FROM_VALUE: this.state.DB_CONTRIBUTION_AMOUNT,
-          TO: "",
-          TO_ABSOLUTE: false,
-          TO_VALUE: "0.0",
-          DATE: this.state.VALUE_SET, // match the income start date
-          STOP_DATE: this.state.DB_STOP_SOURCE, // match the income stop date
-          RECURRENCE: "",
-          CATEGORY: this.state.CATEGORY,
-          TYPE: autogen,
-        };
-        message = await this.props.checkTransactionFunction(
-          pensionDbptran1,
-          copyModel,
-        );
-        if (message.length > 0) {
-          //log(`bad transaction1 ${showObj(pensionDbptran1)}`);
-          this.props.showAlert(message);
-          return;
-        }
-        // log(`this.state.DB_ACCRUAL = ${this.state.DB_ACCRUAL}`);
-        const monthlyAccrualValue = `${
-          parseFloat(this.state.DB_ACCRUAL) / 12.0
-        }`;
-        // Why divide by 12 here?
-        // the accrual rate adds, say, 1/49th of an income to the
-        // annual pension benefit.
-        // If w3e earn money each month, or each week, it's still 1/49th
-        // of that income.
-        // But if we are tracking a future _monthly_ pension benefit,
-        // we should only add 1/49th /12 otherwise our pension will be
-        // very large from not many contributions!
-
-        // log(`monthlyAccrualValue = ${monthlyAccrualValue}`);
-        pensionDbptran2 = {
-          NAME: newIncomeName1, // kicks in when we see income java
-          ERA: 0, // new things are automatically current,
-          FROM: this.state.DB_INCOME_SOURCE,
-          FROM_ABSOLUTE: false,
-          FROM_VALUE: monthlyAccrualValue, // % of income offered up to pension
-          TO: newIncomeName1,
-          TO_ABSOLUTE: false,
-          TO_VALUE: "1.0",
-          DATE: this.state.VALUE_SET, // match the income start date
-          STOP_DATE: this.state.DB_STOP_SOURCE, // match the income stop date
-          RECURRENCE: "",
-          CATEGORY: this.state.CATEGORY,
-          TYPE: autogen,
-        };
-        message = await this.props.checkTransactionFunction(
-          pensionDbptran2,
-          copyModel,
-        );
-        if (message.length > 0) {
-          //log(`bad transaction2 ${showObj(pensionDbptran2)}`);
-          this.props.showAlert(message);
-          return;
-        }
-      }
-      let pensionDbptran3: Transaction | undefined;
-      if (this.state.DB_TRANSFER_TO !== "" && newIncomeName2) {
-        pensionDbptran3 = {
-          NAME: newIncomeName2,
-          ERA: 0, // new things are automatically current,
-          FROM: newIncomeName1,
-          FROM_ABSOLUTE: false,
-          FROM_VALUE: "1.0",
-          TO: newIncomeName2,
-          TO_ABSOLUTE: false,
-          TO_VALUE: this.state.DB_TRANSFER_PROPORTION,
-          DATE: this.state.DB_END,
-          STOP_DATE: this.state.DB_TRANSFERRED_STOP,
-          RECURRENCE: "",
-          CATEGORY: this.state.CATEGORY,
-          TYPE: autogen,
-        };
-        message = await this.props.checkTransactionFunction(
-          pensionDbptran3,
-          copyModel,
-        );
-        if (message.length > 0) {
-          //log(`bad transaction3 ${showObj(pensionDbptran3)}`);
-          this.props.showAlert(message);
           return;
         }
       }
@@ -1136,16 +843,24 @@ DB_TRANSFERRED_STOP
         TRANSFER_TO: this.state.DB_TRANSFER_TO,
         TRANSFER_PROPORTION: this.state.DB_TRANSFER_PROPORTION,
         TAX_LIABILITY: this.state.LIABILITY,
-        CATEGORY: this.state.CATEGORY,        
+        CATEGORY: this.state.CATEGORY,
       };
-      const submittedOK = await this.props.submitGeneratorFunction(
-        {
-          NAME: this.state.NAME,
-          ERA: 0,
-          TYPE: 'Defined Benefits',
-          DETAILS: dbGeneratorDetails
-        },
+      const generator: Generator = {
+        NAME: this.state.NAME,
+        ERA: 0,
+        TYPE: "Defined Benefits",
+        DETAILS: dbGeneratorDetails,
+      };
+      const outcome = checkModelAfterAddingGenerator(
+        this.props.modelRaw,
+        generator,
       );
+      if (outcome.message !== "") {
+        this.props.showAlert(outcome.message);
+        return;
+      }
+
+      const submittedOK = await this.props.submitGeneratorFunction(generator);
       if (submittedOK) {
         this.props.showAlert("added new data");
         // clear fields
