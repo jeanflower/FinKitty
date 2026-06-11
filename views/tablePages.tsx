@@ -124,6 +124,8 @@ import {
   isNumber,
   makeProportionFromString,
   proportionMustEndWithPercentMessage,
+  makeStringFromProportion,
+  proportionStoredValueFromGridCell,
 } from "../utils/stringUtils";
 import { Accordion, Button, Card, useAccordionButton } from "react-bootstrap";
 import {
@@ -147,6 +149,7 @@ import CashExpressionFormatter from "./reactComponents/CashExpressionFormatter";
 import { evaluate } from "mathjs";
 import { inspect } from 'util';
 import PcFormatter from "./reactComponents/PcFormatter";
+import ProportionFormatter from "./reactComponents/ProportionFormatter";
 import { getPlanningTableData } from "./../models/planningData";
 inspect;
 
@@ -1376,6 +1379,23 @@ export function growthColumn(settings: Setting[]) {
   };
 }
 
+export function proportionColumn(settings: Setting[]) {
+  return {
+    ...defaultColumn,
+    renderCell(props: any) {
+      const val = props.row[props.column.key];
+
+      return (
+        <ProportionFormatter
+          name={props.column.name}
+          value={val}
+          settings={settings}
+        />
+      );
+    },
+  };
+}
+
 export const pcColumn = {
   ...defaultColumn,
   renderCell(props: any) {
@@ -1567,98 +1587,92 @@ function getAssetOrDebtCols(
   model: ModelData,
   isDebt: boolean,
   parentCallbacks: ViewCallbacks,
+  editable = true,
 ) {
-  let cols: any[] = [
-    /*
-    {
-      ...defaultColumn,
-      key: 'index',
-      name: 'index',
-    },
-    */
-    faveColumn(
-      parentCallbacks.deleteAsset,
-      parentCallbacks.setEraAsset,
-      "assetDefTable",
-    ),
-    {
+  const readOnly = (col: Record<string, unknown>) =>
+    editable ? col : { ...col, renderEditCell: undefined };
+
+  let cols: any[] = [];
+  if (editable) {
+    cols.push(
+      faveColumn(
+        parentCallbacks.deleteAsset,
+        parentCallbacks.setEraAsset,
+        "assetDefTable",
+      ),
+    );
+  }
+  cols.push(
+    readOnly({
       ...defaultColumn,
       key: "NAME",
       name: "name",
-    },
-  ];
+    }),
+  );
   if (parentCallbacks.doShowTodaysValueColumns()) {
     cols = cols.concat([
-      {
+      readOnly({
         ...cashValueColumn,
         key: "TODAYSVALUE",
         name: `value\nat ${getTodaysDate(model).getViewDescription()}`,
         renderEditCell: undefined,
-      },
+      }),
     ]);
   }
   cols = cols.concat([
-    {
+    readOnly({
       ...cashValueColumn,
       key: "VALUE",
       name: "start value",
-    },
+    }),
   ]);
   if (!isDebt) {
     cols = cols.concat([
-      {
+      readOnly({
         ...defaultColumn,
         key: "QUANTITY",
         name: "quantity",
-      },
+      }),
     ]);
   }
   const growthName = isDebt ? "interest rate" : "growth";
   cols = cols.concat([
-    {
+    readOnly({
       ...triggerDateColumn(model),
       key: "START",
       name: "start",
-    },
-    {
+    }),
+    readOnly({
       ...growthColumn(model.settings),
       key: "GROWTH",
       name: growthName,
-    },
-    // for debugging, we can find it useful to see this column
-    /*
-    {
-      ...defaultColumn,
-      key: 'IS_A_DEBT',
-      name: 'is debt?',
-    },
-    */
+    }),
   ]);
   if (!isDebt) {
     cols = cols.concat([
-      {
+      readOnly({
         ...defaultColumn,
         key: "GROWS_WITH_CPI",
         name: "grows with CPI",
-      },
-      {
+      }),
+      readOnly({
         ...defaultColumn,
         key: "LIABILITY",
         name: "tax Liability",
-      },
-      {
+      }),
+      readOnly({
         ...cashValueColumn,
         key: "PURCHASE_PRICE",
         name: "purchase price",
-      },
+      }),
     ]);
   }
   cols = cols.concat([
-    {
+    readOnly({
       ...defaultColumn,
       key: "CATEGORY",
       name: "category",
-    },
+    }),
   ]);
   return cols;
 }
@@ -1752,6 +1766,7 @@ export function assetsOrDebtsTableDiv(
   isDebt: boolean,
   parentCallbacks: ViewCallbacks,
   tableID: string,
+  editable = true,
 ) {
   return (
     <div
@@ -1763,20 +1778,29 @@ export function assetsOrDebtsTableDiv(
         <div className="dataGridAssets">
           <DataGridFinKitty
             tableID={tableID}
-            handleGridRowsUpdated={function (...args: any[]) {
-              return handleAssetGridRowsUpdated(
-                model,
-                parentCallbacks.showAlert,
-                doChecks,
-                rowData,
-                parentCallbacks.submitAsset,
-                parentCallbacks.attemptRename,
-                parentCallbacks.refreshData,
-                args,
-              );
-            }}
+            {...(editable
+              ? {
+                  handleGridRowsUpdated: function (...args: any[]) {
+                    return handleAssetGridRowsUpdated(
+                      model,
+                      parentCallbacks.showAlert,
+                      doChecks,
+                      rowData,
+                      parentCallbacks.submitAsset,
+                      parentCallbacks.attemptRename,
+                      parentCallbacks.refreshData,
+                      args,
+                    );
+                  },
+                }
+              : {})}
             rows={rowData}
-            columns={getAssetOrDebtCols(model, isDebt, parentCallbacks)}
+            columns={getAssetOrDebtCols(
+              model,
+              isDebt,
+              parentCallbacks,
+              editable,
+            )}
             model={model}
           />
         </div>
@@ -2328,6 +2352,7 @@ export function assetsDivWithHeadings(
           false,
           parentCallbacks,
           `bondassets${tableIDEnding}`,
+          false,
         ),
         `Bond assets`,
       )}
@@ -4600,6 +4625,7 @@ function handleBondGeneratorGridRowsUpdated(
       showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
       newRow[changedColumn.key] = oldVal;
     } else {
+      newRow.GROWTH = makeStringFromGrowth(parsedGrowth.value, model.settings);
       // log(`parsedValue = ${showObj(parsedValue)}`);
       const valueForSubmission = parsedValue.checksOK
         ? `${parsedValue.value}`
@@ -4626,6 +4652,9 @@ function handleBondGeneratorGridRowsUpdated(
       submitGenerator(generatorForSubmission, model);
     }
   } else {
+    if (parsedGrowth.checksOK) {
+      newRow.GROWTH = makeStringFromGrowth(parsedGrowth.value, model.settings);
+    }
     // log(`parsedValue = ${showObj(parsedValue)}`);
     const valueForSubmission = parsedValue.checksOK
       ? `${parsedValue.value}`
@@ -4637,7 +4666,7 @@ function handleBondGeneratorGridRowsUpdated(
       ERA: newRow.ERA,
       DETAILS: {
         VALUE: valueForSubmission,
-        GROWTH: parsedGrowth.value,
+        GROWTH: parsedGrowth.checksOK ? parsedGrowth.value : newRow.GROWTH,
         CATEGORY: newRow.CATEGORY,
         START: newRow.START,
         DURATION: newRow.DURATION,
@@ -4658,6 +4687,7 @@ const generatorProportionColumnKeys = new Set([
   "EMP_CONTRIBUTION_AMOUNT",
   "ACCRUAL",
   "TRANSFER_PROPORTION",
+  "TAX_FREE_PROP",
 ]);
 
 function parseGeneratorProportionColumnEdit(
@@ -4754,7 +4784,14 @@ function handleDCPGeneratorGridRowsUpdated(
   if (storedProportionVal === undefined) {
     return;
   }
-  newRow[changedColumn.key] = storedProportionVal;
+  if (generatorProportionColumnKeys.has(changedColumn.key)) {
+    newRow[changedColumn.key] = makeStringFromProportion(
+      storedProportionVal,
+      model.settings,
+    );
+  } else {
+    newRow[changedColumn.key] = storedProportionVal;
+  }
 
   const parsedValue = makeCashValueFromString(newRow.VALUE);
   const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings, true);
@@ -4766,6 +4803,7 @@ function handleDCPGeneratorGridRowsUpdated(
       showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
       newRow[changedColumn.key] = oldVal;
     } else {
+      newRow.GROWTH = makeStringFromGrowth(parsedGrowth.value, model.settings);
       // log(`parsedValue = ${showObj(parsedValue)}`);
       const valueForSubmission = parsedValue.checksOK
         ? `${parsedValue.value}`
@@ -4786,8 +4824,14 @@ function handleDCPGeneratorGridRowsUpdated(
           CRYSTALLIZE: newRow.CRYSTALLIZE,
           SS: newRow.SS,
           INCOME_SOURCE: newRow.INCOME_SOURCE,
-          CONTRIBUTION_AMOUNT: newRow.CONTRIBUTION_AMOUNT,
-          EMP_CONTRIBUTION_AMOUNT: newRow.EMP_CONTRIBUTION_AMOUNT,
+          CONTRIBUTION_AMOUNT: proportionStoredValueFromGridCell(
+            newRow.CONTRIBUTION_AMOUNT,
+            model.settings,
+          ),
+          EMP_CONTRIBUTION_AMOUNT: proportionStoredValueFromGridCell(
+            newRow.EMP_CONTRIBUTION_AMOUNT,
+            model.settings,
+          ),
           TRANSFER_TO: newRow.TRANSFER_TO, 
           TRANSFER_DATE: newRow.TRANSFER_DATE,       
         }
@@ -4796,6 +4840,9 @@ function handleDCPGeneratorGridRowsUpdated(
       submitGenerator(generatorForSubmission, model);
     }
   } else {
+    if (parsedGrowth.checksOK) {
+      newRow.GROWTH = makeStringFromGrowth(parsedGrowth.value, model.settings);
+    }
     // log(`parsedValue = ${showObj(parsedValue)}`);
     const valueForSubmission = parsedValue.checksOK
       ? `${parsedValue.value}`
@@ -4808,7 +4855,7 @@ function handleDCPGeneratorGridRowsUpdated(
       DETAILS: {
         VALUE: valueForSubmission,
         GROWS_WITH_CPI: newRow.GROWS_WITH_CPI,
-        GROWTH: parsedGrowth.value,
+        GROWTH: parsedGrowth.checksOK ? parsedGrowth.value : newRow.GROWTH,
         TAX_LIABILITY: newRow.TAX_LIABILITY,
         CATEGORY: newRow.CATEGORY,
         START: newRow.START,
@@ -4816,8 +4863,14 @@ function handleDCPGeneratorGridRowsUpdated(
         CRYSTALLIZE: newRow.CRYSTALLIZE,
         SS: newRow.SS,
         INCOME_SOURCE: newRow.INCOME_SOURCE,
-        CONTRIBUTION_AMOUNT: newRow.CONTRIBUTION_AMOUNT,
-        EMP_CONTRIBUTION_AMOUNT: newRow.EMP_CONTRIBUTION_AMOUNT,
+        CONTRIBUTION_AMOUNT: proportionStoredValueFromGridCell(
+          newRow.CONTRIBUTION_AMOUNT,
+          model.settings,
+        ),
+        EMP_CONTRIBUTION_AMOUNT: proportionStoredValueFromGridCell(
+          newRow.EMP_CONTRIBUTION_AMOUNT,
+          model.settings,
+        ),
         TRANSFER_TO: newRow.TRANSFER_TO, 
         TRANSFER_DATE: newRow.TRANSFER_DATE, 
       }
@@ -4864,7 +4917,7 @@ export function renderBondGeneratorsTable(
       ERA: g.ERA,
       VALUE: details.VALUE,
       START: details.START,
-      GROWTH: details.GROWTH,
+      GROWTH: makeStringFromGrowth(details.GROWTH, model.settings),
       CATEGORY: details.CATEGORY,
       BOND_DURATION: details.DURATION,
       BOND_SOURCE: details.SOURCE,
@@ -5003,7 +5056,7 @@ export function renderDCPGeneratorsTable(
       ERA: g.ERA,
       VALUE: details.VALUE,
       GROWS_WITH_CPI: details.GROWS_WITH_CPI,
-      GROWTH: details.GROWTH,
+      GROWTH: makeStringFromGrowth(details.GROWTH, model.settings),
       TAX_LIABILITY: details.TAX_LIABILITY,
       CATEGORY: details.CATEGORY,
       START: details.START,
@@ -5011,8 +5064,14 @@ export function renderDCPGeneratorsTable(
       CRYSTALLIZE: details.CRYSTALLIZE,
       SS: details.SS,
       INCOME_SOURCE: details.INCOME_SOURCE,
-      CONTRIBUTION_AMOUNT: details.CONTRIBUTION_AMOUNT,
-      EMP_CONTRIBUTION_AMOUNT: details.EMP_CONTRIBUTION_AMOUNT,
+      CONTRIBUTION_AMOUNT: makeStringFromProportion(
+        details.CONTRIBUTION_AMOUNT,
+        model.settings,
+      ),
+      EMP_CONTRIBUTION_AMOUNT: makeStringFromProportion(
+        details.EMP_CONTRIBUTION_AMOUNT,
+        model.settings,
+      ),
       TRANSFER_TO: details.TRANSFER_TO,
       TRANSFER_DATE: details.TRANSFER_DATE,
     }
@@ -5080,12 +5139,12 @@ export function renderDCPGeneratorsTable(
         name: `income source`,
       },
       {
-        ...defaultColumn,
+        ...proportionColumn(model.settings),
         key: "CONTRIBUTION_AMOUNT",
         name: `contribution amount`,
       },
       {
-        ...defaultColumn,
+        ...proportionColumn(model.settings),
         key: "EMP_CONTRIBUTION_AMOUNT",
         name: `employer contribution amount`,
       },
@@ -5204,7 +5263,14 @@ function handleDBPGeneratorGridRowsUpdated(
   if (storedProportionVal === undefined) {
     return;
   }
-  newRow[changedColumn.key] = storedProportionVal;
+  if (generatorProportionColumnKeys.has(changedColumn.key)) {
+    newRow[changedColumn.key] = makeStringFromProportion(
+      storedProportionVal,
+      model.settings,
+    );
+  } else {
+    newRow[changedColumn.key] = storedProportionVal;
+  }
 
   const parsedValue = makeCashValueFromString(newRow.VALUE);
   const parsedIncomeGrowth = makeGrowthFromString(
@@ -5234,10 +5300,19 @@ function handleDBPGeneratorGridRowsUpdated(
         TRANSFERRED_STOP: newRow.TRANSFERRED_STOP,
         INCOME_SOURCE: newRow.INCOME_SOURCE,
         SALARY_SACRIFICED: newRow.SALARY_SACRIFICED,
-        CONTRIBUTION_AMOUNT: newRow.CONTRIBUTION_AMOUNT,
-        ACCRUAL: newRow.ACCRUAL,
+        CONTRIBUTION_AMOUNT: proportionStoredValueFromGridCell(
+          newRow.CONTRIBUTION_AMOUNT,
+          model.settings,
+        ),
+        ACCRUAL: proportionStoredValueFromGridCell(
+          newRow.ACCRUAL,
+          model.settings,
+        ),
         TRANSFER_TO: newRow.TRANSFER_TO,
-        TRANSFER_PROPORTION: newRow.TRANSFER_PROPORTION,
+        TRANSFER_PROPORTION: proportionStoredValueFromGridCell(
+          newRow.TRANSFER_PROPORTION,
+          model.settings,
+        ),
         TAX_LIABILITY: newRow.TAX_LIABILITY,
         CATEGORY: newRow.CATEGORY,
       },
@@ -5252,8 +5327,18 @@ function handleDBPGeneratorGridRowsUpdated(
       newRow[changedColumn.key] = oldVal;
       return;
     }
+    newRow.IncomeGrowth = makeStringFromGrowth(
+      parsedIncomeGrowth.value,
+      model.settings,
+    );
     submitGenerator(buildGeneratorForSubmission(), model);
   } else {
+    if (parsedIncomeGrowth.checksOK) {
+      newRow.IncomeGrowth = makeStringFromGrowth(
+        parsedIncomeGrowth.value,
+        model.settings,
+      );
+    }
     submitGenerator(buildGeneratorForSubmission(), model);
   }
 }
@@ -5300,7 +5385,10 @@ export function renderDBPGeneratorsTable(
         VALUE: details.VALUE,
         VALUE_SET: details.VALUE_SET,
         GROWS_WITH_CPI: details.GROWS_WITH_CPI,
-        IncomeGrowth: details.IncomeGrowth ?? "0",
+        IncomeGrowth: makeStringFromGrowth(
+          details.IncomeGrowth ?? "0",
+          model.settings,
+        ),
         TAX_LIABILITY: details.TAX_LIABILITY,
         CATEGORY: details.CATEGORY,
         STOP_SOURCE: details.STOP_SOURCE,
@@ -5309,10 +5397,16 @@ export function renderDBPGeneratorsTable(
         TRANSFERRED_STOP: details.TRANSFERRED_STOP,
         INCOME_SOURCE: details.INCOME_SOURCE,
         SALARY_SACRIFICED: details.SALARY_SACRIFICED,
-        CONTRIBUTION_AMOUNT: details.CONTRIBUTION_AMOUNT,
-        ACCRUAL: details.ACCRUAL,
+        CONTRIBUTION_AMOUNT: makeStringFromProportion(
+          details.CONTRIBUTION_AMOUNT,
+          model.settings,
+        ),
+        ACCRUAL: makeStringFromProportion(details.ACCRUAL, model.settings),
         TRANSFER_TO: details.TRANSFER_TO,
-        TRANSFER_PROPORTION: details.TRANSFER_PROPORTION,
+        TRANSFER_PROPORTION: makeStringFromProportion(
+          details.TRANSFER_PROPORTION,
+          model.settings,
+        ),
       };
     }),
   );
@@ -5389,12 +5483,12 @@ export function renderDBPGeneratorsTable(
           name: `sal. sacrifice`,
         },
         {
-          ...defaultColumn,
+          ...proportionColumn(model.settings),
           key: "CONTRIBUTION_AMOUNT",
           name: `contribution amount`,
         },
         {
-          ...defaultColumn,
+          ...proportionColumn(model.settings),
           key: "ACCRUAL",
           name: `accrual`,
         },
@@ -5404,7 +5498,7 @@ export function renderDBPGeneratorsTable(
           name: `transfer to`,
         },
         {
-          ...defaultColumn,
+          ...proportionColumn(model.settings),
           key: "TRANSFER_PROPORTION",
           name: `transfer proportion`,
         },
@@ -5527,7 +5621,10 @@ function handleDCPWithdrawalGeneratorGridRowsUpdated(
       TO: newRow.TO,
       DATE: newRow.DATE,
       VALUE: valueForSubmission,
-      TAX_FREE_PROP: newRow.TAX_FREE_PROP,
+      TAX_FREE_PROP: proportionStoredValueFromGridCell(
+        newRow.TAX_FREE_PROP,
+        model.settings,
+      ),
       RECURRENCE: newRow.RECURRENCE,
       RECURRENCE_STOP: newRow.RECURRENCE_STOP,
     }
@@ -5576,7 +5673,10 @@ export function renderDCPWithdrawalGeneratorsTable(
       TO: details.TO,
       DATE: details.DATE,
       VALUE: details.VALUE,
-      TAX_FREE_PROP: details.TAX_FREE_PROP,
+      TAX_FREE_PROP: makeStringFromProportion(
+        details.TAX_FREE_PROP,
+        model.settings,
+      ),
       RECURRENCE: details.RECURRENCE,
       RECURRENCE_STOP: details.RECURRENCE_STOP,
     }
@@ -5619,7 +5719,7 @@ export function renderDCPWithdrawalGeneratorsTable(
         name: `value`,
       },
       {
-        ...defaultColumn,
+        ...proportionColumn(model.settings),
         key: "TAX_FREE_PROP",
         name: `tax-free proportion`,
       },

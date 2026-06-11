@@ -709,6 +709,56 @@ export function makeProportionFromString(
   return result;
 }
 
+/** Format stored proportion decimal (e.g. "0.05") for table display (e.g. "5%"). */
+export function makeStringFromProportion(input: string, settings: Setting[]) {
+  if (input === "") {
+    return "";
+  }
+  if (input[input.length - 1] === "%") {
+    return input;
+  }
+  const parseSetting = isSetting(input, settings);
+  if (parseSetting.numFound === 1) {
+    return input;
+  }
+  const parseNum = isNumber(input);
+  if (!parseNum.checksOK) {
+    return input;
+  }
+  const pcVal = parseNum.value * 100;
+  let strVal = `${pcVal}`;
+  if (
+    strVal.substring(0, strVal.length - 1).endsWith("0000000") ||
+    strVal.substring(0, strVal.length - 1).endsWith("9999999")
+  ) {
+    strVal = makeTwoDP(pcVal);
+    if (strVal.endsWith(".00")) {
+      strVal = strVal.substring(0, strVal.length - 3);
+    } else if (strVal.endsWith("0")) {
+      strVal = strVal.substring(0, strVal.length - 1);
+    }
+  }
+  return `${strVal}%`;
+}
+
+/** Convert a proportion table cell (display or stored) back to stored decimal. */
+export function proportionStoredValueFromGridCell(
+  input: string,
+  settings: Setting[],
+): string {
+  if (input === "") {
+    return "";
+  }
+  if (isSetting(input, settings).numFound === 1) {
+    return input;
+  }
+  if (input[input.length - 1] === "%") {
+    const parsed = makeProportionFromString(input);
+    return parsed.checksOK ? parsed.value : input;
+  }
+  return input;
+}
+
 export const growthMustEndWithPercentMessage = "growth must end with a %";
 
 export type GrowthParseResult = {

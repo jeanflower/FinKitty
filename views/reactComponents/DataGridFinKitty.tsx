@@ -14,6 +14,31 @@ import "react-data-grid/lib/styles.css";
  */
 export type GridRow = any;
 
+type PendingEdit = {
+  rowIndex: number;
+  columnKey: string;
+  previousValue: unknown;
+};
+
+function gridRowsEqual(a: GridRow[], b: GridRow[]): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  for (const rowA of a) {
+    const rowB = b.find((r) => r.index === rowA.index);
+    if (rowB === undefined) {
+      return false;
+    }
+    const keys = new Set([...Object.keys(rowA), ...Object.keys(rowB)]);
+    for (const k of keys) {
+      if (rowA[k] !== rowB[k]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 interface DataGridProps {
   handleGridRowsUpdated?: any; // TODO any
   rows: GridRow[]; // TODO any
@@ -26,20 +51,46 @@ interface DataGridProps {
 interface DataGridState {
   colSortIndex: string;
   sortDirection: "ASC" | "DESC" | "NONE";
+  displayRows: GridRow[];
+  pendingEdit: PendingEdit | null;
 }
 class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
   sortedIndices: number[];
+
+  static getDerivedStateFromProps(
+    nextProps: DataGridProps,
+    prevState: DataGridState,
+  ): Partial<DataGridState> | null {
+    const nextRows = nextProps.rows ?? [];
+    if (prevState.pendingEdit !== null) {
+      const { rowIndex, columnKey, previousValue } = prevState.pendingEdit;
+      const serverRow = nextRows.find((r) => r.index === rowIndex);
+      if (
+        serverRow !== undefined &&
+        serverRow[columnKey] !== previousValue
+      ) {
+        return {
+          displayRows: nextRows,
+          pendingEdit: null,
+        };
+      }
+      return null;
+    }
+    if (!gridRowsEqual(nextRows, prevState.displayRows)) {
+      return { displayRows: nextRows };
+    }
+    return null;
+  }
 
   public constructor(props: DataGridProps) {
     super(props);
 
     // console.log(`in DataGridFinKitty, props are ${inspect(props)}`);
 
-    this.sortedIndices = props.rows.map((row) => {
+    const initialRows = props.rows ?? [];
+    this.sortedIndices = initialRows.map((row) => {
       return row["index"];
     });
-    // log(`row indices are ${props.rows.map((r)=>{return r['index'];})}`);
-    // log(`sortedIndices are ${this.sortedIndices}`);
 
     const colSortIndex = (props.colSortIndex !== undefined) ? props.colSortIndex : "NAME";      
     const sortDirection = (props.sortDirection !== undefined) ? props.sortDirection : "ASC";      
@@ -47,8 +98,14 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
     this.state = {
       colSortIndex: colSortIndex,
       sortDirection: sortDirection,
+      displayRows: initialRows,
+      pendingEdit: null,
     };
     this.handleSort(this.state.colSortIndex, this.state.sortDirection);
+  }
+
+  private getRows(): GridRow[] {
+    return this.state.displayRows;
   }
 
   public rowKeyGetter(r: any) {
@@ -67,7 +124,7 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
       log(`this.sortedIndices = ${this.sortedIndices}`);
     }
 
-    const result = this.props.rows.filter((row) => {
+    const result = this.getRows().filter((row) => {
       return row["index"] === this.sortedIndices[i];
     })[0];
     //if(result == undefined){
@@ -77,7 +134,7 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
     return result;
   }
   public getSize() {
-    return this.props.rows.length;
+    return this.getRows().length;
   }
 
   private handleSort(
@@ -94,7 +151,7 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
     const v = getVarVal(this.props.model.settings);
 
     if (sortDirection === "NONE") {
-      this.sortedIndices = this.props.rows
+      this.sortedIndices = this.getRows()
         .slice()
         .sort((a, b) => {
           const ai = a["index"];
@@ -108,7 +165,7 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
       return;
     }
 
-    this.sortedIndices = this.props.rows
+    this.sortedIndices = this.getRows()
       .slice()
       .sort((a, b) => {
         // log(`sortColumn = ${sortColumn}`);
@@ -297,12 +354,12 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
       <>
         <ReactiveTextArea
           identifier={`${this.props.tableID}TableDataDump`}
-          message={showObj(this.props.rows)}
+          message={showObj(this.getRows())}
         />
-        {this.props.rows && (
+        {this.getRows().length > 0 && (
           <ReactDataGrid
           style={{
-              height: this.props.rows.length * 35 + 40,
+              height: this.getRows().length * 35 + 40,
               //height: this.props.rows.length * 35 + 60,
               //fontSize: 20,
             }}
@@ -324,12 +381,36 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
               // log(`data.indexes after transformation =`
               // +` ${showObj(data.indexes)}`);
 
-              this.props.handleGridRowsUpdated(rows, data);
+              const rowIndex = data.indexes[0];
+              const columnKey = data.column.key;
+              const previousRow = this.state.displayRows.find((r) => {
+                return r.index === rowIndex;
+              });
+              const previousValue = previousRow?.[columnKey];
+              const updatedRow = rows.find((r) => {
+                return r.index === rowIndex;
+              });
+              const displayRows = this.state.displayRows.map((r) => {
+                if (r.index === rowIndex && updatedRow !== undefined) {
+                  return { ...updatedRow };
+                }
+                return r;
+              });
+
+              this.setState({
+                displayRows,
+                pendingEdit:
+                  rowIndex !== undefined && columnKey !== undefined
+                    ? { rowIndex, columnKey, previousValue }
+                    : null,
+              });
+
+              this.props.handleGridRowsUpdated?.(rows, data);
             }}
             rowKeyGetter={this.rowKeyGetter.bind(this)}
             rows={this.sortedIndices.map((idx) => {
               // log(`find row for idx=${idx}`);
-              const matchedRow = this.props.rows.find((r) => {
+              const matchedRow = this.getRows().find((r) => {
                 return r.index === idx;
               });
               // log(`matchedRowrow ${matchedRow}`);

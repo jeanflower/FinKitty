@@ -9,15 +9,16 @@ interface PcFormatterProps {
 class PcFormatter extends React.Component<PcFormatterProps> {
   public render() {
     const x = this.props.value;
-    // log(`string representtation of ${this.props.value} is ${x}`);
+    const display =
+      x === "" || x.endsWith("%") ? x : `${x}%`;
     return (
       <OverlayTrigger
         placement="top"
         overlay={(props: any) => (
-          <Tooltip {...props}>{`${this.props.name}: ${x}`}</Tooltip>
+          <Tooltip {...props}>{`${this.props.name}: ${display}`}</Tooltip>
         )}
       >
-        <span>{x}%</span>
+        <span>{display}</span>
       </OverlayTrigger>
     );
   }

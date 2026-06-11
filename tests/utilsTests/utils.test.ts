@@ -14,7 +14,9 @@ import {
   growthMustEndWithPercentMessage,
   growthInputErrorMessage,
   makeProportionFromString,
+  makeStringFromProportion,
   proportionMustEndWithPercentMessage,
+  proportionStoredValueFromGridCell,
   makeIncomeLiabilityFromNameAndNI,
   makePurchasePriceFromString,
   makeQuantityFromString,
@@ -570,6 +572,40 @@ describe("utils tests", () => {
       checksOK: false,
       value: "",
     });
+  });
+  it("makeStringFromProportion", () => {
+    const settings = [
+      {
+        NAME: "tfProp",
+        ERA: undefined,
+        VALUE: "0.25",
+        HINT: "",
+        TYPE: "const",
+      },
+    ];
+    expect(makeStringFromProportion("", settings)).toEqual("");
+    expect(makeStringFromProportion("0.05", settings)).toEqual("5%");
+    expect(makeStringFromProportion("0.25", settings)).toEqual("25%");
+    expect(makeStringFromProportion("0", settings)).toEqual("0%");
+    expect(makeStringFromProportion("5%", settings)).toEqual("5%");
+    expect(makeStringFromProportion("tfProp", settings)).toEqual("tfProp");
+  });
+  it("proportionStoredValueFromGridCell", () => {
+    const settings = [
+      {
+        NAME: "tfProp",
+        ERA: undefined,
+        VALUE: "0.25",
+        HINT: "",
+        TYPE: "const",
+      },
+    ];
+    expect(proportionStoredValueFromGridCell("", settings)).toEqual("");
+    expect(proportionStoredValueFromGridCell("5%", settings)).toEqual("0.05");
+    expect(proportionStoredValueFromGridCell("0.05", settings)).toEqual("0.05");
+    expect(proportionStoredValueFromGridCell("tfProp", settings)).toEqual(
+      "tfProp",
+    );
   });
   it("makeGrowthFromString", () => {
     const settings = [
