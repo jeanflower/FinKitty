@@ -1,4 +1,5 @@
 import { TestModel02 } from "../../localization/stringConstants";
+import { growthMustEndWithPercentMessage } from "../../utils/stringUtils";
 import {
   addDate,
   addAsset,
@@ -137,7 +138,7 @@ describe(testName, () => {
     await addAsset(driver, {
       ...assetInputs,
       growth: "junk",
-      message: `Growth value 'junk' should be a numerical or setting value`,
+      message: growthMustEndWithPercentMessage,
     });
 
     await clearAssetFields(driver);
@@ -246,7 +247,7 @@ describe(testName, () => {
     await addDebt(driver, {
       ...debtInputs,
       growth: "junk",
-      message: `Growth value 'junk' should be a numerical value`,
+      message: growthMustEndWithPercentMessage,
     });
 
     await clearDebtFields(driver);

@@ -11,6 +11,10 @@ import {
   makeCashValueFromString,
   makeDateTooltip,
   makeGrowthFromString,
+  growthMustEndWithPercentMessage,
+  growthInputErrorMessage,
+  makeProportionFromString,
+  proportionMustEndWithPercentMessage,
   makeIncomeLiabilityFromNameAndNI,
   makePurchasePriceFromString,
   makeQuantityFromString,
@@ -522,6 +526,51 @@ describe("utils tests", () => {
     expect(makeYesNoFromBoolean(true)).toEqual("Yes");
     expect(makeYesNoFromBoolean(false)).toEqual("No");
   });
+  it("makeProportionFromString", () => {
+    expect(proportionMustEndWithPercentMessage).toEqual(
+      "proportions must end with a %",
+    );
+    expect(makeProportionFromString("5%")).toEqual({
+      checksOK: true,
+      value: "0.05",
+    });
+    expect(makeProportionFromString("45%")).toEqual({
+      checksOK: true,
+      value: "0.45",
+    });
+    expect(makeProportionFromString("0%")).toEqual({
+      checksOK: true,
+      value: "0",
+    });
+    expect(makeProportionFromString("-2%")).toEqual({
+      checksOK: true,
+      value: "-0.02",
+    });
+    expect(makeProportionFromString("", true)).toEqual({
+      checksOK: true,
+      value: "",
+    });
+    expect(makeProportionFromString("")).toEqual({
+      checksOK: false,
+      value: "",
+    });
+    expect(makeProportionFromString("0.05")).toEqual({
+      checksOK: false,
+      value: "",
+    });
+    expect(makeProportionFromString("5")).toEqual({
+      checksOK: false,
+      value: "",
+    });
+    expect(makeProportionFromString("5%", true)).toEqual({
+      checksOK: true,
+      value: "0.05",
+    });
+    expect(makeProportionFromString("nonsense%")).toEqual({
+      checksOK: false,
+      value: "",
+    });
+  });
   it("makeGrowthFromString", () => {
     const settings = [
       {
@@ -542,38 +591,60 @@ describe("utils tests", () => {
     expect(makeGrowthFromString("1", settings)).toEqual({
       checksOK: true,
       value: "1",
+      missingPercentSuffix: false,
     });
     expect(makeGrowthFromString("1.0", settings)).toEqual({
       checksOK: true,
       value: "1",
+      missingPercentSuffix: false,
     });
     expect(makeGrowthFromString("-1.0", settings)).toEqual({
       checksOK: true,
       value: "-1",
+      missingPercentSuffix: false,
     });
+    expect(makeGrowthFromString("1", settings, true)).toEqual({
+      checksOK: false,
+      value: "",
+      missingPercentSuffix: true,
+    });
+    expect(growthInputErrorMessage("1", makeGrowthFromString("1", settings, true))).toEqual(
+      growthMustEndWithPercentMessage,
+    );
     expect(makeGrowthFromString("a", settings)).toEqual({
       checksOK: true,
       value: "a",
+      missingPercentSuffix: false,
     });
     expect(makeGrowthFromString("2a", settings)).toEqual({
       checksOK: false,
       value: "",
+      missingPercentSuffix: false,
     });
     expect(makeGrowthFromString("b", settings)).toEqual({
       checksOK: true,
       value: "b",
+      missingPercentSuffix: false,
     });
     expect(makeGrowthFromString("1%", settings)).toEqual({
       checksOK: true,
       value: "1",
+      missingPercentSuffix: false,
+    });
+    expect(makeGrowthFromString("1%", settings, true)).toEqual({
+      checksOK: true,
+      value: "1",
+      missingPercentSuffix: false,
     });
     expect(makeGrowthFromString("a%", settings)).toEqual({
       checksOK: false,
       value: "",
+      missingPercentSuffix: false,
     });
     expect(makeGrowthFromString("", settings)).toEqual({
       checksOK: false,
       value: "",
+      missingPercentSuffix: false,
     });
   });
   it("makeStringFromGrowth", () => {

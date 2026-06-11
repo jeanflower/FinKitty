@@ -50,6 +50,9 @@ import {
   checkForWordClashInModel,
   makeCashValueFromString,
   makeGrowthFromString,
+  growthInputErrorMessage,
+  makeProportionFromString,
+  proportionMustEndWithPercentMessage,
 } from "../../utils/stringUtils";
 import Spacer from "react-spacer";
 import {
@@ -204,13 +207,13 @@ function handleBondGeneratorGridRowsUpdated(
   newRow[changedColumn.key] = newVal;
 
   const parsedValue = makeCashValueFromString(newRow.VALUE);
-  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings, true);
 
   console.log(`in table change, newRow = ${inspect(newRow)}`)
 
   if (doChecks) {
     if (!parsedGrowth.checksOK) {
-      showAlert(`generator growth ${newRow.GROWTH} not understood`);
+      showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
       newRow[changedColumn.key] = oldVal;
     } else {
       // log(`parsedValue = ${showObj(parsedValue)}`);
@@ -339,13 +342,13 @@ function handleDCPGeneratorGridRowsUpdated(
   newRow[changedColumn.key] = newVal;
 
   const parsedValue = makeCashValueFromString(newRow.VALUE);
-  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings, true);
 
   console.log(`in table change, newRow = ${inspect(newRow)}`)
 
   if (doChecks) {
     if (!parsedGrowth.checksOK) {
-      showAlert(`generator growth ${newRow.GROWTH} not understood`);
+      showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
       newRow[changedColumn.key] = oldVal;
     } else {
       // log(`parsedValue = ${showObj(parsedValue)}`);
@@ -611,7 +614,7 @@ export class AddDeleteAssetForm extends Component<
             <Input
               title={
                 "Annual growth percentage " +
-                "(excluding inflation, e.g. 2 for 2% p.a.)"
+                "(excluding inflation, e.g. 2% p.a.)"
               }
               type="text"
               name="assetgrowth"
@@ -644,7 +647,7 @@ export class AddDeleteAssetForm extends Component<
             <Input
               title={
                 "Annual growth percentage " +
-                "(excluding inflation, e.g. 2 for 2% p.a.)"
+                "(excluding inflation, e.g. 2% p.a.)"
               }
               type="text"
               name="assetgrowth"
@@ -982,7 +985,7 @@ export class AddDeleteAssetForm extends Component<
         <Row>
           <Col>
             <Input
-              title="Pension contribution amount (>0, e.g. 0.05 for 5%)"
+              title="Pension contribution amount (>0, e.g. 5%)"
               type="text"
               name="contributionAmountPensionAsset"
               value={this.state.DCP_CONTRIBUTION_AMOUNT}
@@ -994,7 +997,7 @@ export class AddDeleteAssetForm extends Component<
           </Col>
           <Col>
             <Input
-              title="Employer contribution amount (e.g. 0.05 for 5%)"
+              title="Employer contribution amount (e.g. 5%)"
               type="text"
               name="contributionAmount"
               value={this.state.DCP_EMP_CONTRIBUTION_AMOUNT}
@@ -1349,23 +1352,18 @@ export class AddDeleteAssetForm extends Component<
       this.props.showAlert(`Start date '${this.state.START}' should be a date`);
       return;
     }
-    // check GROWTH
-    const isNotANumber = !isNumberString(this.state.GROWTH);
-    if (isNotANumber) {
-      const setting = getSettings(
-        this.props.model.settings,
-        this.state.GROWTH,
-        "",
-        false, // allow for it not beinig there
+    const parsedGrowth = makeGrowthFromString(
+      this.state.GROWTH,
+      this.props.model.settings,
+      true,
+    );
+    if (!parsedGrowth.checksOK) {
+      this.props.showAlert(
+        growthInputErrorMessage(this.state.GROWTH, parsedGrowth),
       );
-      if (setting === "") {
-        this.props.showAlert(
-          `Growth value '${this.state.GROWTH}' ` +
-            `should be a numerical or setting value`,
-        );
-        return;
-      }
+      return;
     }
+    const growthForStorage = parsedGrowth.value;
     if (this.state.inputMode === inputtingPension) {
 
       const parsedYNCPI = makeBooleanFromYesNo(this.state.GROWS_WITH_INFLATION);
@@ -1392,7 +1390,7 @@ export class AddDeleteAssetForm extends Component<
         VALUE: this.state.VALUE,
         QUANTITY: "", // pensions are continuous
         START: this.state.START,
-        GROWTH: this.state.GROWTH,
+        GROWTH: growthForStorage,
         CPI_IMMUNE: !parsedYNCPI.value,
         CAN_BE_NEGATIVE: false,
         IS_A_DEBT: false,
@@ -1414,7 +1412,7 @@ export class AddDeleteAssetForm extends Component<
         VALUE: "0.0",
         QUANTITY: "", // pensions are continuous
         START: this.state.START,
-        GROWTH: this.state.GROWTH,
+        GROWTH: growthForStorage,
         CPI_IMMUNE: false,
         CAN_BE_NEGATIVE: false,
         IS_A_DEBT: false,
@@ -1434,7 +1432,7 @@ export class AddDeleteAssetForm extends Component<
         VALUE: "0.0",
         QUANTITY: "", // pensions are continuous
         START: this.state.START,
-        GROWTH: this.state.GROWTH,
+        GROWTH: growthForStorage,
         CPI_IMMUNE: false,
         CAN_BE_NEGATIVE: false,
         IS_A_DEBT: false,
@@ -1461,7 +1459,7 @@ export class AddDeleteAssetForm extends Component<
         VALUE: "0.0",
         QUANTITY: "", // pensions are continuous
         START: this.state.START,
-        GROWTH: this.state.GROWTH,
+        GROWTH: growthForStorage,
         CPI_IMMUNE: false,
         CAN_BE_NEGATIVE: false,
         IS_A_DEBT: false,
@@ -1477,6 +1475,8 @@ export class AddDeleteAssetForm extends Component<
         }
       }
       let contributions: Transaction | undefined = undefined;
+      let contributionAmount = "";
+      let empContributionAmount = "";
       if (this.state.DCP_INCOME_SOURCE !== '') {
 
         // If there's an income, check other inputs like
@@ -1488,24 +1488,26 @@ export class AddDeleteAssetForm extends Component<
           );
           return;
         }
-        let isNotANumber = !isNumberString(this.state.DCP_CONTRIBUTION_AMOUNT);
-        if (isNotANumber) {
-          this.props.showAlert(
-            `Contribution amount '${this.state.DCP_CONTRIBUTION_AMOUNT}' ` +
-              `should be a numerical value`,
-          );
+        const parsedContrib = makeProportionFromString(
+          this.state.DCP_CONTRIBUTION_AMOUNT,
+          false,
+        );
+        if (!parsedContrib.checksOK) {
+          this.props.showAlert(proportionMustEndWithPercentMessage);
           return;
         }
-        isNotANumber = !isNumberString(this.state.DCP_EMP_CONTRIBUTION_AMOUNT);
-        if (isNotANumber) {
-          this.props.showAlert(
-            `Contribution amount '${this.state.DCP_EMP_CONTRIBUTION_AMOUNT}' ` +
-              `should be a numerical value`,
-          );
+        const parsedEmpContrib = makeProportionFromString(
+          this.state.DCP_EMP_CONTRIBUTION_AMOUNT,
+          false,
+        );
+        if (!parsedEmpContrib.checksOK) {
+          this.props.showAlert(proportionMustEndWithPercentMessage);
           return;
         }
-        const contPc = parseFloat(this.state.DCP_CONTRIBUTION_AMOUNT);
-        const contEmpPc = parseFloat(this.state.DCP_EMP_CONTRIBUTION_AMOUNT);
+        contributionAmount = parsedContrib.value;
+        empContributionAmount = parsedEmpContrib.value;
+        const contPc = parseFloat(contributionAmount);
+        const contEmpPc = parseFloat(empContributionAmount);
 
         const toProp = contPc === 0 ? 0.0 : (contPc + contEmpPc) / contPc;
 
@@ -1521,7 +1523,7 @@ export class AddDeleteAssetForm extends Component<
           ERA: 0, // new things are automatically current
           FROM: this.state.DCP_INCOME_SOURCE,
           FROM_ABSOLUTE: false,
-          FROM_VALUE: this.state.DCP_CONTRIBUTION_AMOUNT,
+          FROM_VALUE: contributionAmount,
           TO: asset1Name,
           TO_ABSOLUTE: false,
           TO_VALUE: `${toProp}`,
@@ -1634,7 +1636,7 @@ export class AddDeleteAssetForm extends Component<
       const dcGeneratorDetails: DCGeneratorDetails = {
         VALUE: this.state.VALUE,
         GROWS_WITH_CPI: this.state.GROWS_WITH_INFLATION,
-        GROWTH: this.state.GROWTH,
+        GROWTH: growthForStorage,
         TAX_LIABILITY: this.state.LIABILITY,
         CATEGORY: this.state.CATEGORY,
         START: this.state.START,
@@ -1642,8 +1644,8 @@ export class AddDeleteAssetForm extends Component<
         CRYSTALLIZE: this.state.DCP_CRYSTALLIZE,
         SS: this.state.DCP_SS,
         INCOME_SOURCE: this.state.DCP_INCOME_SOURCE,
-        CONTRIBUTION_AMOUNT: this.state.DCP_CONTRIBUTION_AMOUNT,
-        EMP_CONTRIBUTION_AMOUNT: this.state.DCP_EMP_CONTRIBUTION_AMOUNT,
+        CONTRIBUTION_AMOUNT: contributionAmount,
+        EMP_CONTRIBUTION_AMOUNT: empContributionAmount,
         TRANSFER_TO: this.state.DCP_TRANSFER_TO,
         TRANSFER_DATE: this.state.DCP_TRANSFER_DATE,  
       };
@@ -1707,7 +1709,7 @@ export class AddDeleteAssetForm extends Component<
         VALUE: this.state.VALUE,
         QUANTITY: this.state.QUANTITY,
         START: this.state.START,
-        GROWTH: this.state.GROWTH,
+        GROWTH: growthForStorage,
         CPI_IMMUNE: !parsedYNCPI.value,
         CAN_BE_NEGATIVE: false,
         IS_A_DEBT: false,
@@ -1801,7 +1803,7 @@ export class AddDeleteAssetForm extends Component<
 
       const bondGeneratorDetails: BondGeneratorDetails = {
         VALUE: this.state.VALUE,
-        GROWTH: this.state.GROWTH,
+        GROWTH: growthForStorage,
         CATEGORY: this.state.BONDS_CATEGORY,
         START: this.state.START,
         DURATION: this.state.BOND_DURATION,

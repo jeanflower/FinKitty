@@ -680,11 +680,64 @@ export function isNumber(input: string) {
   return result;
 }
 
-export function makeGrowthFromString(input: string, settings: Setting[]) {
+export const proportionMustEndWithPercentMessage =
+  "proportions must end with a %";
+
+/** Parse user proportion input (e.g. "5%") into stored decimal (e.g. "0.05"). */
+export function makeProportionFromString(
+  input: string,
+  optional = false,
+): { value: string; checksOK: boolean } {
+  const result = { value: "", checksOK: true };
+  if (input === "") {
+    if (!optional) {
+      result.checksOK = false;
+    }
+    return result;
+  }
+  if (input[input.length - 1] !== "%") {
+    result.checksOK = false;
+    return result;
+  }
+  const numberPart = input.substring(0, input.length - 1);
+  const parseNum = isNumber(numberPart);
+  if (!parseNum.checksOK) {
+    result.checksOK = false;
+    return result;
+  }
+  result.value = `${parseNum.value / 100.0}`;
+  return result;
+}
+
+export const growthMustEndWithPercentMessage = "growth must end with a %";
+
+export type GrowthParseResult = {
+  value: string;
+  checksOK: boolean;
+  missingPercentSuffix?: boolean;
+};
+
+export function growthInputErrorMessage(
+  input: string,
+  parsed: GrowthParseResult,
+): string {
+  if (parsed.missingPercentSuffix) {
+    return growthMustEndWithPercentMessage;
+  }
+  return `Growth value '${input}' should be a numerical or setting value`;
+}
+
+/** Parse growth from user input (requires %) or stored model value (plain number). */
+export function makeGrowthFromString(
+  input: string,
+  settings: Setting[],
+  fromUserInput = false,
+): GrowthParseResult {
   // log(`make growth value from string ${input}`);
-  const result = {
+  const result: GrowthParseResult = {
     value: "",
     checksOK: true,
+    missingPercentSuffix: false,
   };
   if (input === "") {
     result.checksOK = false;
@@ -693,6 +746,21 @@ export function makeGrowthFromString(input: string, settings: Setting[]) {
   const parseSetting = isSetting(input, settings);
   if (parseSetting.numFound === 1) {
     result.value = input;
+    return result;
+  }
+  if (fromUserInput) {
+    if (input[input.length - 1] !== "%") {
+      result.checksOK = false;
+      result.missingPercentSuffix = true;
+      return result;
+    }
+    const numberPart = input.substring(0, input.length - 1);
+    const num = isNumber(numberPart);
+    if (!num.checksOK) {
+      result.checksOK = false;
+      return result;
+    }
+    result.value = `${num.value}`;
     return result;
   }
   const x = input.replace("%", "");

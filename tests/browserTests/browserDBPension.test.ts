@@ -19,6 +19,7 @@ import {
   getDataDumpFromPage,
 } from "./browserBaseTypes";
 import { showObj } from "../../utils/utils";
+import { proportionMustEndWithPercentMessage } from "../../utils/stringUtils";
 
 showObj;
 
@@ -48,11 +49,11 @@ describe(testName, () => {
     transferredStopDate: "1 Jan 2040",
     incomeSource: "javaJob1",
     contributionSSIncome: "N",
-    contributionAmountPensionIncome: "0.05",
-    incomeaccrual: "0.02",
+    contributionAmountPensionIncome: "5%",
+    incomeaccrual: "2%",
     transferName: "Jack",
-    transferProportion: "0.5",
-    incomeGrowth: "2.0",
+    transferProportion: "50%",
+    incomeGrowth: "2%",
     incomecpiGrows: "N",
     liability: "Joe",
     category: "pension",
@@ -176,22 +177,21 @@ describe(testName, () => {
     await addDBPension(driver, {
       ...inputs,
       contributionAmountPensionIncome: "junk",
-      message: "Contribution amount 'junk' should be a numerical value",
+      message: proportionMustEndWithPercentMessage,
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
       incomeaccrual: "junk",
-      message: "Accrual value 'junk' should be a numerical value",
+      message: proportionMustEndWithPercentMessage,
     });
 
     await clearPensionFields(driver);
     await addDBPension(driver, {
       ...inputs,
       transferProportion: "junk",
-      message:
-        "Transfer proportion junk should be a number or a setting that resolves to a number",
+      message: proportionMustEndWithPercentMessage,
     });
 
     await clearPensionFields(driver);

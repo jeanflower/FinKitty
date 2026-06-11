@@ -695,7 +695,7 @@ describe(testName, () => {
       name: "carTest1",
       startDate: "January 2 2018",
       value: "chrysler",
-      growth: "0.0",
+      growth: "0%",
       message: `added new asset`,
     });
     await addAsset(driver, {
@@ -703,7 +703,7 @@ describe(testName, () => {
       name: "carTest2",
       startDate: "January 2 2018",
       value: "twoChryslers",
-      growth: "0.0",
+      growth: "0%",
       message: `added new asset`,
     });
     await addAsset(driver, {
@@ -711,7 +711,7 @@ describe(testName, () => {
       name: "carTest3",
       startDate: "January 2 2018",
       value: "chrysler",
-      growth: "0.0",
+      growth: "0%",
       quantity: "2",
       message: `added new asset`,
     });
@@ -720,7 +720,7 @@ describe(testName, () => {
       name: "carTest4",
       startDate: "January 2 2018",
       value: "twoChryslers",
-      growth: "0.0",
+      growth: "0%",
       quantity: "2",
       message: `added new asset`,
     });
@@ -898,7 +898,7 @@ describe(testName, () => {
       startDate: "January 2 2018",
       value: "chrysler",
       message: `added new asset`,
-      growth: "0.0",
+      growth: "0%",
     });
 
     await scrollIntoViewByID(

@@ -16,6 +16,10 @@ import {
   getDriver,
   scrollIntoViewByID,
 } from "./browserBaseTypes";
+import {
+  growthMustEndWithPercentMessage,
+  proportionMustEndWithPercentMessage,
+} from "../../utils/stringUtils";
 
 const testName = "BrowserDCPensionTest";
 
@@ -55,15 +59,15 @@ describe(testName, () => {
       value: "0",
       category: "pension",
       startDate: "1 Jan 2021",
-      growth: "2.0",
+      growth: "2%",
       growsWithCPI: "N",
       contributionsStopDate: "1 Jan 2025",
       crystallizesDate: "1 Jan 2030",
       pensionEndOrTransferDate: "1 Jan 2035",
       contributionSSIncome: "N",
       incomeSource: "javaJob1",
-      contributionAmountPensionIncome: "0.05",
-      employerContribution: "0.5",
+      contributionAmountPensionIncome: "5%",
+      employerContribution: "50%",
       liability: "Joe",
       transferName: "Jack",
     };
@@ -125,7 +129,7 @@ describe(testName, () => {
       ...pensionInputs,
       name: "dcp07",
       growth: "junk",
-      message: `Growth value 'junk' should be a numerical or setting value`,
+      message: growthMustEndWithPercentMessage,
     });
 
     await clearDCPension(driver);
@@ -202,7 +206,7 @@ describe(testName, () => {
       ...pensionInputs,
       name: "dcp16",
       contributionAmountPensionIncome: "junk",
-      message: `Contribution amount 'junk' should be a numerical value`,
+      message: proportionMustEndWithPercentMessage,
     });
 
     await clearDCPension(driver);
@@ -210,16 +214,17 @@ describe(testName, () => {
       ...pensionInputs,
       name: "dcp17",
       contributionAmountPensionIncome: "1000",
-      message: `added assets and transactions`,
-    }); // TODO : shouldn't be allowed to contribut more than 1
+      message: proportionMustEndWithPercentMessage,
+    });
     /**/
 
+    await clearDCPension(driver);
     await clickButton(driver, "useDCPInputs");
     await addDCPension(driver, {
       ...pensionInputs,
       name: "dcp18",
       employerContribution: "junk",
-      message: `Contribution amount 'junk' should be a numerical value`,
+      message: proportionMustEndWithPercentMessage,
     });
 
     await clearDCPension(driver);
@@ -227,8 +232,8 @@ describe(testName, () => {
       ...pensionInputs,
       name: "dcp19",
       employerContribution: "1000",
-      message: `added assets and transactions`,
-    }); // TODO : shouldn't be allowed to contribut more than 1
+      message: proportionMustEndWithPercentMessage,
+    });
 
     await clickButton(driver, "useDCPInputs");
     await addDCPension(driver, {
@@ -264,15 +269,15 @@ describe(testName, () => {
       value: "0",
       category: "pension",
       startDate: "1 Jan 2021",
-      growth: "2.0",
+      growth: "2%",
       growsWithCPI: "N",
       contributionsStopDate: "1 Jan 2025",
       crystallizesDate: "1 Jan 2030",
       pensionEndOrTransferDate: "1 Jan 2035",
       contributionSSIncome: "N",
       incomeSource: "javaJob1",
-      contributionAmountPensionIncome: "0.05",
-      employerContribution: "0.5",
+      contributionAmountPensionIncome: "5%",
+      employerContribution: "50%",
       liability: "Joe",
       transferName: "Jack",
     };

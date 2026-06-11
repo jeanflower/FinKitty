@@ -30,7 +30,10 @@ import {
   makeBooleanFromYesNo,
   makeIncomeLiabilityFromNameAndNI,
   makeGrowthFromString,
+  growthInputErrorMessage,
   lessThan,
+  makeProportionFromString,
+  proportionMustEndWithPercentMessage,
 } from "../../utils/stringUtils";
 import Spacer from "react-spacer";
 import { isAnIncome, getVarVal } from "../../models/modelQueries";
@@ -158,7 +161,7 @@ export class AddDeleteIncomeForm extends Component<
       START: "",
       END: "",
       GROWS_WITH_CPI: "",
-      GROWTH: "0",
+      GROWTH: "0%",
       LIABILITY: "",
       RECURRENCE: "1m",
       CATEGORY: "",
@@ -173,7 +176,7 @@ export class AddDeleteIncomeForm extends Component<
       DB_TRANSFER_TO: "",
       DB_TRANSFER_PROPORTION: "",
       DB_TRANSFERRED_STOP: "",
-      DB_INCOME_GROWTH: "0",
+      DB_INCOME_GROWTH: "0%",
     };
 
     this.state = this.defaultState;
@@ -334,7 +337,7 @@ export class AddDeleteIncomeForm extends Component<
               <Input
                 title={
                   "Annual growth percentage " +
-                  "(excluding inflation, e.g. 2 for 2% p.a.)"
+                  "(excluding inflation, e.g. 2% p.a.)"
                 }
                 type="text"
                 name="incomegrowth"
@@ -574,7 +577,7 @@ DB_TRANSFERRED_STOP
         <Row>
           <Col>
             <Input
-              title="Pension contribution amount (e.g. 0.05 for 5%, optional)"
+              title="Pension contribution amount (e.g. 5%, optional)"
               type="text"
               name="contributionAmountPensionIncome"
               value={this.state.DB_CONTRIBUTION_AMOUNT}
@@ -588,7 +591,7 @@ DB_TRANSFERRED_STOP
             <Input
               title={
                 "Contribution accrual to annual benefit " +
-                "(e.g. 0.02 for 1/50, optional)"
+                "(e.g. 2% for 1/50, optional)"
               }
               type="text"
               name="incomeaccrual"
@@ -605,7 +608,7 @@ DB_TRANSFERRED_STOP
             <Input
               title={
                 "Annual income growth percentage " +
-                "(excluding inflation, e.g. 2 for 2% p.a.)"
+                "(excluding inflation, e.g. 2% p.a.)"
               }
               type="text"
               name="dbpincomegrowth"
@@ -635,7 +638,7 @@ DB_TRANSFERRED_STOP
             <Input
               title={
                 "Proportion transferred on death " +
-                "(e.g. 0.5 for 50%, optional)"
+                "(e.g. 50%, optional)"
               }
               type="text"
               name="transferProportion"
@@ -806,11 +809,14 @@ DB_TRANSFERRED_STOP
       const parsedIncomeGrowth = makeGrowthFromString(
         this.state.DB_INCOME_GROWTH,
         this.props.model.settings,
+        true,
       );
       if (!parsedIncomeGrowth.checksOK) {
         this.props.showAlert(
-          `Income growth value '${this.state.DB_INCOME_GROWTH}' ` +
-            `should be a numerical or setting value`,
+          growthInputErrorMessage(
+            this.state.DB_INCOME_GROWTH,
+            parsedIncomeGrowth,
+          ),
         );
         return;
       }
@@ -827,6 +833,45 @@ DB_TRANSFERRED_STOP
         }
       }
 
+      let contributionAmount = "";
+      if (this.state.DB_CONTRIBUTION_AMOUNT !== "") {
+        const parsedContribution = makeProportionFromString(
+          this.state.DB_CONTRIBUTION_AMOUNT,
+          true,
+        );
+        if (!parsedContribution.checksOK) {
+          this.props.showAlert(proportionMustEndWithPercentMessage);
+          return;
+        }
+        contributionAmount = parsedContribution.value;
+      }
+
+      let accrual = "";
+      if (this.state.DB_ACCRUAL !== "") {
+        const parsedAccrual = makeProportionFromString(
+          this.state.DB_ACCRUAL,
+          true,
+        );
+        if (!parsedAccrual.checksOK) {
+          this.props.showAlert(proportionMustEndWithPercentMessage);
+          return;
+        }
+        accrual = parsedAccrual.value;
+      }
+
+      let transferProportion = "";
+      if (this.state.DB_TRANSFER_PROPORTION !== "") {
+        const parsedTransferProportion = makeProportionFromString(
+          this.state.DB_TRANSFER_PROPORTION,
+          true,
+        );
+        if (!parsedTransferProportion.checksOK) {
+          this.props.showAlert(proportionMustEndWithPercentMessage);
+          return;
+        }
+        transferProportion = parsedTransferProportion.value;
+      }
+
       const dbGeneratorDetails: DBPGeneratorDetails = {
         VALUE: this.state.VALUE,
         VALUE_SET: this.state.VALUE_SET,
@@ -838,10 +883,10 @@ DB_TRANSFERRED_STOP
         TRANSFERRED_STOP: this.state.DB_TRANSFERRED_STOP,
         INCOME_SOURCE: this.state.DB_INCOME_SOURCE,
         SALARY_SACRIFICED: this.state.DB_SS,
-        CONTRIBUTION_AMOUNT: this.state.DB_CONTRIBUTION_AMOUNT,
-        ACCRUAL: this.state.DB_ACCRUAL,
+        CONTRIBUTION_AMOUNT: contributionAmount,
+        ACCRUAL: accrual,
         TRANSFER_TO: this.state.DB_TRANSFER_TO,
-        TRANSFER_PROPORTION: this.state.DB_TRANSFER_PROPORTION,
+        TRANSFER_PROPORTION: transferProportion,
         TAX_LIABILITY: this.state.LIABILITY,
         CATEGORY: this.state.CATEGORY,
       };
@@ -873,11 +918,11 @@ DB_TRANSFERRED_STOP
     const parsedGrowth = makeGrowthFromString(
       this.state.GROWTH,
       this.props.model.settings,
+      true,
     );
     if (!parsedGrowth.checksOK) {
       this.props.showAlert(
-        `Growth value '${this.state.GROWTH}' ` +
-          `should be a numerical or setting value`,
+        growthInputErrorMessage(this.state.GROWTH, parsedGrowth),
       );
       return;
     }

@@ -23,6 +23,8 @@ import {
   makeValueAbsPropFromString,
   checkTriggerDate,
   lessThan,
+  makeGrowthFromString,
+  growthInputErrorMessage,
 } from "../../utils/stringUtils";
 import Spacer from "react-spacer";
 import {
@@ -196,7 +198,7 @@ export class AddDeleteDebtForm extends Component<
             <Input
               title={
                 "Annual interest rate (excluding inflation, " +
-                "e.g. 2 for 2% p.a.)"
+                "e.g. 2% p.a.)"
               }
               type="text"
               name="debtgrowth"
@@ -420,10 +422,14 @@ export class AddDeleteDebtForm extends Component<
       this.props.showAlert(`Start date '${this.state.START}' should be a date`);
       return;
     }
-    isNotANumber = !isNumberString(this.state.GROWTH);
-    if (isNotANumber) {
+    const parsedGrowth = makeGrowthFromString(
+      this.state.GROWTH,
+      this.props.model.settings,
+      true,
+    );
+    if (!parsedGrowth.checksOK) {
       this.props.showAlert(
-        `Growth value '${this.state.GROWTH}' should be a numerical value`,
+        growthInputErrorMessage(this.state.GROWTH, parsedGrowth),
       );
       return;
     }
@@ -443,7 +449,7 @@ export class AddDeleteDebtForm extends Component<
       VALUE: `-${parseFloat(this.state.VALUE)}`,
       QUANTITY: "", // debts are continuous
       START: this.state.START,
-      GROWTH: this.state.GROWTH,
+      GROWTH: parsedGrowth.value,
       CPI_IMMUNE: true, // debts never grow with CPI
       CAN_BE_NEGATIVE: true,
       IS_A_DEBT: true,

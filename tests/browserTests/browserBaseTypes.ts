@@ -329,64 +329,8 @@ export async function fillInputById(
   const byIdCtx = (step: string) =>
     `fillInputById id="${id}" step="${step}" content="${previewText(content)}"`;
 
-  if (id === "liquidateForCash") {
-    // clear away a default 'No' before adding new text
-    await sendKeysWithFillContext(
-      input[0],
-      Key.BACK_SPACE,
-      byIdCtx("clear default (1/2)"),
-    );
-    await sendKeysWithFillContext(
-      input[0],
-      Key.BACK_SPACE,
-      byIdCtx("clear default (2/2)"),
-    );
-  }
-  if (id === "fromValue") {
-    // clear away a default '100%' before adding new text
-    await sendKeysWithFillContext(
-      input[0],
-      Key.BACK_SPACE,
-      byIdCtx("clear fromValue (1/4)"),
-    );
-    await sendKeysWithFillContext(
-      input[0],
-      Key.BACK_SPACE,
-      byIdCtx("clear fromValue (2/4)"),
-    );
-    await sendKeysWithFillContext(
-      input[0],
-      Key.BACK_SPACE,
-      byIdCtx("clear fromValue (3/4)"),
-    );
-    await sendKeysWithFillContext(
-      input[0],
-      Key.BACK_SPACE,
-      byIdCtx("clear fromValue (4/4)"),
-    );
-  }
-  if (id === "toValue") {
-    // clear away a default '100%' before adding new text
-    await sendKeysWithFillContext(
-      input[0],
-      Key.BACK_SPACE,
-      byIdCtx("clear toValue (1/4)"),
-    );
-    await sendKeysWithFillContext(
-      input[0],
-      Key.BACK_SPACE,
-      byIdCtx("clear toValue (2/4)"),
-    );
-    await sendKeysWithFillContext(
-      input[0],
-      Key.BACK_SPACE,
-      byIdCtx("clear toValue (3/4)"),
-    );
-    await sendKeysWithFillContext(
-      input[0],
-      Key.BACK_SPACE,
-      byIdCtx("clear toValue (4/4)"),
-    );
+  if (!skipClearBeforeFillById.has(id)) {
+    await clearTextInputElement(input[0]);
   }
   const result = await sendKeysWithFillContext(
     input[0],
@@ -405,6 +349,11 @@ async function clearTextInputElement(input: webdriver.WebElement) {
     await input.sendKeys(Key.BACK_SPACE);
   }
 }
+
+const skipClearBeforeFillById = new Set([
+  "fromIncomeSelectIncomeForm",
+  "fromIncomeSelectAssetForm",
+]);
 
 export async function clearInputById(
   driver: ThenableWebDriver,
@@ -491,6 +440,7 @@ export async function fillInputByName(
   if (input.length === 1) {
     const byNameCtx = (step: string) =>
       `fillInputByName name="${name}" step="${step}" content="${previewText(content)}"`;
+    await clearTextInputElement(input[0]);
     await sendKeysWithFillContext(
       input[0],
       content,

@@ -319,7 +319,7 @@ export const assetInputs = {
   quantity: "2",
   category: "audio",
   startDate: "1 Jan 2021",
-  growth: "2.0",
+  growth: "2%",
   growsWithInflation: "N",
   liability: "Joe",
   purchasePrice: "10",
@@ -362,7 +362,7 @@ export const incomeInputs = {
   valuationDate: "1 Jan 2020",
   startDate: "1 Jan 2021",
   endDate: "1 Jan 2022",
-  growth: "2.0",
+  growth: "2%",
   growsWithInflation: "N",
   liability: "Joe",
   category: "programming",
@@ -622,26 +622,25 @@ export const expenseInputs = {
   valuationDate: "1 Jan 2020",
   startDate: "1 Jan 2021",
   endDate: "1 Jan 2022",
-  growth: "2.0",
+  growth: "2%",
   growsWithInflation: "N",
   recurrence: "1m",
   category: "connectivity",
 };
 
 export async function clearAssetFields(driver: ThenableWebDriver) {
-  /*
-  await clearInputById('assetname');
-  await clearInputById('assetvalue');
-  await clearInputById('assetquantity');
-  await clearInputByName('start date');
-  await clearInputById('assetgrowth');
-  await clearInputById('assetcpi-grows');
-  await clearInputById('liabilityCGT');
-  await clearInputById('assetcategory');
-  */
-
   await gotoTabPage(driver, overviewTag);
   await gotoTabPage(driver, assetsTag);
+
+  await clearInputById(driver, "assetname");
+  await clearInputById(driver, "assetvalue");
+  await clearInputById(driver, "assetquantity");
+  await clearInputByName(driver, "start date");
+  await clearInputById(driver, "assetgrowth");
+  await clearInputById(driver, "assetcpi-grows");
+  await clearInputById(driver, "liabilityCGT");
+  await clearInputById(driver, "purchase");
+  await clearInputById(driver, "assetcategory");
   return;
 }
 
@@ -740,32 +739,24 @@ export async function addDCPension(
 }
 
 export async function clearDCPension(driver: ThenableWebDriver): Promise<void> {
-  /*
-  await clearInputById('assetname');
-  await clearInputByName('assetvalue');
-  await clearInputById('assetcategory');
-  await clearInputByName('start date');
-  await clearInputByName('assetgrowth');
-  await clearInputByName('assetcpi-grows');
-  await clearInputByName('stop date');
-  await clearInputByName('crystallize date');
-  await clearInputByName('transferred stop date');
-  await clearInputById('contributionSSAsset');
-  if (inputs.incomeSource !== '') {
-    await clearInputById('fromIncomeSelectAssetForm');
-  }
-  await clearInputById('contributionAmountPensionAsset');
-  await clearInputById('contributionAmount');
-  await clearInputById('liabilityIC');
-  await clearInputById('transferNameAsset');
-
-  await clickButton(driver, 'addPension');
-  */
-
   await gotoTabPage(driver, overviewTag);
   await gotoTabPage(driver, assetsTag);
-  // need scroll?
   await clickButton(driver, "useDCPInputs");
+
+  await clearInputById(driver, "assetname");
+  await clearInputByName(driver, "assetvalue");
+  await clearInputById(driver, "assetcategory");
+  await clearInputByName(driver, "start date");
+  await clearInputByName(driver, "assetgrowth");
+  await clearInputByName(driver, "assetcpi-grows");
+  await clearInputByName(driver, "stop date");
+  await clearInputByName(driver, "crystallize date");
+  await clearInputByName(driver, "transferred stop date");
+  await clearInputById(driver, "contributionSSAsset");
+  await clearInputById(driver, "contributionAmountPensionAsset");
+  await clearInputById(driver, "contributionAmount");
+  await clearInputById(driver, "liabilityIC");
+  await clearInputById(driver, "transferNameAsset");
 
   return;
 }
@@ -929,7 +920,7 @@ export const debtInputs = {
   value: "2500",
   category: "highInterest",
   startDate: "1 Jan 2021",
-  growth: "20.0",
+  growth: "20%",
   monthlyRepayment: "10",
 };
 

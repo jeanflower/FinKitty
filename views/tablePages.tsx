@@ -108,6 +108,7 @@ import {
   makeBooleanFromYesNo,
   makeCashValueFromString,
   makeGrowthFromString,
+  growthInputErrorMessage,
   makeQuantityFromString,
   makePurchasePriceFromString,
   makeValueAbsPropFromString,
@@ -121,6 +122,8 @@ import {
   getDisplayName,
   checkTriggerDate,
   isNumber,
+  makeProportionFromString,
+  proportionMustEndWithPercentMessage,
 } from "../utils/stringUtils";
 import { Accordion, Button, Card, useAccordionButton } from "react-bootstrap";
 import {
@@ -265,7 +268,7 @@ function handleExpenseGridRowsUpdated(
 
   // log('new expense '+showObj(expense));
   const parsedGrowsWithCPI = makeBooleanFromYesNo(newRow.GROWS_WITH_CPI);
-  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings, true);
 
   const parsedValue = makeCashValueFromString(newRow.VALUE);
   let expValue = "";
@@ -278,7 +281,7 @@ function handleExpenseGridRowsUpdated(
     if (!parsedGrowsWithCPI.checksOK) {
       showAlert("Whether expense grows with CPI should be 'y' or 'n'");
     } else if (!parsedGrowth.checksOK) {
-      showAlert(`expense growth ${newRow.GROWTH} not understood`);
+      showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
     } else {
       const expenseForSubmission: Expense = {
         NAME: newRow.NAME,
@@ -579,13 +582,13 @@ function handleIncomeGridRowsUpdated(
   // log('new income '+showObj(income));
   const parsedGrowsWithCPI = makeBooleanFromYesNo(newRow.GROWS_WITH_CPI);
   const parsedValue = makeCashValueFromString(newRow.VALUE);
-  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings, true);
   if (doChecks) {
     if (!parsedGrowsWithCPI.checksOK) {
       showAlert("Whether income grows with CPI should be 'y' or 'n'");
       //newValue = oldValue;
     } else if (!parsedGrowth.checksOK) {
-      showAlert(`income growth ${newRow.GROWTH} not understood`);
+      showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
     } else {
       let incValue = "";
       if (parsedValue.checksOK) {
@@ -846,7 +849,7 @@ function handleAssetGridRowsUpdated(
   newRow[changedColumn.key] = newVal;
   const parsedValue = makeCashValueFromString(newRow.VALUE);
   const parsedQuantity = makeQuantityFromString(newRow.QUANTITY);
-  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings, true);
   const parsedPurchasePrice = makePurchasePriceFromString(
     newRow.PURCHASE_PRICE,
   );
@@ -862,7 +865,7 @@ function handleAssetGridRowsUpdated(
 
   if (doChecks) {
     if (!parsedGrowth.checksOK) {
-      showAlert(`asset growth ${newRow.GROWTH} not understood`);
+      showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
       newRow[changedColumn.key] = oldVal;
     } else if (!parsedQuantity.checksOK) {
       showAlert(`quantity value ${newRow.QUANTITY} not understood`);
@@ -1909,49 +1912,50 @@ function makeTransactionCols(
   type: string,
   parentCallbacks: ViewCallbacks,
 ) {
-  let cols: any[] = [
-    /*
-    {
-      ...defaultColumn,
-      key: 'index',
-      name: 'index',
-    },
-    */
+  const editable = type !== autogen;
+  const readOnly = (col: Record<string, unknown>) =>
+    editable ? col : { ...col, renderEditCell: undefined };
 
-    type === revalueAsset
-      ? faveColumnRevalueAssetTransactions(parentCallbacks)
-      : faveColumn(
-          (name: string) => {
-            const completeName = getTransactionName(name, type);
-            return parentCallbacks.deleteTransaction(completeName);
-          }, // needs getTransactionName see above
-          (name: string, value: number) => {
-            const completeName = getTransactionName(name, type);
-            return parentCallbacks.setEraTransaction(completeName, value);
-          }, // needs getTransactionName see above
-          "transactionDefTable",
-        ),
-    {
+  let cols: any[] = [];
+  if (editable) {
+    cols.push(
+      type === revalueAsset
+        ? faveColumnRevalueAssetTransactions(parentCallbacks)
+        : faveColumn(
+            (name: string) => {
+              const completeName = getTransactionName(name, type);
+              return parentCallbacks.deleteTransaction(completeName);
+            }, // needs getTransactionName see above
+            (name: string, value: number) => {
+              const completeName = getTransactionName(name, type);
+              return parentCallbacks.setEraTransaction(completeName, value);
+            }, // needs getTransactionName see above
+            "transactionDefTable",
+          ),
+    );
+  }
+  cols.push(
+    readOnly({
       ...defaultColumn,
       key: "NAME",
       name: "name",
-    },
-  ];
+    }),
+  );
   if (type === payOffDebt) {
     cols = cols.concat([
-      {
+      readOnly({
         ...triggerDateColumn(model),
         key: "DATE",
         name: "payments start date",
-      },
+      }),
     ]);
   } else {
     cols = cols.concat([
-      {
+      readOnly({
         ...triggerDateColumn(model),
         key: "DATE",
         name: "date",
-      },
+      }),
     ]);
   }
   // FROM, FROM_VALUE display rules
@@ -1968,28 +1972,28 @@ function makeTransactionCols(
     // (from cash)
     // as an "amount" to pay back
     cols = cols.concat([
-      {
+      readOnly({
         ...ToFromValueColumn,
         key: "FROM_VALUE",
         name: "amount",
-      },
+      }),
     ]);
   } else {
     // not revalues, not paying off debts,
     // default behaviour for FROM, FROM_VALUE
     // display
     cols = cols.concat([
-      {
+      readOnly({
         ...defaultColumn,
         width: 200,
         key: "FROM",
         name: "coming from",
-      },
-      {
-        ...defaultColumn,
+      }),
+      readOnly({
+        ...ToFromValueColumn,
         key: "FROM_VALUE",
         name: "from amount",
-      },
+      }),
     ]);
   }
 
@@ -1999,98 +2003,98 @@ function makeTransactionCols(
     // shows the revalue income/expense/asset/debt
     // and the amount
     cols = cols.concat([
-      {
+      readOnly({
         ...defaultColumn,
         key: "TO",
         name: "income",
-      },
-      {
+      }),
+      readOnly({
         ...ToFromValueColumn,
         key: "TO_VALUE",
         name: "new value",
-      },
+      }),
     ]);
   } else if (type === revalueExp) {
     cols = cols.concat([
-      {
+      readOnly({
         ...defaultColumn,
         key: "TO",
         name: "expense",
-      },
-      {
+      }),
+      readOnly({
         ...ToFromValueColumn,
         key: "TO_VALUE",
         name: "new value",
-      },
+      }),
     ]);
   } else if (type === revalueAsset) {
     cols = cols.concat([
-      {
+      readOnly({
         ...defaultColumn,
         key: "TO",
         name: "asset",
-      },
-      {
+      }),
+      readOnly({
         ...defaultColumn,
         key: "TO_VALUE",
         name: "new value",
-      },
+      }),
     ]);
   } else if (type === revalueDebt) {
     cols = cols.concat([
-      {
+      readOnly({
         ...defaultColumn,
         key: "TO",
         name: "debt",
-      },
-      {
+      }),
+      readOnly({
         ...defaultColumn,
         key: "TO_VALUE",
         name: "new value",
-      },
+      }),
     ]);
   } else if (type === revalueSetting) {
     cols = cols.concat([
-      {
+      readOnly({
         ...defaultColumn,
         key: "TO",
         name: "setting",
-      },
-      {
+      }),
+      readOnly({
         ...defaultColumn,
         key: "TO_VALUE",
         name: "new value",
-      },
+      }),
     ]);
   } else {
     // all other kinds of transaction
     cols = cols.concat([
-      {
+      readOnly({
         ...defaultColumn,
         key: "TO",
         name: "going to",
-      },
-      {
+      }),
+      readOnly({
         ...ToFromValueColumn,
         key: "TO_VALUE",
         name: "to amount",
-      },
+      }),
     ]);
   }
   cols = cols.concat([
-    {
+    readOnly({
       ...defaultColumn,
       key: "RECURRENCE",
       name: "recurrence",
-    },
+    }),
   ]);
   if (type !== payOffDebt) {
     cols = cols.concat([
-      {
+      readOnly({
         ...triggerDateColumn(model),
         key: "STOP_DATE",
         name: "recurrence end date",
-      },
+      }),
     ]);
   }
   if (
@@ -2100,11 +2104,11 @@ function makeTransactionCols(
     type !== revalueDebt
   ) {
     cols = cols.concat([
-      {
+      readOnly({
         ...defaultColumn,
         key: "CATEGORY",
         name: "category",
-      },
+      }),
     ]);
   }
   cols = cols.concat([
@@ -2180,19 +2184,23 @@ export function transactionsTableDiv(
 
       <DataGridFinKitty
         tableID={tableID}
-        handleGridRowsUpdated={function (...args: any[]) {
-          return handleTransactionGridRowsUpdated(
-            model,
-            parentCallbacks.showAlert,
-            doChecks,
-            contents,
-            parentCallbacks.submitTransaction,
-            parentCallbacks.submitGenerator,
-            parentCallbacks.attemptRename,
-            parentCallbacks.refreshData,
-            args,
-          );
-        }}
+        {...(type !== autogen
+          ? {
+              handleGridRowsUpdated: function (...args: any[]) {
+                return handleTransactionGridRowsUpdated(
+                  model,
+                  parentCallbacks.showAlert,
+                  doChecks,
+                  contents,
+                  parentCallbacks.submitTransaction,
+                  parentCallbacks.submitGenerator,
+                  parentCallbacks.attemptRename,
+                  parentCallbacks.refreshData,
+                  args,
+                );
+              },
+            }
+          : {})}
         rows={contents}
         columns={makeTransactionCols(model, type, parentCallbacks)}
         model={model}
@@ -4210,13 +4218,13 @@ export function reportDiv(
             renderEditCell: undefined,
           },
           {
-            ...defaultColumn,
+            ...cashValueColumn,
             key: "CHANGE",
             name: "change",
             renderEditCell: undefined,
           },
           {
-            ...defaultColumn,
+            ...cashValueColumn,
             key: "OLD_VALUE",
             name: "old value",
             renderEditCell: undefined,
@@ -4583,13 +4591,13 @@ function handleBondGeneratorGridRowsUpdated(
   newRow[changedColumn.key] = newVal;
 
   const parsedValue = makeCashValueFromString(newRow.VALUE);
-  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings, true);
 
   console.log(`in table change, newRow = ${inspect(newRow)}`)
 
   if (doChecks) {
     if (!parsedGrowth.checksOK) {
-      showAlert(`generator growth ${newRow.GROWTH} not understood`);
+      showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
       newRow[changedColumn.key] = oldVal;
     } else {
       // log(`parsedValue = ${showObj(parsedValue)}`);
@@ -4643,6 +4651,29 @@ function handleBondGeneratorGridRowsUpdated(
     console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
     submitGenerator(generatorForSubmission, model);
   }
+}
+
+const generatorProportionColumnKeys = new Set([
+  "CONTRIBUTION_AMOUNT",
+  "EMP_CONTRIBUTION_AMOUNT",
+  "ACCRUAL",
+  "TRANSFER_PROPORTION",
+]);
+
+function parseGeneratorProportionColumnEdit(
+  columnKey: string,
+  newVal: string,
+  showAlert: (message: string) => void,
+): string | undefined {
+  if (!generatorProportionColumnKeys.has(columnKey)) {
+    return newVal;
+  }
+  const parsed = makeProportionFromString(newVal, true);
+  if (!parsed.checksOK) {
+    showAlert(proportionMustEndWithPercentMessage);
+    return undefined;
+  }
+  return parsed.value;
 }
 
 function handleDCPGeneratorGridRowsUpdated(
@@ -4715,16 +4746,24 @@ function handleDCPGeneratorGridRowsUpdated(
     return;
   }
 
-  newRow[changedColumn.key] = newVal;
+  const storedProportionVal = parseGeneratorProportionColumnEdit(
+    changedColumn.key,
+    newVal,
+    showAlert,
+  );
+  if (storedProportionVal === undefined) {
+    return;
+  }
+  newRow[changedColumn.key] = storedProportionVal;
 
   const parsedValue = makeCashValueFromString(newRow.VALUE);
-  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings);
+  const parsedGrowth = makeGrowthFromString(newRow.GROWTH, model.settings, true);
 
   console.log(`in table change, newRow = ${inspect(newRow)}`)
 
   if (doChecks) {
     if (!parsedGrowth.checksOK) {
-      showAlert(`generator growth ${newRow.GROWTH} not understood`);
+      showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
       newRow[changedColumn.key] = oldVal;
     } else {
       // log(`parsedValue = ${showObj(parsedValue)}`);
@@ -5157,12 +5196,21 @@ function handleDBPGeneratorGridRowsUpdated(
     return;
   }
 
-  newRow[changedColumn.key] = newVal;
+  const storedProportionVal = parseGeneratorProportionColumnEdit(
+    changedColumn.key,
+    newVal,
+    showAlert,
+  );
+  if (storedProportionVal === undefined) {
+    return;
+  }
+  newRow[changedColumn.key] = storedProportionVal;
 
   const parsedValue = makeCashValueFromString(newRow.VALUE);
   const parsedIncomeGrowth = makeGrowthFromString(
     newRow.IncomeGrowth,
     model.settings,
+    true,
   );
 
   const buildGeneratorForSubmission = (): Generator => {
@@ -5198,7 +5246,9 @@ function handleDBPGeneratorGridRowsUpdated(
 
   if (doChecks) {
     if (!parsedIncomeGrowth.checksOK) {
-      showAlert(`generator income growth ${newRow.IncomeGrowth} not understood`);
+      showAlert(
+        growthInputErrorMessage(newRow.IncomeGrowth, parsedIncomeGrowth),
+      );
       newRow[changedColumn.key] = oldVal;
       return;
     }

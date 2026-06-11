@@ -21,6 +21,7 @@ import {
   checkTriggerDate,
   makeBooleanFromYesNo,
   makeGrowthFromString,
+  growthInputErrorMessage,
   lessThan,
 } from "../../utils/stringUtils";
 import Spacer from "react-spacer";
@@ -77,7 +78,7 @@ export class AddDeleteExpenseForm extends Component<
       START: "",
       END: "",
       GROWS_WITH_CPI: "",
-      GROWTH: "0",
+      GROWTH: "0%",
       CATEGORY: "",
       RECURRENCE: "",
       inputting: inputtingExpense,
@@ -106,7 +107,7 @@ export class AddDeleteExpenseForm extends Component<
             <Input
               title={
                 "Annual growth percentage " +
-                "(excluding inflation, e.g. 2 for 2% p.a.)"
+                "(excluding inflation, e.g. 2% p.a.)"
               }
               type="text"
               name="expensegrowth"
@@ -475,11 +476,11 @@ export class AddDeleteExpenseForm extends Component<
     const parsedGrowth = makeGrowthFromString(
       this.state.GROWTH,
       this.props.model.settings,
+      true,
     );
     if (!parsedGrowth.checksOK) {
       this.props.showAlert(
-        `Growth value '${this.state.GROWTH}' ` +
-          `should be a numerical or setting value`,
+        growthInputErrorMessage(this.state.GROWTH, parsedGrowth),
       );
       return;
     }
