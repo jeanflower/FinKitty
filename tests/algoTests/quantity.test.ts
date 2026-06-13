@@ -829,21 +829,22 @@ describe("quantity tests", () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(13);
-    expectEvals(evals, 0, "USD", "Tue Jan 02 2018", 2, -1);
-    expectEvals(evals, 1, "chrysler", "Tue Jan 02 2018", 100, -1);
-    expectEvals(evals, 2, "Cash", "Mon Jan 01 2018", 0, -1);
-    expectEvals(evals, 3, "quantityCars", "Tue Jan 02 2018", 3, -1);
-    expectEvals(evals, 4, "Cars", "Tue Jan 02 2018", 300, -1);
-    expectEvals(evals, 5, "Cash", "Thu Feb 01 2018", 0, -1);
-    expectEvals(evals, 6, "Cars", "Fri Feb 02 2018", 300, -1);
-    expectEvals(evals, 7, "Cash", "Thu Mar 01 2018", 0, -1);
-    expectEvals(evals, 8, "Cars", "Fri Mar 02 2018", 300, -1);
-    expectEvals(evals, 9, "Cash", "Sun Apr 01 2018", 0, -1);
-    expectEvals(evals, 10, "Cars", "Mon Apr 02 2018", 300, -1);
-    expectEvals(evals, 11, "Cash", "Tue May 01 2018", 0, -1);
-    expectEvals(evals, 12, "Cars", "Wed May 02 2018", 300, -1);
-
+    expect(evals.length).toBe(15);
+    expectEvals(evals, 0, 'USD', 'Tue Jan 02 2018', 2, -1);
+    expectEvals(evals, 1, 'chrysler', 'Tue Jan 02 2018', 100, -1);
+    expectEvals(evals, 2, 'CashCap', 'Fri Dec 01 2017', 0, -1);
+    expectEvals(evals, 3, 'GrainInvest', 'Fri Dec 01 2017', 1, -1);
+    expectEvals(evals, 4, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 5, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 6, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 7, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 8, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 9, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 10, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 11, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 12, 'Cars', 'Mon Apr 02 2018', 300, -1);
+    expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 14, 'Cars', 'Wed May 02 2018', 300, -1);
     const viewSettings = defaultTestViewSettings();
 
     const result = makeChartDataFromEvaluations(

@@ -18,6 +18,7 @@ import {
   custom,
   CASH_ASSET_NAME,
   liquidateAsset,
+  investExcessCash,
   conditional,
   adjustableType,
 } from "../../localization/stringConstants";
@@ -45,6 +46,7 @@ interface EditTransactionFormState {
   STOP_DATE: string; // for regular transactions
   RECURRENCE: string;
   LIQUIDATE_FOR_CASH: string;
+  INVEST_EXCESS_CASH: string;
   TAX_FREE_PROP: string;
   inputMode: string;
 }
@@ -95,6 +97,7 @@ export class AddDeleteTransactionForm extends Component<
       STOP_DATE: "",
       RECURRENCE: "",
       LIQUIDATE_FOR_CASH: "No",
+      INVEST_EXCESS_CASH: "No",
       TAX_FREE_PROP: "0.25",
       inputMode: inputtingTransaction,
     };
@@ -303,13 +306,36 @@ export class AddDeleteTransactionForm extends Component<
             </Col>{" "}
             <Col>
               <Input
-                title="Liquidate asset to maintain cash-flow"
+                title={
+                  "Liquidate asset to maintain cash-flow. " +
+                  "When Yes, TO is set to Cash and TO amount to 100% " +
+                  "(pass-through of sale proceeds). Set FROM amount to the " +
+                  "maximum you are willing to liquidate per occurrence."
+                }
                 type="text"
                 name="liquidateForCash"
                 value={this.state.LIQUIDATE_FOR_CASH}
                 placeholder="Enter whether we only transact to keep cash afloat"
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  this.setState({ LIQUIDATE_FOR_CASH: e.target.value });
+                  this.handleLiquidateForCashChange(e.target.value);
+                }}
+              />
+            </Col>{" "}
+            <Col>
+              <Input
+                title={
+                  "Invest excess cash above the CashCap setting. " +
+                  "When Yes, FROM is set to Cash and TO amount to 100%. " +
+                  "Set FROM amount to the maximum to invest per occurrence " +
+                  "(actual investment is min of surplus and this limit, " +
+                  "rounded down to a whole multiple of GrainInvest when set)."
+                }
+                type="text"
+                name="investExcessCash"
+                value={this.state.INVEST_EXCESS_CASH}
+                placeholder="Enter whether we only invest cash above CashCap"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  this.handleInvestExcessCashChange(e.target.value);
                 }}
               />
             </Col>{" "}
@@ -553,6 +579,64 @@ export class AddDeleteTransactionForm extends Component<
   private setStopDate(value: string): void {
     this.setState({ STOP_DATE: value });
   }
+  private setSelectValue(id: string, name: string) {
+    const selector = document.getElementById(id) as HTMLSelectElement | null;
+    if (selector === null) {
+      return;
+    }
+    for (let i = 0; i < selector.options.length; i += 1) {
+      if (selector.options[i].value === name) {
+        selector.selectedIndex = i;
+        return;
+      }
+    }
+  }
+  private applyLiquidateForCashDefaults(liquidateForCash: string) {
+    const parseTo = makeValueAbsPropFromString(
+      "100%",
+      this.props.model.settings,
+    );
+    this.setState({
+      LIQUIDATE_FOR_CASH: liquidateForCash,
+      INVEST_EXCESS_CASH: "No",
+      TO: CASH_ASSET_NAME,
+      TO_ABSOLUTE: makeStringFromBoolean(parseTo.absolute),
+      TO_VALUE: parseTo.value,
+      TO_INPUT_VALUE: "100%",
+    });
+    this.setSelectValue(this.transactionToSelectID, CASH_ASSET_NAME);
+  }
+  private applyInvestExcessCashDefaults(investExcessCash: string) {
+    const parseTo = makeValueAbsPropFromString(
+      "100%",
+      this.props.model.settings,
+    );
+    this.setState({
+      INVEST_EXCESS_CASH: investExcessCash,
+      LIQUIDATE_FOR_CASH: "No",
+      FROM: CASH_ASSET_NAME,
+      TO_ABSOLUTE: makeStringFromBoolean(parseTo.absolute),
+      TO_VALUE: parseTo.value,
+      TO_INPUT_VALUE: "100%",
+    });
+    this.setSelectValue(this.transactionFromSelectID, CASH_ASSET_NAME);
+  }
+  private handleLiquidateForCashChange(value: string) {
+    const parsed = makeBooleanFromYesNo(value);
+    if (parsed.checksOK && parsed.value) {
+      this.applyLiquidateForCashDefaults(value);
+    } else {
+      this.setState({ LIQUIDATE_FOR_CASH: value });
+    }
+  }
+  private handleInvestExcessCashChange(value: string) {
+    const parsed = makeBooleanFromYesNo(value);
+    if (parsed.checksOK && parsed.value) {
+      this.applyInvestExcessCashDefaults(value);
+    } else {
+      this.setState({ INVEST_EXCESS_CASH: value });
+    }
+  }
   private resetSelect(id: string) {
     const selector: any = document.getElementById(id);
     if (selector !== null) {
@@ -604,10 +688,43 @@ export class AddDeleteTransactionForm extends Component<
         );
         return;
       }
+      const parsedInvestExcessYN = makeBooleanFromYesNo(
+        this.state.INVEST_EXCESS_CASH,
+      );
+      if (!parsedInvestExcessYN.checksOK) {
+        this.props.showAlert(
+          "Whether we're investing excess cash should be 'y' or 'n'",
+        );
+        return;
+      }
+      if (parsedLiquidateYN.value && parsedInvestExcessYN.value) {
+        this.props.showAlert(
+          "A transaction cannot both liquidate to keep cash afloat " +
+            "and invest excess cash above cap",
+        );
+        return;
+      }
       if (parsedLiquidateYN.value && this.state.TO !== CASH_ASSET_NAME) {
         this.props.showAlert(
           "If we're liquidating assets to keep cash afloat, " +
             "the TO asset should be CASH",
+        );
+        return;
+      }
+      if (parsedInvestExcessYN.value && this.state.FROM !== CASH_ASSET_NAME) {
+        this.props.showAlert(
+          "If we're investing excess cash above cap, " +
+            "the FROM asset should be CASH",
+        );
+        return;
+      }
+      if (
+        parsedInvestExcessYN.value &&
+        this.state.TO === CASH_ASSET_NAME
+      ) {
+        this.props.showAlert(
+          "If we're investing excess cash above cap, " +
+            "the TO asset should not be CASH",
         );
         return;
       }
@@ -616,6 +733,9 @@ export class AddDeleteTransactionForm extends Component<
       let transactionName = this.state.NAME;
       if (parsedLiquidateYN.value) {
         type = liquidateAsset;
+        transactionName = `${conditional}${this.state.NAME}`;
+      } else if (parsedInvestExcessYN.value) {
+        type = investExcessCash;
         transactionName = `${conditional}${this.state.NAME}`;
       }
 

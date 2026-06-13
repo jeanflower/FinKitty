@@ -1,9 +1,14 @@
 import { simpleSetting } from "../../models/exampleSettings";
 import { getMinimalModelCopy } from "../../models/minimalModel";
+import { makeModelFromJSON } from "../../models/modelFromJSON";
+import { getEvaluations } from "../../models/evaluations";
 import { defaultModelSettings } from "../../models/testModel";
 import {
   CASH_ASSET_NAME,
   liquidateAsset,
+  investExcessCash,
+  cashCap,
+  grainInvest,
   separator,
   assetChartFocus,
   allItems,
@@ -4461,5 +4466,587 @@ describe("conditional tests", () => {
     }
 
     expect(result.debtData.length).toBe(0);
+  });
+
+  it("invest excess cash does nothing when cash is at or below CashCap", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "May 1, 2018 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Conditional invest spare cash in stocks",
+          FROM: CASH_ASSET_NAME,
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: "100",
+          TO: "Stocks",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1",
+          DATE: "February 2 2018",
+          STOP_DATE: "",
+          RECURRENCE: "1m",
+          TYPE: investExcessCash,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "Stocks",
+          START: "January 2 2018",
+          VALUE: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "January 2 2018",
+          VALUE: "150",
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: cashCap,
+          VALUE: "200",
+          TYPE: constType,
+        },
+        {
+          ...simpleSetting,
+          NAME: grainInvest,
+          VALUE: "100",
+          TYPE: constType,
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(10);
+    expectEvals(evals, 0, "CashCap", "Fri Dec 01 2017", 200, -1);
+    expectEvals(evals, 1, "GrainInvest", "Fri Dec 01 2017", 100, -1);
+    expectEvals(evals, 2, "Cash", "Tue Jan 02 2018", 150, -1);
+    expectEvals(evals, 3, "Stocks", "Tue Jan 02 2018", 0, -1);
+    expectEvals(evals, 4, "Cash", "Fri Feb 02 2018", 150, -1);
+    expectEvals(evals, 5, "Stocks", "Fri Feb 02 2018", 0, -1);
+    expectEvals(evals, 6, "Cash", "Fri Mar 02 2018", 150, -1);
+    expectEvals(evals, 7, "Stocks", "Fri Mar 02 2018", 0, -1);
+    expectEvals(evals, 8, "Cash", "Mon Apr 02 2018", 150, -1);
+    expectEvals(evals, 9, "Stocks", "Mon Apr 02 2018", 0, -1);
+  });
+
+  it("invest excess cash uses migrated CashCap and GrainInvest defaults", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "May 1, 2018 00:00:00",
+    };
+    const rawModel: ModelData = {
+      ...emptyModel,
+      version: 0,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Conditional invest spare cash in stocks",
+          FROM: CASH_ASSET_NAME,
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: "100",
+          TO: "Stocks",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1",
+          DATE: "February 2 2018",
+          STOP_DATE: "",
+          RECURRENCE: "",
+          TYPE: investExcessCash,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "Stocks",
+          START: "January 2 2018",
+          VALUE: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "January 2 2018",
+          VALUE: "500",
+        },
+      ],
+      settings: [...defaultModelSettings(roi)],
+    };
+    const model = makeModelFromJSON(JSON.stringify(rawModel));
+    expect(
+      model.settings.find((s) => {
+        return s.NAME === cashCap;
+      })?.VALUE,
+    ).toBe("0");
+    expect(
+      model.settings.find((s) => {
+        return s.NAME === grainInvest;
+      })?.VALUE,
+    ).toBe("1");
+
+    const evals = getEvaluations(model, undefined).evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, "CashCap", "Fri Dec 01 2017", 0, -1);
+    expectEvals(evals, 1, "GrainInvest", "Fri Dec 01 2017", 1, -1);
+    expectEvals(evals, 2, "Cash", "Tue Jan 02 2018", 500, -1);
+    expectEvals(evals, 3, "Stocks", "Tue Jan 02 2018", 0, -1);
+    expectEvals(evals, 4, "Cash", "Fri Feb 02 2018", 500, -1);
+    expectEvals(evals, 5, "Stocks", "Fri Feb 02 2018", 0, -1);
+    expectEvals(evals, 6, "Cash", "Fri Feb 02 2018", 400, -1);
+    expectEvals(evals, 7, "Stocks", "Fri Feb 02 2018", 100, -1);
+    expectEvals(evals, 8, "Cash", "Fri Mar 02 2018", 400, -1);
+    expectEvals(evals, 9, "Stocks", "Fri Mar 02 2018", 100, -1);
+    expectEvals(evals, 10, "Cash", "Mon Apr 02 2018", 400, -1);
+    expectEvals(evals, 11, "Stocks", "Mon Apr 02 2018", 100, -1);
+  });
+
+  it("invest excess cash caps at FROM_VALUE when below surplus", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "May 1, 2018 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Conditional invest spare cash in stocks",
+          FROM: CASH_ASSET_NAME,
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: "150",
+          TO: "Stocks",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1",
+          DATE: "February 2 2018",
+          STOP_DATE: "",
+          RECURRENCE: "1m",
+          TYPE: investExcessCash,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "Stocks",
+          START: "January 2 2018",
+          VALUE: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "January 2 2018",
+          VALUE: "500",
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: cashCap,
+          VALUE: "200",
+          TYPE: constType,
+        },
+        {
+          ...simpleSetting,
+          NAME: grainInvest,
+          VALUE: "10",
+          TYPE: constType,
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(14);
+    expectEvals(evals, 0, "CashCap", "Fri Dec 01 2017", 200, -1);
+    expectEvals(evals, 1, "GrainInvest", "Fri Dec 01 2017", 10, -1);
+    expectEvals(evals, 2, "Cash", "Tue Jan 02 2018", 500, -1);
+    expectEvals(evals, 3, "Stocks", "Tue Jan 02 2018", 0, -1);
+    expectEvals(evals, 4, "Cash", "Fri Feb 02 2018", 500, -1);
+    expectEvals(evals, 5, "Stocks", "Fri Feb 02 2018", 0, -1);
+    expectEvals(evals, 6, "Cash", "Fri Feb 02 2018", 350, -1);
+    expectEvals(evals, 7, "Stocks", "Fri Feb 02 2018", 150, -1);
+    expectEvals(evals, 8, "Cash", "Fri Mar 02 2018", 350, -1);
+    expectEvals(evals, 9, "Stocks", "Fri Mar 02 2018", 150, -1);
+    expectEvals(evals, 10, "Cash", "Fri Mar 02 2018", 200, -1);
+    expectEvals(evals, 11, "Stocks", "Fri Mar 02 2018", 300, -1);
+    expectEvals(evals, 12, "Cash", "Mon Apr 02 2018", 200, -1);
+    expectEvals(evals, 13, "Stocks", "Mon Apr 02 2018", 300, -1);
+  });
+
+  it("invest excess cash invests surplus up to FROM_VALUE limit", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "May 1, 2018 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Conditional invest spare cash in stocks",
+          FROM: CASH_ASSET_NAME,
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: "400",
+          TO: "Stocks",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1",
+          DATE: "February 2 2018",
+          STOP_DATE: "",
+          RECURRENCE: "",
+          TYPE: investExcessCash,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "Stocks",
+          START: "January 2 2018",
+          VALUE: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "January 2 2018",
+          VALUE: "500",
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: cashCap,
+          VALUE: "200",
+          TYPE: constType,
+        },
+        {
+          ...simpleSetting,
+          NAME: grainInvest,
+          VALUE: "100",
+          TYPE: constType,
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, "CashCap", "Fri Dec 01 2017", 200, -1);
+    expectEvals(evals, 1, "GrainInvest", "Fri Dec 01 2017", 100, -1);
+    expectEvals(evals, 2, "Cash", "Tue Jan 02 2018", 500, -1);
+    expectEvals(evals, 3, "Stocks", "Tue Jan 02 2018", 0, -1);
+    expectEvals(evals, 4, "Cash", "Fri Feb 02 2018", 500, -1);
+    expectEvals(evals, 5, "Stocks", "Fri Feb 02 2018", 0, -1);
+    expectEvals(evals, 6, "Cash", "Fri Feb 02 2018", 200, -1);
+    expectEvals(evals, 7, "Stocks", "Fri Feb 02 2018", 300, -1);
+    expectEvals(evals, 8, "Cash", "Fri Mar 02 2018", 200, -1);
+    expectEvals(evals, 9, "Stocks", "Fri Mar 02 2018", 300, -1);
+    expectEvals(evals, 10, "Cash", "Mon Apr 02 2018", 200, -1);
+    expectEvals(evals, 11, "Stocks", "Mon Apr 02 2018", 300, -1);
+  });
+
+  it("invest excess cash rounds down to GrainInvest multiples", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "May 1, 2018 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Conditional invest spare cash in stocks",
+          FROM: CASH_ASSET_NAME,
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: "500",
+          TO: "Stocks",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1",
+          DATE: "February 2 2018",
+          STOP_DATE: "",
+          RECURRENCE: "",
+          TYPE: investExcessCash,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "Stocks",
+          START: "January 2 2018",
+          VALUE: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "January 2 2018",
+          VALUE: "550",
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: cashCap,
+          VALUE: "200",
+          TYPE: constType,
+        },
+        {
+          ...simpleSetting,
+          NAME: grainInvest,
+          VALUE: "100",
+          TYPE: constType,
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, "CashCap", "Fri Dec 01 2017", 200, -1);
+    expectEvals(evals, 1, "GrainInvest", "Fri Dec 01 2017", 100, -1);
+    expectEvals(evals, 2, "Cash", "Tue Jan 02 2018", 550, -1);
+    expectEvals(evals, 3, "Stocks", "Tue Jan 02 2018", 0, -1);
+    expectEvals(evals, 4, "Cash", "Fri Feb 02 2018", 550, -1);
+    expectEvals(evals, 5, "Stocks", "Fri Feb 02 2018", 0, -1);
+    expectEvals(evals, 6, "Cash", "Fri Feb 02 2018", 250, -1);
+    expectEvals(evals, 7, "Stocks", "Fri Feb 02 2018", 300, -1);
+    expectEvals(evals, 8, "Cash", "Fri Mar 02 2018", 250, -1);
+    expectEvals(evals, 9, "Stocks", "Fri Mar 02 2018", 300, -1);
+    expectEvals(evals, 10, "Cash", "Mon Apr 02 2018", 250, -1);
+    expectEvals(evals, 11, "Stocks", "Mon Apr 02 2018", 300, -1);
+  });
+
+  it("invest excess cash works without GrainInvest on old models", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "May 1, 2018 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Conditional invest spare cash in stocks",
+          FROM: CASH_ASSET_NAME,
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: "500",
+          TO: "Stocks",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1",
+          DATE: "February 2 2018",
+          STOP_DATE: "",
+          RECURRENCE: "",
+          TYPE: investExcessCash,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "Stocks",
+          START: "January 2 2018",
+          VALUE: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "January 2 2018",
+          VALUE: "550",
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: cashCap,
+          VALUE: "200",
+          TYPE: constType,
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(11);
+    expectEvals(evals, 0, "CashCap", "Fri Dec 01 2017", 200, -1);
+    expectEvals(evals, 1, "Cash", "Tue Jan 02 2018", 550, -1);
+    expectEvals(evals, 2, "Stocks", "Tue Jan 02 2018", 0, -1);
+    expectEvals(evals, 3, "Cash", "Fri Feb 02 2018", 550, -1);
+    expectEvals(evals, 4, "Stocks", "Fri Feb 02 2018", 0, -1);
+    expectEvals(evals, 5, "Cash", "Fri Feb 02 2018", 200, -1);
+    expectEvals(evals, 6, "Stocks", "Fri Feb 02 2018", 350, -1);
+    expectEvals(evals, 7, "Cash", "Fri Mar 02 2018", 200, -1);
+    expectEvals(evals, 8, "Stocks", "Fri Mar 02 2018", 350, -1);
+    expectEvals(evals, 9, "Cash", "Mon Apr 02 2018", 200, -1);
+    expectEvals(evals, 10, "Stocks", "Mon Apr 02 2018", 350, -1);
+  });
+
+  it("invest excess cash grain limits from value 400 to 300 invested", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "May 1, 2018 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Conditional invest spare cash in stocks",
+          FROM: CASH_ASSET_NAME,
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: "400",
+          TO: "Stocks",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1",
+          DATE: "February 2 2018",
+          STOP_DATE: "",
+          RECURRENCE: "",
+          TYPE: investExcessCash,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "Stocks",
+          START: "January 2 2018",
+          VALUE: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "January 2 2018",
+          VALUE: "800",
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: cashCap,
+          VALUE: "100",
+          TYPE: constType,
+        },
+        {
+          ...simpleSetting,
+          NAME: grainInvest,
+          VALUE: "300",
+          TYPE: constType,
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, "CashCap", "Fri Dec 01 2017", 100, -1);
+    expectEvals(evals, 1, "GrainInvest", "Fri Dec 01 2017", 300, -1);
+    expectEvals(evals, 2, "Cash", "Tue Jan 02 2018", 800, -1);
+    expectEvals(evals, 3, "Stocks", "Tue Jan 02 2018", 0, -1);
+    expectEvals(evals, 4, "Cash", "Fri Feb 02 2018", 800, -1);
+    expectEvals(evals, 5, "Stocks", "Fri Feb 02 2018", 0, -1);
+    expectEvals(evals, 6, "Cash", "Fri Feb 02 2018", 500, -1);
+    expectEvals(evals, 7, "Stocks", "Fri Feb 02 2018", 300, -1);
+    expectEvals(evals, 8, "Cash", "Fri Mar 02 2018", 500, -1);
+    expectEvals(evals, 9, "Stocks", "Fri Mar 02 2018", 300, -1);
+    expectEvals(evals, 10, "Cash", "Mon Apr 02 2018", 500, -1);
+    expectEvals(evals, 11, "Stocks", "Mon Apr 02 2018", 300, -1);
+  });
+
+  it("invest excess cash grain limits surplus to 600 when from value is 1000", () => {
+    const roi = {
+      start: "Dec 1, 2017 00:00:00",
+      end: "May 1, 2018 00:00:00",
+    };
+    const model: ModelData = {
+      ...emptyModel,
+      transactions: [
+        {
+          ...simpleTransaction,
+          NAME: "Conditional invest spare cash in stocks",
+          FROM: CASH_ASSET_NAME,
+          FROM_ABSOLUTE: true,
+          FROM_VALUE: "1000",
+          TO: "Stocks",
+          TO_ABSOLUTE: false,
+          TO_VALUE: "1",
+          DATE: "February 2 2018",
+          STOP_DATE: "",
+          RECURRENCE: "",
+          TYPE: investExcessCash,
+        },
+      ],
+      assets: [
+        {
+          ...simpleAsset,
+          NAME: "Stocks",
+          START: "January 2 2018",
+          VALUE: "0",
+        },
+        {
+          ...simpleAsset,
+          NAME: CASH_ASSET_NAME,
+          START: "January 2 2018",
+          VALUE: "800",
+        },
+      ],
+      settings: [
+        ...defaultModelSettings(roi),
+        {
+          ...simpleSetting,
+          NAME: cashCap,
+          VALUE: "100",
+          TYPE: constType,
+        },
+        {
+          ...simpleSetting,
+          NAME: grainInvest,
+          VALUE: "300",
+          TYPE: constType,
+        },
+      ],
+    };
+
+    const evalsAndValues = getTestEvaluations(model);
+    const evals = evalsAndValues.evaluations;
+
+    // printTestCodeForEvals(evals);
+
+    expect(evals.length).toBe(12);
+    expectEvals(evals, 0, "CashCap", "Fri Dec 01 2017", 100, -1);
+    expectEvals(evals, 1, "GrainInvest", "Fri Dec 01 2017", 300, -1);
+    expectEvals(evals, 2, "Cash", "Tue Jan 02 2018", 800, -1);
+    expectEvals(evals, 3, "Stocks", "Tue Jan 02 2018", 0, -1);
+    expectEvals(evals, 4, "Cash", "Fri Feb 02 2018", 800, -1);
+    expectEvals(evals, 5, "Stocks", "Fri Feb 02 2018", 0, -1);
+    expectEvals(evals, 6, "Cash", "Fri Feb 02 2018", 200, -1);
+    expectEvals(evals, 7, "Stocks", "Fri Feb 02 2018", 600, -1);
+    expectEvals(evals, 8, "Cash", "Fri Mar 02 2018", 200, -1);
+    expectEvals(evals, 9, "Stocks", "Fri Mar 02 2018", 600, -1);
+    expectEvals(evals, 10, "Cash", "Mon Apr 02 2018", 200, -1);
+    expectEvals(evals, 11, "Stocks", "Mon Apr 02 2018", 600, -1);
   });
 });

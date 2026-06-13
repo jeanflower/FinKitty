@@ -1918,7 +1918,7 @@ describe("utils tests", () => {
     const model1 = makeModelFromJSON(
       JSON.stringify(getTestModel(ThreeChryslerModel)),
     );
-    expect(getTestEvaluations(model1, true, true).evaluations.length).toBe(13);
+    expect(getTestEvaluations(model1, true, true).evaluations.length).toBe(15);
 
     const model2 = makeModelFromJSON(
       JSON.stringify(getTestModel(definedBenefitsPension)),

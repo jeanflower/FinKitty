@@ -12,6 +12,7 @@ import {
   incomeChartFocus,
   liquidateAsset,
   payOffDebt,
+  investExcessCash,
   pensionPrefix,
   pensionDB,
   pensionTransfer,
@@ -930,7 +931,11 @@ function handleAssetGridRowsUpdated(
 
 function getTransactionName(name: string, type: string) {
   let prefix = "";
-  if (type === liquidateAsset || type === payOffDebt) {
+  if (
+    type === liquidateAsset ||
+    type === payOffDebt ||
+    type === investExcessCash
+  ) {
     prefix = conditional;
   } else if (
     type === revalueAsset ||
@@ -2374,6 +2379,14 @@ export function assetsDivWithHeadings(
         "Liquidate assets to keep cash afloat",
         parentCallbacks,
         `liquidateAssets${tableIDEnding}`,
+      )}
+      {transactionFilteredTable(
+        model,
+        doChecks,
+        investExcessCash,
+        "Invest excess cash above cap",
+        parentCallbacks,
+        `investExcessCash${tableIDEnding}`,
       )}
       {transactionFilteredTable(
         model,

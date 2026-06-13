@@ -18,6 +18,7 @@ import {
   transferCrystallizedPension,
   liquidateAsset,
   payOffDebt,
+  investExcessCash,
   revalueAsset,
   currentValue,
   revalueDebt,
@@ -2061,7 +2062,9 @@ export function getDisplayName(obj: string, type: string) {
   // log(`obj = ${obj}`);
   let result: string;
   if (
-    (type === liquidateAsset || type === payOffDebt) &&
+    (type === liquidateAsset ||
+      type === payOffDebt ||
+      type === investExcessCash) &&
     obj.startsWith(conditional)
   ) {
     result = obj.substring(conditional.length);

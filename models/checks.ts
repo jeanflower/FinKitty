@@ -17,6 +17,8 @@ import {
   moveTaxFreePart,
   nationalInsurance,
   payOffDebt,
+  investExcessCash,
+  cashCap,
   pensionPrefix,
   pensionDB,
   pensionSS,
@@ -1291,6 +1293,19 @@ function isLiquidateAssetType(t: Transaction) {
   return recognised;
 }
 
+function isInvestExcessCashType(t: Transaction) {
+  let recognised = false;
+  if (
+    t.NAME.startsWith(conditional) &&
+    t.FROM === CASH_ASSET_NAME &&
+    t.TO !== CASH_ASSET_NAME &&
+    t.TO !== ""
+  ) {
+    recognised = true;
+  }
+  return recognised;
+}
+
 function isRevalueDebtType(t: Transaction, model: ModelData) {
   // log(`check transaction ${t.NAME}`);
   let recognised = false;
@@ -1752,6 +1767,7 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
     t.TYPE !== custom &&
     t.TYPE !== liquidateAsset &&
     t.TYPE !== payOffDebt &&
+    t.TYPE !== investExcessCash &&
     t.TYPE !== revalueAsset &&
     t.TYPE !== revalueDebt &&
     t.TYPE !== revalueInc &&
@@ -1794,6 +1810,15 @@ export function checkTransaction(t: Transaction, model: ModelData): string {
         t.NAME,
         t.TYPE,
       )}' has payoff debt type not in a recognised format`;
+    }
+  }
+  if (t.TYPE === investExcessCash) {
+    const recognised = isInvestExcessCashType(t);
+    if (!recognised) {
+      return `Transaction '${getDisplayName(
+        t.NAME,
+        t.TYPE,
+      )}' has invest excess cash type not in a recognised format`;
     }
   }
   if (t.TYPE === revalueAsset) {

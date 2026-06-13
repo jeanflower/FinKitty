@@ -194,6 +194,13 @@ export const liquidateAsset = "liquidateAsset";
 //  Use cash to pay off debts
 // (Conditional cash to debt)
 export const payOffDebt = "payOffDebt";
+//  Invest cash that exceeds the CashCap setting
+// (Conditional cash to asset)
+export const investExcessCash = "investExcessCash";
+// Setting: maximum cash balance before investExcessCash transactions run
+export const cashCap = "CashCap";
+// Setting: investment amounts for investExcessCash are whole multiples of this
+export const grainInvest = "GrainInvest";
 export const tracking = "traaacking";
 
 // settings types

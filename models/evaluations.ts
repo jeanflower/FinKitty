@@ -47,6 +47,9 @@ import {
   revalueAsset,
   generatorTypeDCPRevalue,
   viewType,
+  investExcessCash,
+  cashCap,
+  grainInvest,
 } from "../localization/stringConstants";
 import {
   DatedThing,
@@ -4843,7 +4846,16 @@ function calculateFromChange(
     return `Error: conditional transaction to undefined value ${showObj(t)}`;
   }
 
-  if (
+  const isInvestExcess = t.TYPE === investExcessCash;
+  if (isInvestExcess) {
+    const cashCapVal = traceEvaluation(cashCap, values, growths, t.NAME);
+    if (cashCapVal === undefined) {
+      return '';
+    }
+    if (preFromValue <= cashCapVal) {
+      return '';
+    }
+  } else if (
     t.NAME.startsWith(conditional) &&
     preToValue !== undefined &&
     preToValue >= 0
@@ -4974,7 +4986,11 @@ function calculateFromChange(
     fromChange = tFromValue;
   } else {
     // relative amounts behave differently for conditionals
-    if (t.NAME.startsWith(conditional) && !t.TO_ABSOLUTE) {
+    if (
+      t.NAME.startsWith(conditional) &&
+      !isInvestExcess &&
+      !t.TO_ABSOLUTE
+    ) {
       if (preToValue !== undefined) {
         // proportion of target
         // log(`use proportion of target amount; proportion of ${preToValue}`);
@@ -5023,10 +5039,30 @@ function calculateFromChange(
     // log(`unitValue = ${unitValue}`);
   }
 
+  if (isInvestExcess) {
+    const cashCapVal = traceEvaluation(cashCap, values, growths, t.NAME);
+    if (cashCapVal !== undefined) {
+      const excess = preFromValue - cashCapVal;
+      if (excess <= 0) {
+        return '';
+      }
+      let investAmount = Math.min(excess, fromChange);
+      const grain = traceEvaluation(grainInvest, values, growths, t.NAME);
+      if (grain !== undefined && grain > 0 && !fromHasQuantity) {
+        investAmount = Math.floor(investAmount / grain) * grain;
+      }
+      if (investAmount <= 0) {
+        return '';
+      }
+      fromChange = investAmount;
+    }
+  }
+
   // don't transfer more than we need to for conditional
-  // transactions
+  // transactions (liquidate / pay off debt)
   if (
     t.NAME.startsWith(conditional) &&
+    !isInvestExcess &&
     preToValue !== undefined &&
     !t.TO_ABSOLUTE &&
     fromChange >= -preToValue / tToValue
@@ -6290,7 +6326,9 @@ function generateMoments(
     // Some types of settings have values at the start of the roi
     if (
       setting.NAME === "Grain" ||
-      setting.NAME === bondInterest
+      setting.NAME === bondInterest ||
+      setting.NAME === cashCap ||
+      setting.NAME === grainInvest
     ) {
       setValue(
         values,

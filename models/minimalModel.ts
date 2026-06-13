@@ -15,6 +15,8 @@ import {
   monitorEnd,
   monitorStart,
   adjustableType,
+  cashCap,
+  grainInvest,
 } from "../localization/stringConstants";
 import { ModelData } from "../types/interfaces";
 import { getCurrentVersion } from "./currentVersion";
@@ -90,6 +92,20 @@ export const minimalModel: ModelData = {
       VALUE: "Jan 2026",
       HINT: '',
       TYPE: adjustableType,
+      ERA: 0,
+    },
+    {
+      NAME: cashCap,
+      VALUE: "0",
+      HINT: "",
+      TYPE: constType,
+      ERA: 0,
+    },
+    {
+      NAME: grainInvest,
+      VALUE: "1",
+      HINT: "",
+      TYPE: constType,
       ERA: 0,
     },
   ],
