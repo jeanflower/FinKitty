@@ -1,11 +1,156 @@
-import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions, expensesView, assetsView, fineDetail, bondMature, generatedRecurrence, chartVals, revalue } from "../localization/stringConstants";
-import { Asset, AssetOrDebtVal, ChartData, DataForView, Evaluation, Expense, ExpenseVal, Income, IncomeVal, ModelData, ReportDatum, Setting, SettingVal } from "../types/interfaces";
+import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions, expensesView, assetsView, fineDetail, bondMature, generatedRecurrence, chartVals, revalue, conditional, growth } from "../localization/stringConstants";
+import { Asset, AssetOrDebtVal, ChartData, DataForView, Evaluation, Expense, ExpenseVal, Income, IncomeVal, ModelData, ReportDatum, Setting, SettingVal, Transaction } from "../types/interfaces";
 import { Context, log, showObj } from "../utils/utils";
 import { getDefaultViewSettings } from "../utils/viewUtils";
 import { makeBarData } from "../views/chartPages";
 import { makeChartData } from "./charting";
 import { getCategory } from "./category";
+import { getROI } from "./modelUtils";
 import dateFormat from "dateformat";
+
+export const ISA_COMBINED_ALLOWANCE = 40_000;
+export const ISA_CATEGORY = "ISA";
+
+export type IsaAllowanceRow = {
+  TAX_YEAR: string;
+  USED: string;
+  UNUSED: string;
+};
+
+type PlanningEvalsBundle = {
+  evaluations: Evaluation[];
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>;
+  todaysDebtValues: Map<Asset, AssetOrDebtVal>;
+  todaysIncomeValues: Map<Income, IncomeVal>;
+  todaysExpenseValues: Map<Expense, ExpenseVal>;
+  todaysSettingValues: Map<Setting, SettingVal>;
+  reportData: ReportDatum[];
+};
+
+function getYearOfTaxYear(d: Date) {
+  if (d.getMonth() > 3) {
+    return d.getFullYear();
+  }
+  if (d.getMonth() < 3) {
+    return d.getFullYear() - 1;
+  }
+  if (d.getDate() > 5) {
+    return d.getFullYear();
+  }
+  return d.getFullYear() - 1;
+}
+
+function formatUKTaxYearLabel(startYearOfTaxYear: number): string {
+  const y1Short = (startYearOfTaxYear + 1) % 100;
+  const y1p = y1Short < 10 ? `0${y1Short}` : `${y1Short}`;
+  return `${startYearOfTaxYear}/${y1p}`;
+}
+
+function taxYearsOverlappingRange(start: Date, end: Date): number[] {
+  const years = new Set<number>();
+  const cursor = new Date(start);
+  cursor.setDate(1);
+  while (cursor.getTime() <= end.getTime()) {
+    years.add(getYearOfTaxYear(cursor));
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  years.add(getYearOfTaxYear(start));
+  years.add(getYearOfTaxYear(end));
+  return Array.from(years).sort((a, b) => a - b);
+}
+
+function transactionSourceForTo(t: Transaction): string {
+  let source = t.NAME;
+  if (source.startsWith(conditional)) {
+    source = source.substring(conditional.length);
+  }
+  return source;
+}
+
+function findTransactionByEvalSource(
+  source: string,
+  model: ModelData,
+): Transaction | undefined {
+  return model.transactions.find((t) => {
+    return transactionSourceForTo(t) === source || t.NAME === source;
+  });
+}
+
+function isIsaSubscription(
+  evaln: Evaluation,
+  isaAssetNames: Set<string>,
+  model: ModelData,
+): number {
+  if (!isaAssetNames.has(evaln.name)) {
+    return 0;
+  }
+  if (evaln.source === growth) {
+    return 0;
+  }
+  const contribution = evaln.value - evaln.oldValue;
+  if (contribution <= 0) {
+    return 0;
+  }
+  const transaction = findTransactionByEvalSource(evaln.source, model);
+  if (transaction === undefined) {
+    return 0;
+  }
+  if (transaction.TO !== evaln.name) {
+    return 0;
+  }
+  if (transaction.FROM !== "" && isaAssetNames.has(transaction.FROM)) {
+    return 0;
+  }
+  return contribution;
+}
+
+/**
+ * UK tax-year ISA subscription totals for the Planning page: all transactions
+ * into ISA assets except transfers from other ISAs and growth.
+ */
+export function getIsaAllowanceTableData(
+  model: ModelData,
+  evals: PlanningEvalsBundle,
+  combinedAllowance = ISA_COMBINED_ALLOWANCE,
+): IsaAllowanceRow[] {
+  const isaAssetNames = new Set(
+    model.assets
+      .filter((a) => !a.IS_A_DEBT && a.CATEGORY === ISA_CATEGORY)
+      .map((a) => a.NAME),
+  );
+  if (isaAssetNames.size === 0) {
+    return [];
+  }
+
+  const usedByTaxYear = new Map<number, number>();
+  for (const evaln of evals.evaluations) {
+    const amount = isIsaSubscription(evaln, isaAssetNames, model);
+    if (amount <= 0) {
+      continue;
+    }
+    const taxYear = getYearOfTaxYear(evaln.date.d);
+    usedByTaxYear.set(taxYear, (usedByTaxYear.get(taxYear) ?? 0) + amount);
+  }
+
+  const viewRange = getROI(model);
+  const taxYears = taxYearsOverlappingRange(viewRange.start.d, viewRange.end.d);
+  for (const taxYear of usedByTaxYear.keys()) {
+    if (!taxYears.includes(taxYear)) {
+      taxYears.push(taxYear);
+    }
+  }
+  taxYears.sort((a, b) => a - b);
+
+  return taxYears.map((taxYear) => {
+    const used = usedByTaxYear.get(taxYear) ?? 0;
+    const unused = Math.max(0, combinedAllowance - used);
+    return {
+      TAX_YEAR: formatUKTaxYearLabel(taxYear),
+      USED: `${used}`,
+      UNUSED: `${unused}`,
+    };
+  });
+}
 
 log;
 showObj;
@@ -110,15 +255,7 @@ export function getPlanningTableData(
 
 export function getAnnualPlanningAssetData(
   model: ModelData,
-  evals: {
-    evaluations: Evaluation[];
-    todaysAssetValues: Map<Asset, AssetOrDebtVal>;
-    todaysDebtValues: Map<Asset, AssetOrDebtVal>;
-    todaysIncomeValues: Map<Income, IncomeVal>;
-    todaysExpenseValues: Map<Expense, ExpenseVal>;
-    todaysSettingValues: Map<Setting, SettingVal>;
-    reportData: ReportDatum[];
-  },
+  evals: PlanningEvalsBundle,
 ){
   const viewSettings = getDefaultViewSettings();
   const chartData: DataForView = makeChartData(
@@ -253,15 +390,7 @@ function monitoringMonthEndMs(year: number, monthIndex: number): number {
  */
 export function getMonitoringChartData(
   model: ModelData,
-  evals: {
-    evaluations: Evaluation[];
-    todaysAssetValues: Map<Asset, AssetOrDebtVal>;
-    todaysDebtValues: Map<Asset, AssetOrDebtVal>;
-    todaysIncomeValues: Map<Income, IncomeVal>;
-    todaysExpenseValues: Map<Expense, ExpenseVal>;
-    todaysSettingValues: Map<Setting, SettingVal>;
-    reportData: ReportDatum[];
-  },
+  evals: PlanningEvalsBundle,
   year: number,
 ): {
   months: string[];
@@ -311,15 +440,7 @@ export function getMonitoringChartData(
 
 export function getAnnualPlanningSurplusData(
   model: ModelData,
-  evals: {
-    evaluations: Evaluation[];
-    todaysAssetValues: Map<Asset, AssetOrDebtVal>;
-    todaysDebtValues: Map<Asset, AssetOrDebtVal>;
-    todaysIncomeValues: Map<Income, IncomeVal>;
-    todaysExpenseValues: Map<Expense, ExpenseVal>;
-    todaysSettingValues: Map<Setting, SettingVal>;
-    reportData: ReportDatum[];
-  },
+  evals: PlanningEvalsBundle,
 ){
   // log(`getAnnualPlanningSurplusData received ${evals.evaluations.length} evaluations`);
   const {

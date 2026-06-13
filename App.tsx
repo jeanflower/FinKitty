@@ -167,7 +167,7 @@ import { setUserID, getUserID } from "./utils/user";
 import { attemptRename, deleteItemsFromModelInternal } from "./utils/appActions";
 import { getAppVersion } from "./utils/appVersion";
 import { getVarVal } from "./models/modelQueries";
-import { getAnnualPlanningAssetData, getMonitoringChartData } from "./models/planningData";
+import { getAnnualPlanningAssetData, getIsaAllowanceTableData, getMonitoringChartData, IsaAllowanceRow } from "./models/planningData";
 import { ModelButtons } from "./views/reactComponents/ModelButtons";
 import { inspect } from 'util';
 inspect;
@@ -968,6 +968,11 @@ async function refreshDataInternal(
       evaluationsAndVals,
     );
 
+    const isaAllowanceTableData = getIsaAllowanceTableData(
+      modelProcessed,
+      evaluationsAndVals,
+    );
+
     const monitoringChartData = getMonitoringChartData(
       modelProcessed,
       evaluationsAndVals,
@@ -1002,6 +1007,7 @@ async function refreshDataInternal(
           taxChartData,
           planningExpensesChartData: planningData.planningExpensesChartData,
           planningAssetsChartData: planningData.planningAssetsChartData,
+          isaAllowanceTableData: isaAllowanceTableData,
           monitoringChartData: monitoringChartData,
           modelNamesData: modelNames,
           todaysAssetValues: todaysAssetValues,
@@ -2149,6 +2155,7 @@ interface AppState {
   taxChartData: ChartData;
   planningExpensesChartData: ChartData; // to collect Basic and Leisure for Planning
   planningAssetsChartData: ChartData; // to collect maturing Bonds for Planning
+  isaAllowanceTableData: IsaAllowanceRow[];
   monitoringChartData: MonitoringChartData; // monthly Basic/Leisure expected spend for Monitoring charts
   optimizationChartData: ChartData;
   todaysAssetValues: Map<Asset, AssetOrDebtVal>;
@@ -2375,6 +2382,7 @@ class AppContent extends Component<AppProps, AppState> {
       datasets: [],
       displayLegend: false,
     },
+    isaAllowanceTableData: [],
     monitoringChartData: {
       months: [],
       expectedBasic: [],
@@ -3146,6 +3154,7 @@ class AppContent extends Component<AppProps, AppState> {
           this.state.planningExpensesChartData,
           this.state.planningAssetsChartData,
           this.state.reportData,
+          this.state.isaAllowanceTableData,
           this.state.monitoringChartData,
           parentCallbacks,
         )}

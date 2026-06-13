@@ -40,7 +40,7 @@ import { collapsibleFragment } from "./tablePages";
 import { DateFormatType, log, printDebug } from "../utils/utils";
 import { ViewSettings, getDisplay } from "../utils/viewUtils";
 import { simpleExpense } from "../models/exampleModels";
-import { getPlanningTableData } from "../models/planningData";
+import { getPlanningTableData, IsaAllowanceRow } from "../models/planningData";
 import { inspect } from 'util';
 inspect;
 
@@ -171,6 +171,7 @@ function getPlanningDiv(
   planningExpensesChartData: ChartData, // for Basic and Leisure for Planning
   planningAssetsChartData: ChartData, // for maturing Bonds for Planning
   reportData: ReportDatum[],
+  isaAllowanceTableData: IsaAllowanceRow[],
 ){
   const tableData = getPlanningTableData(
     expensesChartData,
@@ -181,7 +182,7 @@ function getPlanningDiv(
 
   return (
     <div className="ml-3">
-      {
+      {collapsibleFragment(
         <DataGridFinKitty
           tableID={"planningTable"}
           rows={addIndices(tableData)}
@@ -235,8 +236,35 @@ function getPlanningDiv(
             },
           ]}
           model={model}
-        />
-      }
+        />,
+        "Planning",
+      )}
+      {isaAllowanceTableData.length > 0 &&
+        collapsibleFragment(
+          <DataGridFinKitty
+            tableID={"isaAllowanceTable"}
+            rows={addIndices(isaAllowanceTableData)}
+            columns={[
+              {
+                ...defaultColumn,
+                key: "TAX_YEAR",
+                name: "Tax year",
+              },
+              {
+                ...cashValueColumn,
+                key: "USED",
+                name: "Used allowance",
+              },
+              {
+                ...cashValueColumn,
+                key: "UNUSED",
+                name: "Unused allowance",
+              },
+            ]}
+            model={model}
+          />,
+          "ISA allowance by tax year (£40,000 combined)",
+        )}
     </div>
   );
 }
@@ -275,6 +303,7 @@ export function expensesDiv(
   planningExpensesChartData: ChartData, // for Basic and Leisure for Planning
   planningAssetsChartData: ChartData, // for maturing Bonds for Planning
   reportData: ReportDatum[],
+  isaAllowanceTableData: IsaAllowanceRow[],
   monitoringChartData: MonitoringChartData,
   parentCallbacks: ViewCallbacks,
 ) {
@@ -290,6 +319,7 @@ export function expensesDiv(
       planningExpensesChartData, // for Basic and Leisure for Planning
       planningAssetsChartData, // for maturing Bonds for Planning
       reportData,
+      isaAllowanceTableData,
     );
   }
   if (getDisplay(monitoringView)) {
