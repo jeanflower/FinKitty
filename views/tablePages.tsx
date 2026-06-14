@@ -85,6 +85,7 @@ import {
   FinKittyDate,
   log,
   showObj,
+  DateFormatType,
 } from "../utils/utils";
 
 import DataGridFinKitty, { GridRow } from "./reactComponents/DataGridFinKitty";
@@ -4923,8 +4924,22 @@ export function renderBondGeneratorsTable(
   const generators: Generator[] = model.generators.filter((g) => {
     return g.TYPE === "Bonds" && filterForEra(g);
   });
+  const v = getVarVal(model.settings);
   const rowData = addIndices(generators.map((g) => {
     const details: BondGeneratorDetails = g.DETAILS;
+    let bondEnd = "";
+    if (details.RECURRENCE === "" && details.DURATION !== "") {
+      const endDate = checkTriggerDate(
+        `${details.START}+${details.DURATION}`,
+        model.triggers,
+        v,
+        undefined,
+        model,
+      );
+      if (endDate !== undefined) {
+        bondEnd = dateAsString(DateFormatType.View, endDate);
+      }
+    }
     return {
       NAME: g.NAME,
       ERA: g.ERA,
@@ -4933,6 +4948,7 @@ export function renderBondGeneratorsTable(
       GROWTH: makeStringFromGrowth(details.GROWTH, model.settings),
       CATEGORY: details.CATEGORY,
       BOND_DURATION: details.DURATION,
+      BOND_END: bondEnd,
       BOND_SOURCE: details.SOURCE,
       BOND_TARGET: details.TARGET,
       BOND_YEAR: details.YEAR,
@@ -4986,6 +5002,12 @@ export function renderBondGeneratorsTable(
         ...defaultColumn,
         key: "BOND_DURATION",
         name: `duration`,
+      },
+      {
+        ...defaultColumn,
+        key: "BOND_END",
+        name: `end`,
+        renderEditCell: undefined,
       },
       {
         ...defaultColumn,
