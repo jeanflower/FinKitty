@@ -14,7 +14,7 @@ FINKITTY_BROWSER_WINDOW_WIDTH=1000
 FINKITTY_BROWSER_WINDOW_HEIGHT=720
 
 # Jest / failure dumps
-FINKITTY_JEST_MAX_WORKERS=2          # use 1 if Chrome "Server terminated early"
+FINKITTY_JEST_MAX_WORKERS=3          # use 1 if Chrome "Server terminated early"
 FINKITTY_CLEAR_FAILED_TESTS=1        # 0 = keep testResults/failedTests/*.txt at launch
 
 #

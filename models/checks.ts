@@ -92,6 +92,7 @@ import {
   Expense,
   DCPWithdrawalDetails,
   DCPRevalueDetails,
+  BondGeneratorDetails,
   Generator,
   Income,
   ModelData,
@@ -101,7 +102,7 @@ import {
   Trigger,
 } from "../types/interfaces";
 import { makeModelFromJSON } from "./modelFromJSON";
-import { processGenerators } from "./evaluations";
+import { generateSequenceOfDates, processGenerators } from "./evaluations";
 import { expandDCPRevalueGeneratorToTransactions } from "./dcpRevalueExpand";
 
 export const evaluationType = {
@@ -2273,6 +2274,98 @@ function checkDCPRevalueGeneratorDetails(
   return "";
 }
 
+function bondMaturityYear(
+  start: string,
+  duration: string,
+  triggers: Trigger[],
+  v: number,
+  model: ModelData,
+): number | undefined {
+  const maturityDate = checkTriggerDate(
+    `${start}+${duration}`,
+    triggers,
+    v,
+    undefined,
+    model,
+  );
+  if (maturityDate === undefined || !checkDate(maturityDate)) {
+    return undefined;
+  }
+  return maturityDate.getFullYear();
+}
+
+function checkBondGeneratorDetails(
+  g: Generator,
+  model: ModelData,
+): string {
+  const details = g.DETAILS as BondGeneratorDetails;
+  const triggers = model.triggers;
+  const v = getVarVal(model.settings);
+  const useYear = parseInt(details.YEAR, 10);
+  if (Number.isNaN(useYear)) {
+    return (
+      `generator '${g.NAME}' year we'll use funds should be a year like 2025`
+    );
+  }
+
+  const checkYearForStart = (start: string, year: number): string => {
+    const maturityYear = bondMaturityYear(
+      start,
+      details.DURATION,
+      triggers,
+      v,
+      model,
+    );
+    if (maturityYear === undefined) {
+      return "";
+    }
+    if (year < maturityYear) {
+      return (
+        `generator '${g.NAME}' year we'll use funds '${year}' ` +
+        `should be ${maturityYear} or later (bond matures in ${maturityYear})`
+      );
+    }
+    return "";
+  };
+
+  if (details.RECURRENCE === "") {
+    return checkYearForStart(details.START, useYear);
+  }
+
+  const recMsg = checkRecurrence(details.RECURRENCE);
+  if (recMsg !== "") {
+    return `generator '${g.NAME}' ${recMsg}`;
+  }
+  const endDate = checkTriggerDate(
+    details.RECURRENCE_STOP,
+    triggers,
+    v,
+    undefined,
+    model,
+  );
+  if (endDate === undefined || !checkDate(endDate)) {
+    return (
+      `generator '${g.NAME}' has bad recurrence stop date : ` +
+      `${showObj(details.RECURRENCE_STOP)}`
+    );
+  }
+
+  const roi = {
+    start: getTriggerDate(details.START, triggers, v, model),
+    end: getTriggerDate(details.RECURRENCE_STOP, triggers, v, model),
+  };
+  const dates = generateSequenceOfDates(roi, details.RECURRENCE);
+  let year = useYear;
+  for (const d of dates) {
+    const message = checkYearForStart(d.getDateString(), year);
+    if (message !== "") {
+      return message;
+    }
+    year += 1;
+  }
+  return "";
+}
+
 export function checkGenerator(g: Generator, model: ModelData): string {
   if (g.NAME.length === 0) {
     return "Generator name needs some characters";
@@ -2291,6 +2384,9 @@ export function checkGenerator(g: Generator, model: ModelData): string {
   }
   if (g.TYPE === generatorTypeDCPRevalue) {
     return checkDCPRevalueGeneratorDetails(g, model);
+  }
+  if (g.TYPE === "Bonds") {
+    return checkBondGeneratorDetails(g, model);
   }
   return "";
 }

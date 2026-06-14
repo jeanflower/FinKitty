@@ -1751,6 +1751,32 @@ describe("checks tests", () => {
     expect(outcome.message).toBe("");
   });
 
+  it("bond generator rejects year we'll use funds before maturity year", () => {
+    const model = getMinimalModelCopy();
+    const bondGen: Generator = {
+      NAME: "MyFirstBond",
+      TYPE: "Bonds",
+      ERA: 0,
+      DETAILS: {
+        VALUE: "100",
+        GROWTH: "0",
+        CATEGORY: "Bonds",
+        START: "01 Jul 2020",
+        DURATION: "4y",
+        SOURCE: "Cash",
+        TARGET: "Cash",
+        YEAR: "2023",
+        RECURRENCE: "",
+        RECURRENCE_STOP: "",
+      },
+    };
+    model.generators.push(bondGen);
+    expect(checkModel(model).message).toEqual(
+      `generator 'MyFirstBond' year we'll use funds '2023' ` +
+        `should be 2024 or later (bond matures in 2024)`,
+    );
+  });
+
   it("DCP withdrawal generator rejects multiplied setting syntax in VALUE", () => {
     const model = getMinimalModelCopy();
     model.settings.push({
