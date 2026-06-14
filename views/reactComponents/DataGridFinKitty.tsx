@@ -397,15 +397,31 @@ class DataGridFinKitty extends React.Component<DataGridProps, DataGridState> {
                 return r;
               });
 
-              this.setState({
-                displayRows,
-                pendingEdit:
-                  rowIndex !== undefined && columnKey !== undefined
-                    ? { rowIndex, columnKey, previousValue }
-                    : null,
-              });
-
-              this.props.handleGridRowsUpdated?.(rows, data);
+              this.setState(
+                {
+                  displayRows,
+                  pendingEdit:
+                    rowIndex !== undefined && columnKey !== undefined
+                      ? { rowIndex, columnKey, previousValue }
+                      : null,
+                },
+                () => {
+                  void Promise.resolve(
+                    this.props.handleGridRowsUpdated?.(rows, data),
+                  ).then((accepted) => {
+                    if (accepted === false) {
+                      this.setState((prevState) => ({
+                        displayRows: prevState.displayRows.map((r) =>
+                          r.index === rowIndex
+                            ? { ...r, [columnKey]: previousValue }
+                            : r,
+                        ),
+                        pendingEdit: null,
+                      }));
+                    }
+                  });
+                },
+              );
             }}
             rowKeyGetter={this.rowKeyGetter.bind(this)}
             rows={this.sortedIndices.map((idx) => {

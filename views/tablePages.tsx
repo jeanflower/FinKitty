@@ -77,6 +77,7 @@ import {
   checkExpense,
   checkGenerator,
   checkIncome,
+  checkRecurrence,
   checkTransaction,
   checkTrigger,
 } from "../models/checks";
@@ -4557,7 +4558,36 @@ export function optimizerDiv(
   );
 }
 
-function handleBondGeneratorGridRowsUpdated(
+function bondGeneratorDurationError(duration: string): string {
+  if (duration.length === 0) {
+    return "Please provide a duration e.g. 1y, 5y or 6m";
+  }
+  const checkDur = checkRecurrence(duration);
+  if (checkDur !== "") {
+    return (
+      `Duration value '${duration}' should be something like 1y, 5y, or 6m`
+    );
+  }
+  return "";
+}
+
+function bondGeneratorRecurrenceError(recurrence: string): string {
+  if (recurrence.length === 0) {
+    return "";
+  }
+  if (recurrence !== "1y") {
+    return "Recurrence can only be blank or 1y";
+  }
+  const checkRec = checkRecurrence(recurrence);
+  if (checkRec !== "") {
+    return (
+      `Recurrence value '${recurrence}' should be something like 1y, 5y, or 6m`
+    );
+  }
+  return "";
+}
+
+async function handleBondGeneratorGridRowsUpdated(
   model: ModelData,
   showAlert: (arg0: string) => void,
   doChecks: boolean,
@@ -4580,7 +4610,7 @@ function handleBondGeneratorGridRowsUpdated(
     sourceID: number,
   ) => Promise<void>,
   args: any,
-){
+): Promise<boolean | void> {
   // log(`handleBondGeneratorGridRowsUpdated ${JSON.stringify(args)}`);
   const newTable = args[0];
   const change = args[1];
@@ -4634,65 +4664,61 @@ function handleBondGeneratorGridRowsUpdated(
 
   console.log(`in table change, newRow = ${inspect(newRow)}`)
 
-  if (doChecks) {
-    if (!parsedGrowth.checksOK) {
-      showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
-      newRow[changedColumn.key] = oldVal;
-    } else {
-      newRow.GROWTH = makeStringFromGrowth(parsedGrowth.value, model.settings);
-      // log(`parsedValue = ${showObj(parsedValue)}`);
-      const valueForSubmission = parsedValue.checksOK
-        ? `${parsedValue.value}`
-        : newRow.VALUE;
-      // log(`valueForSubmission = ${valueForSubmission}`);
-      const generatorForSubmission: Generator = {
-        TYPE: "Bonds",
-        NAME: newRow.NAME,
-        ERA: newRow.ERA,
-        DETAILS: {
-          VALUE: valueForSubmission,
-          GROWTH: parsedGrowth.value,
-          CATEGORY: newRow.CATEGORY,
-          START: newRow.START,
-          DURATION: newRow.BOND_DURATION,
-          SOURCE: newRow.BOND_SOURCE,
-          TARGET: newRow.BOND_TARGET,
-          YEAR: newRow.BOND_YEAR,
-          RECURRENCE: newRow.BOND_RECURRENCE,
-          RECURRENCE_STOP: newRow.BOND_RECURRENCE_STOP,        
-        }
-      };
-      console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
-      submitGenerator(generatorForSubmission, model);
-    }
-  } else {
-    if (parsedGrowth.checksOK) {
-      newRow.GROWTH = makeStringFromGrowth(parsedGrowth.value, model.settings);
-    }
-    // log(`parsedValue = ${showObj(parsedValue)}`);
+  const buildBondGeneratorForSubmission = (): Generator => {
     const valueForSubmission = parsedValue.checksOK
       ? `${parsedValue.value}`
       : newRow.VALUE;
-    // log(`valueForSubmission = ${valueForSubmission}`);
-    const generatorForSubmission: Generator = {
+    return {
       TYPE: "Bonds",
       NAME: newRow.NAME,
       ERA: newRow.ERA,
       DETAILS: {
         VALUE: valueForSubmission,
-        GROWTH: parsedGrowth.checksOK ? parsedGrowth.value : newRow.GROWTH,
+        GROWTH: parsedGrowth.checksOK
+          ? parsedGrowth.value
+          : newRow.GROWTH,
         CATEGORY: newRow.CATEGORY,
         START: newRow.START,
-        DURATION: newRow.DURATION,
-        SOURCE: newRow.SOURCE,
-        TARGET: newRow.TARGET,
-        YEAR: newRow.YEAR,
-        RECURRENCE: newRow.RECURRENCE,
-        RECURRENCE_STOP: newRow.RECURRENCE_STOP,        
-      }
+        DURATION: newRow.BOND_DURATION,
+        SOURCE: newRow.BOND_SOURCE,
+        TARGET: newRow.BOND_TARGET,
+        YEAR: newRow.BOND_YEAR,
+        RECURRENCE: newRow.BOND_RECURRENCE,
+        RECURRENCE_STOP: newRow.BOND_RECURRENCE_STOP,
+      },
     };
-    console.log(`data for submitGenerator ${inspect(generatorForSubmission)}`)
-    submitGenerator(generatorForSubmission, model);
+  };
+
+  if (doChecks) {
+    if (!parsedGrowth.checksOK) {
+      showAlert(growthInputErrorMessage(newRow.GROWTH, parsedGrowth));
+      return false;
+    }
+    newRow.GROWTH = makeStringFromGrowth(parsedGrowth.value, model.settings);
+
+    const durationError = bondGeneratorDurationError(newRow.BOND_DURATION);
+    if (durationError !== "") {
+      showAlert(durationError);
+      return false;
+    }
+    const recurrenceError = bondGeneratorRecurrenceError(newRow.BOND_RECURRENCE);
+    if (recurrenceError !== "") {
+      showAlert(recurrenceError);
+      return false;
+    }
+
+    console.log(`data for submitGenerator ${inspect(buildBondGeneratorForSubmission())}`)
+    const success = await submitGenerator(
+      buildBondGeneratorForSubmission(),
+      model,
+    );
+    return success ? undefined : false;
+  } else {
+    if (parsedGrowth.checksOK) {
+      newRow.GROWTH = makeStringFromGrowth(parsedGrowth.value, model.settings);
+    }
+    console.log(`data for submitGenerator ${inspect(buildBondGeneratorForSubmission())}`)
+    await submitGenerator(buildBondGeneratorForSubmission(), model);
   }
 }
 
