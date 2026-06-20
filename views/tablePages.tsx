@@ -2310,13 +2310,22 @@ export function debtsDivWithHeadings(
   );
 }
 
-export function assetsDivWithHeadings(
+export type AssetTableSections = {
+  liquidate: ReactNode;
+  investExcess: ReactNode;
+  assetDefn: ReactNode;
+  pensionAssets: ReactNode;
+  bondAssets: ReactNode;
+  revalue: ReactNode;
+};
+
+export function getAssetTableSections(
   model: ModelData,
   todaysAssetValues: Map<Asset, AssetOrDebtVal>,
   doChecks: boolean,
   parentCallbacks: ViewCallbacks,
   tableIDEnding: string,
-) {
+): AssetTableSections | undefined {
   const assetData: AssetRow[] = assetsOrDebtsForTable(
     model,
     todaysAssetValues,
@@ -2338,66 +2347,93 @@ export function assetsDivWithHeadings(
     return r.NAME.startsWith(cpPrefix) 
      || r.NAME.startsWith(penPrefix);
   });
+  return {
+    liquidate: transactionFilteredTable(
+      model,
+      doChecks,
+      liquidateAsset,
+      "Liquidate assets to keep cash afloat",
+      parentCallbacks,
+      `liquidateAssets${tableIDEnding}`,
+    ),
+    investExcess: transactionFilteredTable(
+      model,
+      doChecks,
+      investExcessCash,
+      "Invest excess cash above cap",
+      parentCallbacks,
+      `investExcessCash${tableIDEnding}`,
+    ),
+    assetDefn: collapsibleFragment(
+      assetsOrDebtsTableDiv(
+        model,
+        nonAutoAssets,
+        doChecks,
+        false,
+        parentCallbacks,
+        `assets${tableIDEnding}`,
+      ),
+      `Asset definition table`,
+    ),
+    pensionAssets: pensionAssets.length > 0 ? collapsibleFragment(
+      assetsOrDebtsTableDiv(
+        model,
+        pensionAssets,
+        doChecks,
+        false,
+        parentCallbacks,
+        `pensionassets${tableIDEnding}`,
+      ),
+      `Pension assets`,
+    ) : null,
+    bondAssets: bondAssets.length > 0 ? collapsibleFragment(
+      assetsOrDebtsTableDiv(
+        model,
+        bondAssets,
+        doChecks,
+        false,
+        parentCallbacks,
+        `bondassets${tableIDEnding}`,
+        false,
+      ),
+      `Bond assets`,
+    ) : null,
+    revalue: transactionFilteredTable(
+      model,
+      doChecks,
+      revalueAsset,
+      "Revalue assets",
+      parentCallbacks,
+      `assetsRevals${tableIDEnding}`,
+    ),
+  };
+}
+
+export function assetsDivWithHeadings(
+  model: ModelData,
+  todaysAssetValues: Map<Asset, AssetOrDebtVal>,
+  doChecks: boolean,
+  parentCallbacks: ViewCallbacks,
+  tableIDEnding: string,
+) {
+  const sections = getAssetTableSections(
+    model,
+    todaysAssetValues,
+    doChecks,
+    parentCallbacks,
+    tableIDEnding,
+  );
+  if (!sections) {
+    return;
+  }
   return (
     <>
-      {collapsibleFragment(
-        assetsOrDebtsTableDiv(
-          model,
-          nonAutoAssets,
-          doChecks,
-          false,
-          parentCallbacks,
-          `assets${tableIDEnding}`,
-        ),
-        `Asset definition table`,
-      )}
-      {bondAssets.length > 0 && collapsibleFragment(
-        assetsOrDebtsTableDiv(
-          model,
-          bondAssets,
-          doChecks,
-          false,
-          parentCallbacks,
-          `bondassets${tableIDEnding}`,
-          false,
-        ),
-        `Bond assets`,
-      )}
-      {pensionAssets.length > 0 && collapsibleFragment(
-        assetsOrDebtsTableDiv(
-          model,
-          pensionAssets,
-          doChecks,
-          false,
-          parentCallbacks,
-          `pensionassets${tableIDEnding}`,
-        ),
-        `Pension assets`,
-      )}
-      {transactionFilteredTable(
-        model,
-        doChecks,
-        liquidateAsset,
-        "Liquidate assets to keep cash afloat",
-        parentCallbacks,
-        `liquidateAssets${tableIDEnding}`,
-      )}
-      {transactionFilteredTable(
-        model,
-        doChecks,
-        investExcessCash,
-        "Invest excess cash above cap",
-        parentCallbacks,
-        `investExcessCash${tableIDEnding}`,
-      )}
-      {transactionFilteredTable(
-        model,
-        doChecks,
-        revalueAsset,
-        "Revalue assets",
-        parentCallbacks,
-        `assetsRevals${tableIDEnding}`,
-      )}
+      {sections.assetDefn}
+      {sections.bondAssets}
+      {sections.pensionAssets}
+      {sections.liquidate}
+      {sections.investExcess}
+      {sections.revalue}
     </>
   );
 }

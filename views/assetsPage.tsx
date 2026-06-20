@@ -7,7 +7,7 @@ import {
   ViewCallbacks,
 } from "./../types/interfaces";
 import {
-  assetsDivWithHeadings,
+  getAssetTableSections,
   defaultColumn,
   addIndices,
   cashValueColumn,
@@ -169,6 +169,14 @@ export function assetsDiv(
   }
   // log(`do populate assetsView`);
 
+  const assetTableSections = getAssetTableSections(
+    model,
+    todaysValues,
+    doChecks,
+    parentCallbacks,
+    "",
+  );
+
   return (
     <div className="ml-3">
       {collapsibleFragment(
@@ -181,28 +189,10 @@ export function assetsDiv(
         ),
         "Asset data chart",
       )}
-      {assetsDivWithHeadings(
-        model,
-        todaysValues,
-        doChecks,
-        parentCallbacks,
-        "",
-      )}
       {todaysAssetsTable(model, todaysValues, parentCallbacks)}
-      {collapsibleFragment(
-        renderBondGeneratorsTable(
-          parentCallbacks.modelRaw,
-          parentCallbacks.filterForEra,
-          parentCallbacks.showAlert,
-          doChecks,
-          parentCallbacks.submitGenerator,
-          parentCallbacks.deleteGenerator,
-          parentCallbacks.setEraGenerator,
-          parentCallbacks.attemptRename,
-          parentCallbacks.refreshData
-        ),
-        `Bond generators`,
-      )}
+      {assetTableSections?.liquidate}
+      {assetTableSections?.investExcess}
+      {assetTableSections?.assetDefn}
       {collapsibleFragment(
         renderDCPGeneratorsTable(
           parentCallbacks.modelRaw,
@@ -217,6 +207,23 @@ export function assetsDiv(
         ),
         `Defined Contributions Pension generators`,
       )}
+      {collapsibleFragment(
+        renderBondGeneratorsTable(
+          parentCallbacks.modelRaw,
+          parentCallbacks.filterForEra,
+          parentCallbacks.showAlert,
+          doChecks,
+          parentCallbacks.submitGenerator,
+          parentCallbacks.deleteGenerator,
+          parentCallbacks.setEraGenerator,
+          parentCallbacks.attemptRename,
+          parentCallbacks.refreshData
+        ),
+        `Bond generators`,
+      )}
+      {assetTableSections?.pensionAssets}
+      {assetTableSections?.bondAssets}
+      {assetTableSections?.revalue}
       {collapsibleFragment(
         <div className="addNewAsset">
           <AddDeleteAssetForm
