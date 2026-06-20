@@ -125,6 +125,21 @@ export function getROI(model: ModelData): Interval {
   };
 }
 
+/** Fixed evaluation floor date (independent of view start). */
+export function getEvaluationAnchorDate(): FinKittyDate {
+  return new FinKittyDate(new Date("1 Jan 2018"));
+}
+
+/** View range used for evaluation (floors start to 1 Jan 2018 when view is later). */
+export function getEvaluationsROI(model: ModelData): Interval {
+  const range = getROI(model);
+  const anchor = getEvaluationAnchorDate();
+  if (anchor.getTime() < range.start.getTime()) {
+    range.start = anchor;
+  }
+  return range;
+}
+
 export function setROI(model: ModelData, roi: { start: string; end: string }) {
   setSetting(model.settings, roiStart, roi.start, viewType);
   setSetting(model.settings, roiEnd, roi.end, viewType);

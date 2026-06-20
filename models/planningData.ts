@@ -1,11 +1,11 @@
-import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions, expensesView, assetsView, fineDetail, bondMature, generatedRecurrence, chartVals, revalue, conditional, growth } from "../localization/stringConstants";
+import { allItems, viewDetail, coarseDetail, chartViewType, chartReductions, expensesView, assetsView, fineDetail, bondMature, generatedRecurrence, chartVals, revalue, conditional, growth, roiStart } from "../localization/stringConstants";
 import { Asset, AssetOrDebtVal, ChartData, DataForView, Evaluation, Expense, ExpenseVal, Income, IncomeVal, ModelData, ReportDatum, Setting, SettingVal, Transaction } from "../types/interfaces";
-import { Context, log, showObj } from "../utils/utils";
+import { Context, FinKittyDate, log, showObj } from "../utils/utils";
 import { getDefaultViewSettings } from "../utils/viewUtils";
 import { makeBarData } from "../views/chartPages";
 import { makeChartData } from "./charting";
 import { getCategory } from "./category";
-import { getROI } from "./modelUtils";
+import { getEvaluationAnchorDate, getROI } from "./modelUtils";
 import dateFormat from "dateformat";
 
 export const ISA_COMBINED_ALLOWANCE = 40_000;
@@ -253,13 +253,44 @@ export function getPlanningTableData(
   return tableData;
 }
 
+/**
+ * Annual planning chart buckets are labelled at year-end so bar totals align
+ * with calendar years (Jan–Dec). ROI start is the Dec 31 before the anchor
+ * year, or Dec 31 of the anchor year when the anchor is already 31 Dec.
+ */
+export function snapPlanningChartRoiStart(anchor: FinKittyDate): FinKittyDate {
+  const d = anchor.d;
+  if (d.getMonth() === 11 && d.getDate() === 31) {
+    return anchor;
+  }
+  return new FinKittyDate(new Date(d.getFullYear() - 1, 11, 31));
+}
+
+/** Chart ROI for bond planning surplus — anchored, not tied to view start. */
+function modelForPlanningSurplusCharts(model: ModelData): ModelData {
+  const chartStart = snapPlanningChartRoiStart(getEvaluationAnchorDate());
+  return {
+    ...model,
+    settings: model.settings.map((s) => {
+      if (s.NAME !== roiStart) {
+        return s;
+      }
+      return {
+        ...s,
+        VALUE: `${chartStart.getDateString()}`,
+      };
+    }),
+  };
+}
+
 export function getAnnualPlanningAssetData(
   model: ModelData,
   evals: PlanningEvalsBundle,
 ){
+  const chartModel = modelForPlanningSurplusCharts(model);  // const chartModel = model;
   const viewSettings = getDefaultViewSettings();
   const chartData: DataForView = makeChartData(
-    model,
+    chartModel,
     viewSettings,
     evals,
   );
@@ -277,7 +308,7 @@ export function getAnnualPlanningAssetData(
   planningViewSettings.setViewSetting(chartViewType, chartReductions);
 
   const planningChartData: DataForView = makeChartData(
-    model,
+    chartModel,
     planningViewSettings,
     evals,
   );
@@ -352,7 +383,7 @@ export function getAnnualPlanningAssetData(
   planningViewSettingsPB.toggleViewFilter(Context.Asset, "PremiumBonds"); // the Planning page works with this category
 
   const planningChartDataPB: DataForView = makeChartData(
-    model,
+    chartModel,
     planningViewSettingsPB,
     evals,
   );

@@ -7790,9 +7790,9 @@ expect(result.taxData[1].item.NAME).toBe('Joe income (net)');
     // printTestCodeForEvals(evals);
 
     expect(evals.length).toBe(19);
-    expectEvals(evals, 0, 'CashCap', 'Mon Jan 01 2018', 0, -1);
-    expectEvals(evals, 1, 'GrainInvest', 'Mon Jan 01 2018', 1, -1);
-    expectEvals(evals, 2, 'stockMarketGrowth', 'Fri Dec 28 2018', 12, -1);
+    expectEvals(evals, 0, 'stockMarketGrowth', 'Fri Dec 28 2018', 12, -1);
+    expectEvals(evals, 1, 'CashCap', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 2, 'GrainInvest', 'Mon Jan 01 2018', 1, -1);
     expectEvals(evals, 3, 'Cash', 'Fri Dec 28 2018', 100, -1);
     expectEvals(evals, 4, 'ISAs', 'Fri Dec 28 2018', 100, -1);
     expectEvals(evals, 5, 'Stks', 'Fri Dec 28 2018', 100, -1);

@@ -114,7 +114,7 @@ import {
   wordPartMayHaveScaledSuffix,
   lessThan,
 } from "../utils/stringUtils";
-import { getTodaysDate, getROI } from "./modelUtils";
+import { getTodaysDate, getROI, getEvaluationsROI } from "./modelUtils";
 import {
   getSettings,
   getVarVal,
@@ -6323,26 +6323,6 @@ function generateMoments(
     if (setting.TYPE === viewType) {
       return;
     }
-    // Some types of settings have values at the start of the roi
-    if (
-      setting.NAME === "Grain" ||
-      setting.NAME === bondInterest ||
-      setting.NAME === cashCap ||
-      setting.NAME === grainInvest
-    ) {
-      setValue(
-        values,
-        growths,
-        evaluations,
-        roiStartDate,
-        setting.NAME,
-        setting.VALUE,
-        model,
-        setting.NAME,
-        "35", //callerID
-      );
-      return;
-    }
 
     // settings for purchase prices, expense values or income values
     // are set at the start
@@ -7344,16 +7324,6 @@ function growAndEffectMoment(
   }
 }
 
-function getEvaluationsROI(model: ModelData) {
-  const range = getROI(model);
-  const startDate = range.start;
-  const start2018 = new Date("1 Jan 2018");
-  if (start2018.getTime() < startDate.getTime()) {
-    range.start = new FinKittyDate(start2018);
-  }
-  return range;
-}
-
 function momentSnapshotKey(m: DatedThing): string {
   return `${m.name}|${m.type}|${m.date.getTime()}`;
 }
@@ -7494,32 +7464,14 @@ export function buildDatedMomentsSnapshot(
   const roiEndDate = viewRange.end;
 
   if (includeInflation && datedMoments.length > 0) {
-    values.set(
-      cpi,
+    const evaluations: Evaluation[] = [];
+    initializeAnchoredSettings(
+      model,
+      values,
+      growths,
+      evaluations,
+      anchoredSettingsInitDate(viewRange.start, datedMoments[0].date),
       cpiInitialVal,
-      growths,
-      datedMoments[0].date,
-      "start value",
-      false,
-      "0",
-    );
-    values.set(
-      baseForCPI,
-      1.0,
-      growths,
-      datedMoments[0].date,
-      "start value",
-      false,
-      "0",
-    );
-    values.set(
-      annualBaseForCPI,
-      1.0,
-      growths,
-      datedMoments[0].date,
-      "start value",
-      false,
-      "0",
     );
     const first = datedMoments[0].date;
     const last = new Date(datedMoments[datedMoments.length - 1].date.d);
@@ -7639,6 +7591,77 @@ function cpiInitialValue(model: ModelData): number {
     return 0;
   }
   return parsed;
+}
+
+/** Settings and CPI bases anchored no later than evaluation view start or first moment. */
+function earliestFinKittyDate(a: FinKittyDate, b: FinKittyDate): FinKittyDate {
+  return a.getTime() <= b.getTime() ? a : b;
+}
+
+/** Init date for Grain/CPI settings: earlier of floored view start and first moment. */
+function anchoredSettingsInitDate(
+  viewStart: FinKittyDate,
+  firstMomentDate: FinKittyDate,
+): FinKittyDate {
+  return earliestFinKittyDate(viewStart, firstMomentDate);
+}
+
+function initializeAnchoredSettings(
+  model: ModelData,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  evaluations: Evaluation[],
+  anchorDate: FinKittyDate,
+  cpiInitialVal: number,
+) {
+  const anchoredNames = ["Grain", bondInterest, cashCap, grainInvest];
+  model.settings.forEach((setting) => {
+    if (setting.TYPE === viewType) {
+      return;
+    }
+    if (!anchoredNames.includes(setting.NAME)) {
+      return;
+    }
+    setValue(
+      values,
+      growths,
+      evaluations,
+      anchorDate,
+      setting.NAME,
+      setting.VALUE,
+      model,
+      setting.NAME,
+      "35", //callerID
+    );
+  });
+
+  values.set(
+    cpi,
+    cpiInitialVal,
+    growths,
+    anchorDate,
+    "start value",
+    false, // reportIfNoChange
+    "0",
+  );
+  values.set(
+    baseForCPI,
+    1.0,
+    growths,
+    anchorDate,
+    "start value",
+    false, // reportIfNoChange
+    "0",
+  );
+  values.set(
+    annualBaseForCPI,
+    1.0,
+    growths,
+    anchorDate,
+    "start value",
+    false, // reportIfNoChange
+    "0",
+  );
 }
 
 function getEvaluationsInternal(
@@ -7764,33 +7787,15 @@ function getEvaluationsInternal(
   if (datedMoments.length > 0) {
     // log(`add moments for updating base values, cpiInitialVal = ${cpiInitialVal}`);
 
-    values.set(
-      cpi,
+    initializeAnchoredSettings(
+      model,
+      values,
+      growths,
+      evaluations,
+      anchoredSettingsInitDate(roiStartDate, datedMoments[0].date),
       cpiInitialVal,
-      growths,
-      datedMoments[0].date,
-      "start value",
-      false, // reportIfNoChange
-      "0",
     );
-    values.set(
-      baseForCPI,
-      1.0,
-      growths,
-      datedMoments[0].date,
-      "start value",
-      false, // reportIfNoChange
-      "0",
-    );
-    values.set(
-      annualBaseForCPI,
-      1.0,
-      growths,
-      datedMoments[0].date,
-      "start value",
-      false, // reportIfNoChange
-      "0",
-    );
+
     const first = datedMoments[0].date;
     const last = new Date(datedMoments[datedMoments.length - 1].date.d);
     // have annual inflation effects provide a whole year's worth
