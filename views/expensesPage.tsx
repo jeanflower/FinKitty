@@ -34,7 +34,7 @@ import { AddDeleteExpenseForm } from "./reactComponents/AddDeleteExpenseForm";
 import DataGridFinKitty from "./reactComponents/DataGridFinKitty";
 import React from "react";
 
-import { getTodaysDate } from "../models/modelUtils";
+import { getTodaysDate, getROI } from "../models/modelUtils";
 import { dateAsString, lessThan } from "../utils/stringUtils";
 import { collapsibleFragment } from "./tablePages";
 import { DateFormatType, log, printDebug } from "../utils/utils";
@@ -174,10 +174,10 @@ function getPlanningDiv(
   isaAllowanceTableData: IsaAllowanceRow[],
 ){
   const tableData = getPlanningTableData(
-    expensesChartData,
     planningExpensesChartData,
     planningAssetsChartData,
     reportData,
+    getROI(model).start.d,
   );
 
   return (

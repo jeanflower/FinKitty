@@ -146,7 +146,7 @@ import { textEditor } from "react-data-grid";
 import CashValueFormatter from "./reactComponents/CashValueFormatter";
 import { minimalModel } from "../models/minimalModel";
 import { makeModelFromJSON } from "../models/modelFromJSON";
-import { getTodaysDate, setSetting } from "../models/modelUtils";
+import { getTodaysDate, getROI, setSetting } from "../models/modelUtils";
 import dateFormat from "dateformat";
 import CashExpressionFormatter from "./reactComponents/CashExpressionFormatter";
 import { evaluate } from "mathjs";
@@ -3210,10 +3210,10 @@ function expenseMonitoringForTable(
     const colMonth = colMonths[colMonths.length - 1];
     const year = colMonth.substring(colMonth.length - 4, colMonth.length);
     const planningTableData = getPlanningTableData(
-      expensesChartData,
       planningExpensesChartData,
       planningAssetsChartData,
       reportData,
+      getROI(model).start.d,
     );
 
     for (const summaryRow of summaryRows) {

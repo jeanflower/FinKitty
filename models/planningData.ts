@@ -156,12 +156,13 @@ log;
 showObj;
 
 export function getPlanningTableData(
-  expensesChartData: ChartData,
   planningExpensesChartData: ChartData, // for Basic and Leisure for Planning
   planningAssetsChartData: ChartData, // for maturing Bonds for Planning
   reportData: ReportDatum[],
+  viewRangeStart?: Date,
 ){
   const tableData = [];
+  const viewStartYear = viewRangeStart?.getFullYear();
 
   const planningExpenses = planningExpensesChartData.datasets;
 
@@ -171,7 +172,14 @@ export function getPlanningTableData(
   const leisureExpenses = planningExpenses.find((pe) => {
     return pe.label === "Leisure";
   });
-  for (let idx = 0; idx < expensesChartData.labels.length; idx++) {
+  // Values come from the planning chart (evaluation-anchor ROI). When
+  // viewRangeStart is set, row dates are filtered to the view start year onward.
+  for (let idx = 0; idx < planningExpensesChartData.labels.length; idx++) {
+    const date = planningExpensesChartData.labels[idx];
+    const dateObj = new Date(date);
+    if (viewStartYear !== undefined && dateObj.getFullYear() < viewStartYear) {
+      continue;
+    }
     //console.log(`Expect Leisure = ${gemData[1].label}`);
     let basic = 0;
     if (basicExpenses) {
@@ -184,7 +192,6 @@ export function getPlanningTableData(
 
     const combined = basic + leisure;
     // console.log(`basic = ${basic}, leisure = ${leisure}`);
-    const date = expensesChartData.labels[idx];
 
     let bondsReleaseFunds = 0;
     let pbBasic = 0;
@@ -206,8 +213,7 @@ export function getPlanningTableData(
       });
     }
 
-    const dateObj = new Date(date);
-    const dateObjBefore = new Date(date);
+    const dateObjBefore = new Date(dateObj);
     dateObjBefore.setFullYear(dateObj.getFullYear() - 1);
 
     const reportsInYear = reportData.filter((d) => {
@@ -484,7 +490,6 @@ export function getAnnualPlanningSurplusData(
   );
 
   const tableData = getPlanningTableData(
-    expensesChartData,
     planningExpensesChartData,
     planningAssetsChartData,
     evals.reportData,
