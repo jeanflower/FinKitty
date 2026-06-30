@@ -4258,25 +4258,25 @@ describe("conditional tests", () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(17);
-    expectEvals(evals, 0, "USD", "Tue Jan 02 2018", 2, -1);
-    expectEvals(evals, 1, "chrysler", "Tue Jan 02 2018", 100, -1);
-    expectEvals(evals, 2, "Cash", "Mon Jan 01 2018", -150, -1);
-    expectEvals(evals, 3, "quantityCars", "Tue Jan 02 2018", 3, -1);
-    expectEvals(evals, 4, "Cars", "Tue Jan 02 2018", 300, -1);
-    expectEvals(evals, 5, "Cash", "Thu Feb 01 2018", -150, -1);
-    expectEvals(evals, 6, "Cars", "Fri Feb 02 2018", 300, -1);
-    expectEvals(evals, 7, "Cash", "Thu Mar 01 2018", -150, -1);
-    expectEvals(evals, 8, "Cars", "Fri Mar 02 2018", 300, -1);
-    expectEvals(evals, 9, "quantityCars", "Sat Mar 10 2018", 1, -1);
-    expectEvals(evals, 10, "Cars", "Sat Mar 10 2018", 100, -1);
-    expectEvals(evals, 11, "Cash", "Sat Mar 10 2018", 40, -1);
-    expectEvals(evals, 12, "chrysler", "Sun Mar 25 2018", 50, -1);
-    expectEvals(evals, 13, "Cash", "Sun Apr 01 2018", 40, -1);
-    expectEvals(evals, 14, "Cars", "Mon Apr 02 2018", 50, -1);
-    expectEvals(evals, 15, "Cash", "Tue May 01 2018", 40, -1);
-    expectEvals(evals, 16, "Cars", "Wed May 02 2018", 50, -1);
-
+    expect(evals.length).toBe(18);
+    expectEvals(evals, 0, 'USD', 'Tue Jan 02 2018', 2, -1);
+    expectEvals(evals, 1, 'chrysler', 'Tue Jan 02 2018', 100, -1);
+    expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', -150, -1);
+    expectEvals(evals, 3, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 4, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', -150, -1);
+    expectEvals(evals, 6, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 7, 'Cash', 'Thu Mar 01 2018', -150, -1);
+    expectEvals(evals, 8, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 9, 'quantityCars', 'Sat Mar 10 2018', 1, -1);
+    expectEvals(evals, 10, 'Cars', 'Sat Mar 10 2018', 100, -1);
+    expectEvals(evals, 11, 'Cash', 'Sat Mar 10 2018', 40, -1);
+    expectEvals(evals, 12, 'chrysler', 'Sun Mar 25 2018', 50, -1);
+    expectEvals(evals, 13, 'Cars', 'Sun Mar 25 2018', 50, -1);
+    expectEvals(evals, 14, 'Cash', 'Sun Apr 01 2018', 40, -1);
+    expectEvals(evals, 15, 'Cars', 'Mon Apr 02 2018', 50, -1);
+    expectEvals(evals, 16, 'Cash', 'Tue May 01 2018', 40, -1);
+    expectEvals(evals, 17, 'Cars', 'Wed May 02 2018', 50, -1);
     const viewSettings = defaultTestViewSettings();
 
     const result = makeChartDataFromEvaluations(
@@ -4290,29 +4290,32 @@ describe("conditional tests", () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(2);
-    expect(result.assetData[0].item.NAME).toBe("Cash");
+    expect(result.assetData[0].item.NAME).toBe('Cash');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, "Fri Dec 01 2017", 0, -1);
-      expectChartData(chartPts, 1, "Mon Jan 01 2018", -150, -1);
-      expectChartData(chartPts, 2, "Thu Feb 01 2018", -150, -1);
-      expectChartData(chartPts, 3, "Thu Mar 01 2018", -150, -1);
-      expectChartData(chartPts, 4, "Sun Apr 01 2018", 40, -1);
-      expectChartData(chartPts, 5, "Tue May 01 2018", 40, -1);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', -150, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', -150, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', -150, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 40, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 40, -1);
     }
 
-    expect(result.assetData[1].item.NAME).toBe("Cars");
+    expect(result.assetData[1].item.NAME).toBe('Cars');
     {
       const chartPts = result.assetData[1].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, "Fri Dec 01 2017", 0, -1);
-      expectChartData(chartPts, 1, "Mon Jan 01 2018", 0, -1);
-      expectChartData(chartPts, 2, "Thu Feb 01 2018", 300, -1);
-      expectChartData(chartPts, 3, "Thu Mar 01 2018", 300, -1);
-      expectChartData(chartPts, 4, "Sun Apr 01 2018", 100, -1);
-      expectChartData(chartPts, 5, "Tue May 01 2018", 50, -1);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 50, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 50, -1);
     }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
   });
 
   it("conditionally sell some chrysler fleets need some", () => {

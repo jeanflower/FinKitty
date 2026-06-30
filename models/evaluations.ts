@@ -45,6 +45,7 @@ import {
   taxFreePart,
   taxablePart,
   revalueAsset,
+  revalueSetting,
   generatorTypeDCPRevalue,
   viewType,
   investExcessCash,
@@ -1098,6 +1099,85 @@ function applyQuantity(
   //  +` scale up from ${value} to ${value * q}`);
   const result = value * q;
   return result;
+}
+
+type AssetValueSnapshot = {
+  asset: Asset;
+  storedVal: string | number;
+  oldTotal: number;
+};
+
+function snapshotAssetsReferencingSetting(
+  settingName: string,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  model: ModelData,
+): AssetValueSnapshot[] {
+  const result: AssetValueSnapshot[] = [];
+  model.assets.forEach((asset) => {
+    if (asset.NAME === settingName) {
+      return;
+    }
+    if (!numericExpressionReferencesName(asset.VALUE, settingName, model)) {
+      return;
+    }
+    const storedVal = values.get(asset.NAME);
+    if (storedVal === undefined) {
+      return;
+    }
+    const unitVal = traceEvaluation(storedVal, values, growths, asset.NAME);
+    if (unitVal === undefined) {
+      return;
+    }
+    let valForEvaluations = unitVal;
+    const gd = growthData(asset.NAME, growths, values);
+    if (gd.adjustForCPI) {
+      valForEvaluations *= gd.baseVal;
+    }
+    result.push({
+      asset,
+      storedVal,
+      oldTotal: applyQuantity(valForEvaluations, values, asset.NAME, model),
+    });
+  });
+  return result;
+}
+
+function emitAssetEvaluationsAfterSettingRevalue(
+  snapshots: AssetValueSnapshot[],
+  moment: Moment,
+  values: ValuesContainer,
+  growths: Map<string, GrowthData>,
+  evaluations: Evaluation[],
+  model: ModelData,
+) {
+  snapshots.forEach(({ asset, storedVal, oldTotal }) => {
+    const unitVal = traceEvaluation(storedVal, values, growths, asset.NAME);
+    if (unitVal === undefined) {
+      return;
+    }
+    let valForEvaluations = unitVal;
+    const gd = growthData(asset.NAME, growths, values);
+    if (gd.adjustForCPI) {
+      valForEvaluations *= gd.baseVal;
+    }
+    const newTotal = applyQuantity(
+      valForEvaluations,
+      values,
+      asset.NAME,
+      model,
+    );
+    if (newTotal === oldTotal) {
+      return;
+    }
+    evaluations.push({
+      name: asset.NAME,
+      date: moment.date,
+      oldValue: oldTotal,
+      value: newTotal,
+      source: revalue,
+    });
+  });
 }
 
 function setValue(
@@ -4780,6 +4860,10 @@ function revalueApplied(
       t.TO_ABSOLUTE &&
       typeof tToValue === "number" &&
       numericExpressionReferencesName(t.TO_VALUE, w, model);
+    const assetSnapshots =
+      t.TYPE === revalueSetting
+        ? snapshotAssetsReferencingSetting(w, values, growths, model)
+        : [];
     if (
       toValueReferencesSelf ||
       (!t.TO_ABSOLUTE && tToValue !== undefined) ||
@@ -4811,6 +4895,16 @@ function revalueApplied(
         model,
         revalue,
         "11", //callerID
+      );
+    }
+    if (assetSnapshots.length > 0) {
+      emitAssetEvaluationsAfterSettingRevalue(
+        assetSnapshots,
+        moment,
+        values,
+        growths,
+        evaluations,
+        model,
       );
     }
   });

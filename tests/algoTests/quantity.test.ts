@@ -1538,22 +1538,22 @@ describe("quantity tests", () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(14);
-    expectEvals(evals, 0, "USD", "Tue Jan 02 2018", 2, -1);
-    expectEvals(evals, 1, "chrysler", "Tue Jan 02 2018", 100, -1);
-    expectEvals(evals, 2, "Cash", "Mon Jan 01 2018", 0, -1);
-    expectEvals(evals, 3, "quantityCars", "Tue Jan 02 2018", 3, -1);
-    expectEvals(evals, 4, "Cars", "Tue Jan 02 2018", 300, -1);
-    expectEvals(evals, 5, "Cash", "Thu Feb 01 2018", 0, -1);
-    expectEvals(evals, 6, "Cars", "Fri Feb 02 2018", 300, -1);
-    expectEvals(evals, 7, "Cash", "Thu Mar 01 2018", 0, -1);
-    expectEvals(evals, 8, "Cars", "Fri Mar 02 2018", 300, -1);
-    expectEvals(evals, 9, "chrysler", "Mon Mar 05 2018", 125, 2);
-    expectEvals(evals, 10, "Cash", "Sun Apr 01 2018", 0, -1);
-    expectEvals(evals, 11, "Cars", "Mon Apr 02 2018", 375, -1);
-    expectEvals(evals, 12, "Cash", "Tue May 01 2018", 0, -1);
-    expectEvals(evals, 13, "Cars", "Wed May 02 2018", 375, -1);
-
+    expect(evals.length).toBe(15);
+    expectEvals(evals, 0, 'USD', 'Tue Jan 02 2018', 2, -1);
+    expectEvals(evals, 1, 'chrysler', 'Tue Jan 02 2018', 100, -1);
+    expectEvals(evals, 2, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 3, 'quantityCars', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 4, 'Cars', 'Tue Jan 02 2018', 300, -1);
+    expectEvals(evals, 5, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 6, 'Cars', 'Fri Feb 02 2018', 300, -1);
+    expectEvals(evals, 7, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 8, 'Cars', 'Fri Mar 02 2018', 300, -1);
+    expectEvals(evals, 9, 'chrysler', 'Mon Mar 05 2018', 125, -1);
+    expectEvals(evals, 10, 'Cars', 'Mon Mar 05 2018', 375, -1);
+    expectEvals(evals, 11, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 12, 'Cars', 'Mon Apr 02 2018', 375, -1);
+    expectEvals(evals, 13, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 14, 'Cars', 'Wed May 02 2018', 375, -1);
     const viewSettings = defaultTestViewSettings();
 
     const result = makeChartDataFromEvaluations(
@@ -1567,17 +1567,20 @@ describe("quantity tests", () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(1);
-    expect(result.assetData[0].item.NAME).toBe("Cars");
+    expect(result.assetData[0].item.NAME).toBe('Cars');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, "Fri Dec 01 2017", 0, -1);
-      expectChartData(chartPts, 1, "Mon Jan 01 2018", 0, -1);
-      expectChartData(chartPts, 2, "Thu Feb 01 2018", 300, -1);
-      expectChartData(chartPts, 3, "Thu Mar 01 2018", 300, -1);
-      expectChartData(chartPts, 4, "Sun Apr 01 2018", 300, -1);
-      expectChartData(chartPts, 5, "Tue May 01 2018", 375, -1);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 300, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 300, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 375, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 375, -1);
     }
+
+    expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
   });
 
   it("revalue chrysler cars from number to expression", () => {
@@ -1729,23 +1732,25 @@ describe("quantity tests", () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(15);
-    expectEvals(evals, 0, "USD", "Tue Jan 02 2018", 0.25, 2);
-    expectEvals(evals, 1, "Cash", "Mon Jan 01 2018", 0, -1);
-    expectEvals(evals, 2, "quantityCadillac", "Tue Jan 02 2018", 3, -1);
-    expectEvals(evals, 3, "Cadillac", "Tue Jan 02 2018", 75, -1);
-    expectEvals(evals, 4, "Cash", "Thu Feb 01 2018", 0, -1);
-    expectEvals(evals, 5, "Cadillac", "Fri Feb 02 2018", 75, -1);
-    expectEvals(evals, 6, "Cash", "Thu Mar 01 2018", 0, -1);
-    expectEvals(evals, 7, "Cadillac", "Fri Mar 02 2018", 75, -1);
-    expectEvals(evals, 8, "USD", "Mon Mar 05 2018", 0.275, 2);
-    expectEvals(evals, 9, "Cash", "Sun Apr 01 2018", 0, -1);
-    expectEvals(evals, 10, "Cadillac", "Mon Apr 02 2018", 82.5, 2);
-    expectEvals(evals, 11, "USD", "Thu Apr 05 2018", 0.3, 2);
-    expectEvals(evals, 12, "Cash", "Tue May 01 2018", 0, -1);
-    expectEvals(evals, 13, "Cadillac", "Wed May 02 2018", 90.75, 2);
-    expectEvals(evals, 14, "USD", "Sat May 05 2018", 0.33, 2);
-
+    expect(evals.length).toBe(18);
+    expectEvals(evals, 0, 'USD', 'Tue Jan 02 2018', 0.25, 2);
+    expectEvals(evals, 1, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 2, 'quantityCadillac', 'Tue Jan 02 2018', 3, -1);
+    expectEvals(evals, 3, 'Cadillac', 'Tue Jan 02 2018', 75, -1);
+    expectEvals(evals, 4, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 5, 'Cadillac', 'Fri Feb 02 2018', 75, -1);
+    expectEvals(evals, 6, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 7, 'Cadillac', 'Fri Mar 02 2018', 75, -1);
+    expectEvals(evals, 8, 'USD', 'Mon Mar 05 2018', 0.275, 2);
+    expectEvals(evals, 9, 'Cadillac', 'Mon Mar 05 2018', 82.50, 2);
+    expectEvals(evals, 10, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 11, 'Cadillac', 'Mon Apr 02 2018', 82.50, 2);
+    expectEvals(evals, 12, 'USD', 'Thu Apr 05 2018', 0.30, 2);
+    expectEvals(evals, 13, 'Cadillac', 'Thu Apr 05 2018', 90.75, 2);
+    expectEvals(evals, 14, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 15, 'Cadillac', 'Wed May 02 2018', 90.75, 2);
+    expectEvals(evals, 16, 'USD', 'Sat May 05 2018', 0.33, 2);
+    expectEvals(evals, 17, 'Cadillac', 'Sat May 05 2018', 99.83, 2);
     const viewSettings = defaultTestViewSettings();
 
     const result = makeChartDataFromEvaluations(
@@ -1759,19 +1764,20 @@ describe("quantity tests", () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(1);
-    expect(result.assetData[0].item.NAME).toBe("Cadillac");
+    expect(result.assetData[0].item.NAME).toBe('Cadillac');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, "Fri Dec 01 2017", 0, -1);
-      expectChartData(chartPts, 1, "Mon Jan 01 2018", 0, -1);
-      expectChartData(chartPts, 2, "Thu Feb 01 2018", 75, -1);
-      expectChartData(chartPts, 3, "Thu Mar 01 2018", 75, -1);
-      expectChartData(chartPts, 4, "Sun Apr 01 2018", 75, -1);
-      expectChartData(chartPts, 5, "Tue May 01 2018", 82.5, 2);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 75, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 75, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 82.50, 2);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 90.75, 2);
     }
 
     expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
   });
 
   it("define two cadillac cars deeper indirection", () => {
@@ -1958,24 +1964,24 @@ describe("quantity tests", () => {
 
     // printTestCodeForEvals(evals);
 
-    expect(evals.length).toBe(16);
-    expectEvals(evals, 0, "USD", "Tue Jan 02 2018", 0.25, 2);
-    expectEvals(evals, 1, "twoUSD", "Tue Jan 02 2018", 0.5, 2);
-    expectEvals(evals, 2, "someUSD", "Tue Jan 02 2018", 1, -1);
-    expectEvals(evals, 3, "Cash", "Mon Jan 01 2018", 0, -1);
-    expectEvals(evals, 4, "quantityCadillac", "Tue Jan 02 2018", 2, -1);
-    expectEvals(evals, 5, "Cadillac", "Tue Jan 02 2018", 20, -1);
-    expectEvals(evals, 6, "Cash", "Thu Feb 01 2018", 0, -1);
-    expectEvals(evals, 7, "Cadillac", "Fri Feb 02 2018", 20, -1);
-    expectEvals(evals, 8, "Cash", "Thu Mar 01 2018", 0, -1);
-    expectEvals(evals, 9, "Cadillac", "Fri Mar 02 2018", 20, -1);
-    expectEvals(evals, 10, "someUSD", "Mon Mar 05 2018", 0.5, 2);
-    expectEvals(evals, 11, "Cash", "Sun Apr 01 2018", 0, -1);
-    expectEvals(evals, 12, "Cadillac", "Mon Apr 02 2018", 10, -1);
-    expectEvals(evals, 13, "USD", "Thu Apr 05 2018", 0.225, 2);
-    expectEvals(evals, 14, "Cash", "Tue May 01 2018", 0, -1);
-    expectEvals(evals, 15, "Cadillac", "Wed May 02 2018", 9, -1);
-
+    expect(evals.length).toBe(17);
+    expectEvals(evals, 0, 'USD', 'Tue Jan 02 2018', 0.25, 2);
+    expectEvals(evals, 1, 'twoUSD', 'Tue Jan 02 2018', 0.50, 2);
+    expectEvals(evals, 2, 'someUSD', 'Tue Jan 02 2018', 1, -1);
+    expectEvals(evals, 3, 'Cash', 'Mon Jan 01 2018', 0, -1);
+    expectEvals(evals, 4, 'quantityCadillac', 'Tue Jan 02 2018', 2, -1);
+    expectEvals(evals, 5, 'Cadillac', 'Tue Jan 02 2018', 20, -1);
+    expectEvals(evals, 6, 'Cash', 'Thu Feb 01 2018', 0, -1);
+    expectEvals(evals, 7, 'Cadillac', 'Fri Feb 02 2018', 20, -1);
+    expectEvals(evals, 8, 'Cash', 'Thu Mar 01 2018', 0, -1);
+    expectEvals(evals, 9, 'Cadillac', 'Fri Mar 02 2018', 20, -1);
+    expectEvals(evals, 10, 'someUSD', 'Mon Mar 05 2018', 0.50, 2);
+    expectEvals(evals, 11, 'Cadillac', 'Mon Mar 05 2018', 10, -1);
+    expectEvals(evals, 12, 'Cash', 'Sun Apr 01 2018', 0, -1);
+    expectEvals(evals, 13, 'Cadillac', 'Mon Apr 02 2018', 10, -1);
+    expectEvals(evals, 14, 'USD', 'Thu Apr 05 2018', 0.225, 2);
+    expectEvals(evals, 15, 'Cash', 'Tue May 01 2018', 0, -1);
+    expectEvals(evals, 16, 'Cadillac', 'Wed May 02 2018', 9, -1);
     const viewSettings = defaultTestViewSettings();
 
     const result = makeChartDataFromEvaluations(
@@ -1989,19 +1995,20 @@ describe("quantity tests", () => {
     expect(result.expensesData.length).toBe(0);
     expect(result.incomesData.length).toBe(0);
     expect(result.assetData.length).toBe(1);
-    expect(result.assetData[0].item.NAME).toBe("Cadillac");
+    expect(result.assetData[0].item.NAME).toBe('Cadillac');
     {
       const chartPts = result.assetData[0].chartDataPoints;
       expect(chartPts.length).toBe(6);
-      expectChartData(chartPts, 0, "Fri Dec 01 2017", 0, -1);
-      expectChartData(chartPts, 1, "Mon Jan 01 2018", 0, -1);
-      expectChartData(chartPts, 2, "Thu Feb 01 2018", 20, -1);
-      expectChartData(chartPts, 3, "Thu Mar 01 2018", 20, -1);
-      expectChartData(chartPts, 4, "Sun Apr 01 2018", 20, -1);
-      expectChartData(chartPts, 5, "Tue May 01 2018", 10, -1);
+      expectChartData(chartPts, 0, 'Fri Dec 01 2017', 0, -1);
+      expectChartData(chartPts, 1, 'Mon Jan 01 2018', 0, -1);
+      expectChartData(chartPts, 2, 'Thu Feb 01 2018', 20, -1);
+      expectChartData(chartPts, 3, 'Thu Mar 01 2018', 20, -1);
+      expectChartData(chartPts, 4, 'Sun Apr 01 2018', 10, -1);
+      expectChartData(chartPts, 5, 'Tue May 01 2018', 10, -1);
     }
 
     expect(result.debtData.length).toBe(0);
+    expect(result.taxData.length).toBe(0);
   });
 
   it("define three cars", () => {
