@@ -1,7 +1,7 @@
 {
   "name": "finkitty",
   "homepage": "https://github.com/jeanflower/FinKitty",
-  "version": "2.0.194",
+  "version": "2.0.195",
   "engines": {
     "node": "20.x"
   },
@@ -41,7 +41,7 @@
     "dateformat": "^5.0.3",
     "file-saver": "^2.0.5",
     "mathjs": "^12.0.0",
-    "next": "13.5.11",
+    "next": "14.2.35",
     "react": "^18.2.0",
     "react-bootstrap": "2.9.0",
     "react-chartjs-2": "^5.2.0",
@@ -52,7 +52,7 @@
     "sharp": "^0.32.6"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "13.5.11",
+    "@next/eslint-plugin-next": "14.2.35",
     "@testing-library/jest-dom": "6.1.2",
     "@testing-library/react": "14.0.0",
     "@testing-library/user-event": "14.4.3",
@@ -67,7 +67,7 @@
     "chromedriver": "^120.0.2",
     "csv-parse": "^5.5.2",
     "eslint": "^8.51.0",
-    "eslint-config-next": "13.5.11",
+    "eslint-config-next": "14.2.35",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-testing-library": "^6.1.0",
     "husky": "^8.0.3",
@@ -76,7 +76,7 @@
     "load-json-file": "^7.0.1",
     "prettier": "3.0.3",
     "selenium-webdriver": "^4.14.0",
-    "skott": "^0.31.3",
+    "skott": "0.35.11",
     "typescript": "5.2.2"
   }
 }
