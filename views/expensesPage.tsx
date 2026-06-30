@@ -198,41 +198,49 @@ function getPlanningDiv(
               ...triggerDateColumn(model),
               key: "DATE",
               name: "date",
+              renderEditCell: undefined,
             },
             {
               ...cashValueColumn,
               key: "BASIC",
               name: "Basic expenses",
+              renderEditCell: undefined,
             },
             {
               ...cashValueColumn,
               key: "LEISURE",
               name: "Leisure expenses",
+              renderEditCell: undefined,
             },
             {
               ...cashValueColumn,
               key: "FIXED_INCOME",
               name: "Fixed income",
+              renderEditCell: undefined,
             },
             {
               ...cashValueColumn,
               key: "BONDS",
               name: "Bonds release",
+              renderEditCell: undefined,
             },
             {
               ...cashValueColumn,
               key: "INCOMING",
               name: "Incoming",
+              renderEditCell: undefined,
             },
             {
               ...cashValueColumn,
               key: "COMBINED",
               name: "Outgoings",
+              renderEditCell: undefined,
             },
             {
               ...cashValueColumn,
               key: "SURPLUS",
               name: "Surplus",
+              renderEditCell: undefined,
             },
           ]}
           model={model}
@@ -249,16 +257,19 @@ function getPlanningDiv(
                 ...defaultColumn,
                 key: "TAX_YEAR",
                 name: "Tax year",
+                renderEditCell: undefined,
               },
               {
                 ...cashValueColumn,
                 key: "USED",
                 name: "Used allowance",
+                renderEditCell: undefined,
               },
               {
                 ...cashValueColumn,
                 key: "UNUSED",
                 name: "Unused allowance",
+                renderEditCell: undefined,
               },
             ]}
             model={model}
