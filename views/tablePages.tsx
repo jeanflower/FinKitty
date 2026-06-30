@@ -130,7 +130,8 @@ import {
   makeStringFromProportion,
   proportionStoredValueFromGridCell,
 } from "../utils/stringUtils";
-import { Accordion, Button, Card, useAccordionButton } from "react-bootstrap";
+import { Accordion, Button, Card } from "react-bootstrap";
+import { useAccordionButton } from "react-bootstrap/AccordionButton";
 import {
   filtersList,
   getDefaultChartSettings,
