@@ -143,7 +143,7 @@ import {
 import { ReportMatcherForm } from "./reactComponents/ReportMatcherForm";
 import { ViewSettings, getDefaultViewSettings, getDisplay } from "../utils/viewUtils";
 import { EvaluationHelper, generateSequenceOfDates, getEvaluations } from "../models/evaluations";
-import { textEditor } from "react-data-grid";
+import { renderTextEditor } from "react-data-grid";
 import CashValueFormatter from "./reactComponents/CashValueFormatter";
 import { minimalModel } from "../models/minimalModel";
 import { makeModelFromJSON } from "../models/modelFromJSON";
@@ -1343,7 +1343,7 @@ function handleSettingGridRowsUpdated(
 export const defaultColumn = {
   resizable: true,
   sortable: true,
-  renderEditCell: textEditor,
+  renderEditCell: renderTextEditor,
   renderCell(props: any) {
     // log(`in formatter, JSON.stringify(props) = ${JSON.stringify(props)}`);
     const val = props.row[props.column.key];
@@ -3384,13 +3384,13 @@ function expensesMonitoringYearSummaryTableDiv(
                 ...cashExpressionColumn,
                 key: 'allowedBudget',
                 name: 'allowed budget',
-                renderEditCell: textEditor,
+                renderEditCell: renderTextEditor,
               },
               {
                 ...cashExpressionColumn,
                 key: 'remainingBudget',
                 name: 'remaining budget',
-                renderEditCell: textEditor,
+                renderEditCell: renderTextEditor,
               },
               {
                 ...pcColumn,

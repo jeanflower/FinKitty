@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDataGrid, { RowsChangeData, SortColumn } from "react-data-grid";
+import { DataGrid as ReactDataGrid, RowsChangeData, SortColumn } from "react-data-grid";
 import { log, printDebug, showObj } from "../../utils/utils";
 import { getTriggerDate } from "../../utils/stringUtils";
 import { ModelData } from "../../types/interfaces";

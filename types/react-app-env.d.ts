@@ -3,6 +3,17 @@
 /// <reference types="react" />
 /// <reference types="react-dom" />
 
+import type React from "react";
+
+declare global {
+  namespace JSX {
+    type Element = React.JSX.Element;
+    type IntrinsicElements = React.JSX.IntrinsicElements;
+  }
+}
+
+export {};
+
 declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: "development" | "production" | "test";
